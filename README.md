@@ -1,127 +1,63 @@
-<p align="right">
-    <b>Codename: Kirana</b><br>
-</p>
+# mLITE (Customized for RSNS)
 
-# mLITE
+mLITE adalah alternatif ringan dan aman untuk Sistem Informasi Kesehatan (SIMKES Khanza) agar bisa dijalankan via Mobile / Browser. Repositori ini (`mlite_rsns`) merupakan versi kustomisasi khusus dengan penambahan modul dan penyesuaian fungsionalitas untuk kebutuhan RSNS.
 
-mLITE adalah alternatif ringan dan aman untuk Sistem Informasi Kesehatan agar bisa dijalankan via Mobile / Browser. mLITE dibangun dari awal dengan berfokus pada kesederhanaan - programer pemula pun dapat membuat Module-Modul sendiri. Ini karena mLITE menerapkan sistem dan arsitektur aplikasi yang sangat mudah dalam bentuk Kerangka Kerja Mandiri (Independent Framework).
+mLITE dibangun menggunakan kerangka kerja mandiri (*Independent Framework*) yang mengutamakan kesederhanaan, kecepatan, serta kemudahan bagi pengembang untuk membuat modul-modul kustom baru.
 
-Oh iya, mLITE memiliki panduan pemasangan yang sangat mudah juga. Hanya perlu 1 langkah penyesuaian. Segera setelah anda menyalin file-file ke komputer / server dan pengaturan selesai, mLITE siap digunakan! Proses pemasangan bahkan tidak membutuhkan waktu sebanyak yang diperlukan untuk menyalin file-filenya ;-)
+---
 
-Panel kontrol dan tampilan default sepenuhnya responsif, yang membuatnya dapat diakses dari perangkat mobile apa pun, bahkan di ponsel, berkat kerangka kerja CSS yang digunakan - Bootstrap. Setiap modul dapat menyesuaikan dengan CSS nya sendiri.
+## 🛠️ Persyaratan Sistem
 
-Masih banyak fitur-fitur tersembunyi untuk kebutuhan pengembangan. Silahkan jelajahi!!
+* **Web Server**: Apache 2.2+ (dengan `mod_rewrite` aktif) atau Nginx.
+* **PHP**: Versi `7.0` s/d `8.1`.
+* **Database**: MySQL Server 5.5+ / MariaDB.
+* **Ekstensi PHP wajib**:
+  * `dom`, `gd`, `mbstring`, `pdo`, `zip`, `cURL`.
 
-Kebutuhan Sistem
-----------------
+---
 
-Persyaratan sistem untuk mLITE  sangat sederhana, sehingga setiap server modern sudah cukup. Berikut persyaratan minimal yang diperlukan
+## 🗄️ Panduan Penggunaan Database (.sql)
 
-+ Apache 2.2+ dengan `mod_rewrite` atau Nginx
-+ PHP versi 7.0 - 8.1
-+ MySQL atau MariaDB
+Project ini memiliki dua jenis skema database yang berada di root direktori:
 
-Konfigurasi PHP harus memiliki ekstensi berikut:
+1. **`mlite_db.sql` (Full Schema)**
+   * **Isi**: Berisi seluruh tabel dasar SIMKES Khanza sekaligus tabel fitur/modul bawaan mLITE.
+   * **Penggunaan**: Gunakan file ini jika Anda melakukan **instalasi baru dari awal** pada database yang masih kosong.
 
-+ dom
-+ gd
-+ mbstring
-+ pdo
-+ zip
-+ cURL
+2. **`mlite_only.sql` (mLITE Tables Only)**
+   * **Isi**: Hanya berisi tabel-tabel berprefiks `mlite_` (seperti `mlite_settings`, `mlite_users`, dll.) tanpa menyertakan tabel standar SIMKES Khanza.
+   * **Penggunaan**: Gunakan file ini jika Anda **sudah memiliki database SIMKES Khanza aktif** yang sudah berjalan, sehingga proses impor tidak menimpa data transaksi dan pasien yang sudah ada.
 
-Pemasangan
-----------
+---
 
-### Pemasangan menggunakan composer.
-1. Install composer di server/PC dan jalankan perintah composer untuk pemasangan paket utama dan independensi
+## 👥 Cara Menambah Pengguna Baru
 
-```
-$ composer create-project basoro/mlite
-```
+Untuk menambahkan akun pengguna (user) baru, silakan gunakan Panel Administrasi:
+1. Akses halaman admin di browser: `http://localhost/mlite-5.2.0/admin` (sesuaikan domain/IP Anda).
+2. Login menggunakan akun administrator (Default: Username `admin` / Password `admin`).
+3. Buka menu **Pengguna** -> **Tambah Baru**.
+4. Lengkapi formulir (Username/NIK, Email, Password minimal 8 karakter, Role, dan Hak Akses Modul).
+5. Klik **Simpan**.
 
-2. Buat folder `uploads`, `tmp/` dan `admin/tmp`. Beberapa server mungkin memerlukan izin tambahan `chmod 777` untuk direktori dan file tersebut.
+---
 
-3. Sesuaikan pengaturan di config.php
+## 🚀 Mengunggah ke GitHub (Git Commands)
 
-4. Buka browser Anda dan navigasikan ke alamat tempat file mLITE berada.
-
-5. Silahkan login dengan Username: admin dan Password: admin
-
-### Pemasangan Manual
-1. Unduh versi terbaru [mLITE] (https://github.com/basoro/mlite).
-
-2. Ekstrak semua file dari paket terkompresi dan kemudian transfer ke direktori lokal atau server. Biasanya, file diunggah ke `www`,` htdocs` atau `public_html`.
-
-3. Install composer di server/PC dan jalankan perintah composer untuk pemasangan independensi
-```
-$ composer install
-```
-
-4. Buat folder `uploads`, `tmp/` dan `admin/tmp`. Beberapa server mungkin memerlukan izin tambahan `chmod 777` untuk direktori dan file tersebut.
-
-5. Sesuaikan pengaturan di config.php
-
-6. Buka browser Anda dan navigasikan ke alamat tempat file mLITE berada.
-
-7. Silahkan login dengan Username: admin dan Password: admin
-
-#### Catatan:
-Untuk setiap kali update, silahkan jalankan perintah
-```
-$ composer update
-```
-Ini untuk menambahkan dependensi baru pada aplikasi
-
-
-### Peringatan!
-
-+ Untuk pengguna Apache, pastikan file `.htaccess` juga ada di server. Tanpanya mLITE tidak akan berfungsi.
-+ Untuk pengguna Nginx, tambahkan konfigurasi berikut di pengaturan nginx.conf (atau sejenisnya)
+Untuk melakukan push project ini ke repositori GitHub Anda:
 
 ```bash
-location  / {
-    index  index.php;
-    if (!-e $request_filename) {
-        rewrite / /index.php last;
-    }
-}
+# 1. Hubungkan ke repositori online (jika belum)
+git remote add origin https://github.com/Rifangga99/mlite_rsns.git
 
-location ^~ /systems/data/ {
-    deny all;
-    return 403;
-}
-
-location  /admin {
-    index index.php;
-    try_files $uri $uri/ /admin/index.php?$args;
-}
+# 2. Push seluruh perubahan di branch main ke GitHub
+git push -u origin main
 ```
 
-Jika ada didalam folder, misalnya `lite`
+---
 
-```bash
-location  /lite {
-    index  index.php;
-    if (!-e $request_filename) {
-        rewrite / /lite/index.php last;
-    }
-}
+## 📝 Catatan Tambahan Modul Kustom
+Project ini dilengkapi beberapa skema tabel kustom tambahan seperti:
+* Aset Logistik Non-Medis (`rsns_custom_logistik_non_medis_aset`)
+* Mutasi dan Pemeliharaan Aset RSNS.
 
-location ^~ /lite/systems/data/ {
-    deny all;
-    return 403;
-}
-
-location  /lite/admin {
-    index index.php;
-    try_files $uri $uri/ /lite/admin/index.php?$args;
-}
-```
-
-Untuk masuk ke panel administrasi, tambahkan `/admin/` di akhir URL.
-#### Login: `admin` Kata sandi: `admin`
-Ini harus diubah segera setelah login untuk alasan keamanan. Juga dapat mengganti nama direktori dengan panel administrasi.  (Anda perlu mengubahnya pada `config.php`)
-
-## Demo
-Demo dan Info lebih lanjut di https://mlite.id
+Informasi lisensi dan pengembangan lebih lanjut dapat merujuk pada file [LICENSE](LICENSE) dan dokumentasi internal di folder [docs/](docs/).
