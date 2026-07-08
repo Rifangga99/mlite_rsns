@@ -1,63 +1,70 @@
-# mLITE (Customized for RSNS)
+# mLITE - Sistem Informasi Logistik Non-Medis
 
-mLITE adalah alternatif ringan dan aman untuk Sistem Informasi Kesehatan (SIMKES Khanza) agar bisa dijalankan via Mobile / Browser. Repositori ini (`mlite_rsns`) merupakan versi kustomisasi khusus dengan penambahan modul dan penyesuaian fungsionalitas untuk kebutuhan RSNS.
+Aplikasi manajemen logistik non-medis rumah sakit berbasis PHP dengan arsitektur mLITE Framework, dirancang agar ringan, mudah dipahami, dan mudah dikembangkan untuk kebutuhan mobile dan browser.
 
-mLITE dibangun menggunakan kerangka kerja mandiri (*Independent Framework*) yang mengutamakan kesederhanaan, kecepatan, serta kemudahan bagi pengembang untuk membuat modul-modul kustom baru.
+## Fitur Tambahan logistik_non_medis
 
----
-
-## 🛠️ Persyaratan Sistem
-
-* **Web Server**: Apache 2.2+ (dengan `mod_rewrite` aktif) atau Nginx.
-* **PHP**: Versi `7.0` s/d `8.1`.
-* **Database**: MySQL Server 5.5+ / MariaDB.
-* **Ekstensi PHP wajib**:
-  * `dom`, `gd`, `mbstring`, `pdo`, `zip`, `cURL`.
-
----
-
-## 🗄️ Panduan Penggunaan Database (.sql)
-
-Project ini memiliki dua jenis skema database yang berada di root direktori:
-
-1. **`mlite_db.sql` (Full Schema)**
-   * **Isi**: Berisi seluruh tabel dasar SIMKES Khanza sekaligus tabel fitur/modul bawaan mLITE.
-   * **Penggunaan**: Gunakan file ini jika Anda melakukan **instalasi baru dari awal** pada database yang masih kosong.
-
-2. **`mlite_only.sql` (mLITE Tables Only)**
-   * **Isi**: Hanya berisi tabel-tabel berprefiks `mlite_` (seperti `mlite_settings`, `mlite_users`, dll.) tanpa menyertakan tabel standar SIMKES Khanza.
-   * **Penggunaan**: Gunakan file ini jika Anda **sudah memiliki database SIMKES Khanza aktif** yang sudah berjalan, sehingga proses impor tidak menimpa data transaksi dan pasien yang sudah ada.
+- **Manajemen Inventaris**: Pencatatan master barang (habis pakai & aset), kategori, satuan, dan gudang penyimpanan.
+- **Modul Aset & Tracking**: Registrasi aset, mutasi aset antar unit, perhitungan penyusutan (depresiasi), pencetakan QR Code aset, serta pelacakan riwayat aset.
+- **Rantai Pasok Pengadaan (Procurement)**: Alur pengadaan lengkap mulai dari Perencanaan, Permintaan Unit, Purchase Order (PO), hingga Penerimaan Barang ke Gudang.
+- **Audit Gudang & Stock Opname**: Fitur pemeriksaan stok fisik vs sistem dengan pencatatan selisih barang.
+- **Mutasi Antar Gudang**: Distribusi barang antar gudang logistik.
+- **Early Warning System (EWS)**: Peringatan dini untuk barang yang mendekati tanggal kedaluwarsa.
+- **Kuota Unit Bulanan**: Batasan kuota pengeluaran barang habis pakai per unit/departemen per periode bulan.
+- **Sensus Aset**: Pemeriksaan kondisi fisik aset secara berkala oleh petugas.
 
 ---
 
-## 👥 Cara Menambah Pengguna Baru
+## Persyaratan Sistem
 
-Untuk menambahkan akun pengguna (user) baru, silakan gunakan Panel Administrasi:
-1. Akses halaman admin di browser: `http://localhost/mlite-5.2.0/admin` (sesuaikan domain/IP Anda).
-2. Login menggunakan akun administrator (Default: Username `admin` / Password `admin`).
-3. Buka menu **Pengguna** -> **Tambah Baru**.
-4. Lengkapi formulir (Username/NIK, Email, Password minimal 8 karakter, Role, dan Hak Akses Modul).
-5. Klik **Simpan**.
+- **PHP**: Versi 7.0 s/d 8.1 (Sangat direkomendasikan menggunakan PHP 7.3)
+- **Database**: MySQL / MariaDB
+- **Web Server**: Apache dengan modul `mod_rewrite` aktif (untuk *pretty URL*) atau Nginx
+- **Dependency Manager**: Composer
 
 ---
 
-## 🚀 Mengunggah ke GitHub (Git Commands)
+## Cara Instalasi & Konfigurasi
 
-Untuk melakukan push project ini ke repositori GitHub Anda:
-
+### 1. Kloning / Unduh Proyek
+Unduh zip proyek ini dari GitHub atau kloning menggunakan Git:
 ```bash
-# 1. Hubungkan ke repositori online (jika belum)
-git remote add origin https://github.com/Rifangga99/mlite_rsns.git
+git clone https://github.com/Rifangga99/mlite_rsns.git
+```
+Pindahkan folder proyek ke direktori web root Anda (misalnya `C:/xampp/htdocs/mlite-5.2.0`).
 
-# 2. Push seluruh perubahan di branch main ke GitHub
-git push -u origin main
+### 2. Instal Dependensi Composer
+Karena folder `vendor` diabaikan dalam repositori ini, Anda harus menginstalnya terlebih dahulu dengan menjalankan perintah berikut di direktori proyek:
+```bash
+composer install
+```
+
+### 3. Impor Database
+1. Buka **phpMyAdmin** atau GUI Database client favorit Anda.
+2. Buat database baru bernama `mlite`.
+3. Impor berkas database yang sesuai:
+   - Gunakan **`mlite_db.sql`** jika Anda melakukan instalasi baru dari awal (termasuk skema dasar SIMKES Khanza).
+   - Gunakan **`mlite_only.sql`** jika Anda hanya ingin menambahkan tabel mLITE ke database SIMKES Khanza yang sudah ada.
+
+### 4. Konfigurasi Koneksi Database
+Buka berkas konfigurasi di `config.php` pada root direktori proyek dan sesuaikan dengan setelan server lokal Anda:
+```php
+define('DBHOST', 'localhost');
+define('DBPORT', '3306');
+define('DBUSER', 'root');
+define('DBPASS', ''); // Isi password mysql Anda jika ada
+define('DBNAME', 'mlite');
 ```
 
 ---
 
-## 📝 Catatan Tambahan Modul Kustom
-Project ini dilengkapi beberapa skema tabel kustom tambahan seperti:
-* Aset Logistik Non-Medis (`rsns_custom_logistik_non_medis_aset`)
-* Mutasi dan Pemeliharaan Aset RSNS.
+## Kredensial Login Default (Default Users)
 
-Informasi lisensi dan pengembangan lebih lanjut dapat merujuk pada file [LICENSE](LICENSE) dan dokumentasi internal di folder [docs/](docs/).
+Setelah mengimpor database, Anda dapat masuk ke dalam sistem menggunakan akun default berikut:
+
+| Peran (Role) | Username | Password | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin` | `admin` | Akses penuh ke seluruh menu administrasi, pengaturan, dan manajemen modul. |
+
+> [!WARNING]
+> Sangat disarankan untuk segera mengubah kata sandi default setelah berhasil masuk untuk pertama kalinya demi keamanan sistem Anda.
