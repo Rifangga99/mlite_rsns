@@ -1,0 +1,1357 @@
+<div class="row">
+    <div class="col-md-12">
+        
+        <!-- Dashboard KPI Summary Header -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="panel panel-primary panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-exchange"></i> Total Distribusi
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-primary" id="kpi-total-distribusi">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-info panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-cubes"></i> Volume Terdistribusi
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-info" id="kpi-volume-terdistribusi">0 Unit</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-success panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-money"></i> Total Pengeluaran
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-success" id="kpi-total-nilai">Rp. 0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-warning panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-building-o"></i> Unit Penerima Aktif
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-warning" id="kpi-unit-aktif">0 Unit</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Period Analysis Filter Cockpit -->
+        <div class="well global-cockpit" style="padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.03);">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 style="margin: 5px 0 2px 0; font-weight: bold; font-family: 'Outfit', sans-serif;" class="text-primary"><i class="fa fa-sliders"></i> Cockpit Analisis Distribusi</h4>
+                    <p class="text-muted" style="margin-bottom: 0; font-size: 12px;">Sesuaikan rentang tanggal untuk sinkronisasi KPI secara global ke semua menu laporan.</p>
+                </div>
+                <div class="col-md-4" style="padding-top: 5px;">
+                    <div class="input-group">
+                        <input type="date" id="global-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                        <span class="input-group-addon">s/d</span>
+                        <input type="date" id="global-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                    </div>
+                </div>
+                <div class="col-md-2" style="padding-top: 5px;">
+                    <button id="btn-update-global" class="btn btn-primary btn-block" style="font-weight: bold; border-radius: 4px;"><i class="fa fa-refresh"></i> Sinkronisasi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Panel using Native Bootstrap Styles -->
+        <div class="panel panel-default" style="border-radius: 8px; overflow: hidden;">
+            <div class="panel-heading" style="padding: 15px;">
+                <h3 class="panel-title text-primary" style="font-weight: bold; font-size: 16px;"><i class="fa fa-pie-chart"></i> Laporan & Analisis Distribusi Non-Medis</h3>
+            </div>
+            <div class="panel-body" style="padding: 20px;">
+                
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs custom-tabs" role="tablist" style="margin-bottom: 25px; border-bottom: 2px solid #eaecf4;">
+                    <li role="presentation" class="active">
+                        <a href="#laporan-distribusi-tab" aria-controls="laporan-distribusi-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-list"></i> Log Distribusi
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#pemakaian-unit-tab" aria-controls="pemakaian-unit-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-cubes"></i> Pemakaian Per Unit
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#tren-konsumsi-tab" aria-controls="tren-konsumsi-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-line-chart"></i> Tren Konsumsi
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#realisasi-kuota-tab" aria-controls="realisasi-kuota-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-balance-scale"></i> Realisasi vs Kuota
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#sppb-periode-tab" aria-controls="sppb-periode-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-file-text-o"></i> Laporan SPPB
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#frekuensi-volume-tab" aria-controls="frekuensi-volume-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-bar-chart"></i> Frekuensi & Volume
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#unit-terboros-tab" aria-controls="unit-terboros-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-exclamation-triangle"></i> Unit Terboros (Pareto)
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: LOG TRANSAKSI DISTRIBUSI -->
+                    <div role="tabpanel" class="tab-pane active" id="laporan-distribusi-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-laporan-distribusi" class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Unit</label>
+                                        <select id="dist-unit" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Unit --</option>
+                                            {loop: $unit as $u}
+                                            <option value="{$u.kode_unit}">{$u.nama_unit}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Status SPPB</label>
+                                        <select id="dist-status" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Status Transaksi --</option>
+                                            <option value="Dikirim">Dikirim</option>
+                                            <option value="Diterima">Diterima</option>
+                                            <option value="Selesai">Selesai</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Rentang Tanggal</label>
+                                        <div class="input-group">
+                                            <input type="date" id="dist-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="dist-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Filter</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-laporan-distribusi" data-filename="Laporan_Log_Distribusi_NonMedis"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-laporan-distribusi"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-laporan-distribusi" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN LOG TRANSAKSI DISTRIBUSI NON-MEDIS</h3>
+                                <p id="print-distribusi-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-laporan-distribusi">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>No. SPPB / BAST</th>
+                                        <th class="text-center" style="width: 110px;">Tgl SPPB</th>
+                                        <th>Unit Penerima</th>
+                                        <th>Nama Barang / Item</th>
+                                        <th class="text-center" style="width: 100px;">Jml Disetujui</th>
+                                        <th class="text-right" style="width: 140px;">Total Nilai</th>
+                                        <th class="text-center" style="width: 100px;">Status</th>
+                                        <th>Penerima</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-laporan-distribusi">
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">Silahkan filter data log distribusi...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: PEMAKAIAN BARANG PER UNIT -->
+                    <div role="tabpanel" class="tab-pane" id="pemakaian-unit-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-pemakaian-unit" class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Unit</label>
+                                        <select id="pemakaian-unit" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Unit --</option>
+                                            {loop: $unit as $u}
+                                            <option value="{$u.kode_unit}">{$u.nama_unit}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Kategori</label>
+                                        <select id="pemakaian-kategori" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Kategori --</option>
+                                            {loop: $kategori as $k}
+                                            <option value="{$k.kategori}">{$k.kategori}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Rentang Tanggal</label>
+                                        <div class="input-group">
+                                            <input type="date" id="pemakaian-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="pemakaian-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Analisis</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="panel panel-default" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                    <div class="panel-heading" style="background: transparent; font-weight: bold; color: #4e73df;"><i class="fa fa-bar-chart"></i> Visualisasi Top 10 Nilai Konsumsi Barang</div>
+                                    <div class="panel-body">
+                                        <div style="position: relative; height: 350px;">
+                                            <canvas id="chart-pemakaian-unit"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-pemakaian-unit" data-filename="Laporan_Pemakaian_PerUnit"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-pemakaian-unit"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-pemakaian-unit" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN PEMAKAIAN BARANG PER UNIT</h3>
+                                <p id="print-pemakaian-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-pemakaian-unit">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>Nama Unit</th>
+                                        <th>Nama Barang / Item</th>
+                                        <th>Kategori</th>
+                                        <th class="text-center" style="width: 120px;">Total Qty Keluar</th>
+                                        <th class="text-right" style="width: 160px;">Total Nilai Biaya</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-pemakaian-unit">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Silahkan filter analisis pemakaian barang...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: TREN KONSUMSI BULANAN -->
+                    <div role="tabpanel" class="tab-pane" id="tren-konsumsi-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-tren-konsumsi" class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Tahun</label>
+                                        <select id="tren-tahun" class="form-control select2" style="width: 100%;">
+                                            <option value="{?=date('Y')?}">{?=date('Y')?}</option>
+                                            <option value="{?=date('Y', strtotime('-1 year'))?}">{?=date('Y', strtotime('-1 year'))?}</option>
+                                            <option value="{?=date('Y', strtotime('-2 years'))?}">{?=date('Y', strtotime('-2 years'))?}</option>
+                                            <option value="{?=date('Y', strtotime('+1 year'))?}">{?=date('Y', strtotime('+1 year'))?}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Kategori</label>
+                                        <select id="tren-kategori" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Kategori --</option>
+                                            {loop: $kategori as $k}
+                                            <option value="{$k.kategori}">{$k.kategori}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pencarian Barang (Select2 Autocomplete)</label>
+                                        <select id="tren-barang" class="form-control autocomplete-barang" style="width: 100%;">
+                                            <option value="">-- Ketik Kode / Nama Barang (Semua) --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-line-chart"></i> Tren</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="panel panel-default" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                    <div class="panel-heading" style="background: transparent; font-weight: bold; color: #4e73df;"><i class="fa fa-line-chart"></i> Visualisasi Tren Konsumsi Bulanan (Volume vs Nilai Rp)</div>
+                                    <div class="panel-body">
+                                        <div style="position: relative; height: 350px;">
+                                            <canvas id="chart-tren-konsumsi"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-tren-konsumsi" data-filename="Laporan_Tren_Konsumsi_Bulanan"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-tren-konsumsi"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-tren-konsumsi" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN TREN KONSUMSI DISTRIBUSI BULANAN</h3>
+                                <p id="print-tren-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-tren-konsumsi">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 60px;">Bulan Ke</th>
+                                        <th>Nama Bulan</th>
+                                        <th class="text-center" style="width: 200px;">Total Volume Barang</th>
+                                        <th class="text-right" style="width: 250px;">Total Nilai Biaya (Rp)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-tren-konsumsi">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Silahkan filter untuk memetakan tren...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: PERBANDINGAN REALISASI VS KUOTA -->
+                    <div role="tabpanel" class="tab-pane" id="realisasi-kuota-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-realisasi-kuota" class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Tahun</label>
+                                        <select id="kuota-tahun" class="form-control select2" style="width: 100%;">
+                                            <option value="{?=date('Y')?}">{?=date('Y')?}</option>
+                                            <option value="{?=date('Y', strtotime('-1 year'))?}">{?=date('Y', strtotime('-1 year'))?}</option>
+                                            <option value="{?=date('Y', strtotime('-2 years'))?}">{?=date('Y', strtotime('-2 years'))?}</option>
+                                            <option value="{?=date('Y', strtotime('+1 year'))?}">{?=date('Y', strtotime('+1 year'))?}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Bulan</label>
+                                        <select id="kuota-bulan" class="form-control select2" style="width: 100%;">
+                                            <option value="01" {if: date('m') == '01'}selected{/if}>Januari</option>
+                                            <option value="02" {if: date('m') == '02'}selected{/if}>Februari</option>
+                                            <option value="03" {if: date('m') == '03'}selected{/if}>Maret</option>
+                                            <option value="04" {if: date('m') == '04'}selected{/if}>April</option>
+                                            <option value="05" {if: date('m') == '05'}selected{/if}>Mei</option>
+                                            <option value="06" {if: date('m') == '06'}selected{/if}>Juni</option>
+                                            <option value="07" {if: date('m') == '07'}selected{/if}>Juli</option>
+                                            <option value="08" {if: date('m') == '08'}selected{/if}>Agustus</option>
+                                            <option value="09" {if: date('m') == '09'}selected{/if}>September</option>
+                                            <option value="10" {if: date('m') == '10'}selected{/if}>Oktober</option>
+                                            <option value="11" {if: date('m') == '11'}selected{/if}>November</option>
+                                            <option value="12" {if: date('m') == '12'}selected{/if}>Desember</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Unit</label>
+                                        <select id="kuota-unit" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Unit --</option>
+                                            {loop: $unit as $u}
+                                            <option value="{$u.kode_unit}">{$u.nama_unit}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-balance-scale"></i> Bandingkan</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-realisasi-kuota" data-filename="Laporan_Realisasi_Vs_Kuota"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-realisasi-kuota"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-realisasi-kuota" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN PERBANDINGAN REALISASI VS KUOTA ALOKASI</h3>
+                                <p id="print-kuota-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-realisasi-kuota">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>Nama Unit</th>
+                                        <th>Nama Barang / Item</th>
+                                        <th class="text-center" style="width: 140px;">Kuota Alokasi</th>
+                                        <th class="text-center" style="width: 140px;">Realisasi SPPB</th>
+                                        <th class="text-center" style="width: 140px;">Sisa Kuota</th>
+                                        <th class="text-center" style="width: 130px;">Persentase (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-realisasi-kuota">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Silahkan filter audit alokasi kuota...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: LAPORAN SPPB PER PERIODE -->
+                    <div role="tabpanel" class="tab-pane" id="sppb-periode-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-sppb-periode" class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Status SPPB</label>
+                                        <select id="sppb-status" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Status Pengajuan --</option>
+                                            <option value="Draft">Draft</option>
+                                            <option value="Diajukan">Diajukan</option>
+                                            <option value="Disetujui Unit">Disetujui Unit</option>
+                                            <option value="Terverifikasi">Terverifikasi</option>
+                                            <option value="Selesai">Selesai</option>
+                                            <option value="Ditolak">Ditolak</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Rentang Tanggal</label>
+                                        <div class="input-group">
+                                            <input type="date" id="sppb-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="sppb-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Cari SPPB</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-sppb-periode" data-filename="Laporan_SPPB_PerPeriode"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-sppb-periode"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-sppb-periode" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN PENGAJUAN SPPB LOGISTIK NON-MEDIS</h3>
+                                <p id="print-sppb-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-sppb-periode">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>No. SPPB</th>
+                                        <th class="text-center" style="width: 100px;">Tgl SPPB</th>
+                                        <th>Nama Unit</th>
+                                        <th class="text-center" style="width: 100px;">Total Item</th>
+                                        <th class="text-center" style="width: 100px;">Qty Diminta</th>
+                                        <th class="text-center" style="width: 100px;">Qty Disetujui</th>
+                                        <th class="text-center" style="width: 120px;">Status</th>
+                                        <th>User Pembuat</th>
+                                        <th>User Verifikator</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-sppb-periode">
+                                    <tr>
+                                        <td colspan="10" class="text-center text-muted">Silahkan filter log pengajuan SPPB...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 6: FREKUENSI & VOLUME PERMINTAAN -->
+                    <div role="tabpanel" class="tab-pane" id="frekuensi-volume-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-frekuensi-volume" class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Kategori</label>
+                                        <select id="frek-kategori" class="form-control select2" style="width: 100%;">
+                                            <option value="">-- Semua Kategori --</option>
+                                            {loop: $kategori as $k}
+                                            <option value="{$k.kategori}">{$k.kategori}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Rentang Tanggal</label>
+                                        <div class="input-group">
+                                            <input type="date" id="frek-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="frek-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-bar-chart"></i> Analisis</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="panel panel-default" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                    <div class="panel-heading" style="background: transparent; font-weight: bold; color: #4e73df;"><i class="fa fa-exchange"></i> Visualisasi Fast Moving: Frekuensi Permintaan vs Volume Disetujui</div>
+                                    <div class="panel-body">
+                                        <div style="position: relative; height: 350px;">
+                                            <canvas id="chart-frekuensi-volume"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-frekuensi-volume" data-filename="Laporan_Frekuensi_Volume_Permintaan"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-frekuensi-volume"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-frekuensi-volume" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN FREKUENSI DAN VOLUME PERMINTAAN BARANG</h3>
+                                <p id="print-frek-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-frekuensi-volume">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>Nama Barang / Item</th>
+                                        <th>Kategori</th>
+                                        <th class="text-center" style="width: 150px;">Frekuensi Permintaan</th>
+                                        <th class="text-center" style="width: 150px;">Total Qty Diminta</th>
+                                        <th class="text-center" style="width: 150px;">Total Qty Disetujui</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-frekuensi-volume">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Silahkan filter analisis frekuensi barang...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 7: ANALISIS UNIT TERBOROS -->
+                    <div role="tabpanel" class="tab-pane" id="unit-terboros-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-unit-terboros" class="row">
+                                <div class="col-md-10">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Rentang Tanggal Pengeluaran</label>
+                                        <div class="input-group">
+                                            <input type="date" id="boros-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="boros-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-exclamation-triangle"></i> Hitung Pareto</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="panel panel-default" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                    <div class="panel-heading" style="background: transparent; font-weight: bold; color: #4e73df;"><i class="fa fa-pie-chart"></i> Peta Pengeluaran Unit Terbesar (Visualisasi Pareto)</div>
+                                    <div class="panel-body">
+                                        <div style="position: relative; height: 350px;">
+                                            <canvas id="chart-unit-terboros"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-unit-terboros" data-filename="Laporan_Analisis_Pareto_Unit_Terboros"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-unit-terboros"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-unit-terboros" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN ANALISIS PARETO UNIT TERBOROS</h3>
+                                <p id="print-boros-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-unit-terboros">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>Nama Unit</th>
+                                        <th class="text-center" style="width: 160px;">Total SPPB Transaksi</th>
+                                        <th class="text-right" style="width: 200px;">Total Pengeluaran (Rp)</th>
+                                        <th class="text-center" style="width: 180px;">Akumulasi Kontribusi (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-unit-terboros">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Silahkan tekan Hitung Pareto untuk mengidentifikasi 80/20 pengeluaran...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic ChartJS Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* Dashboard Styling and Premium Micro-Animations */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap');
+
+.mb-4 { margin-bottom: 20px; }
+.panel-kpi {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+    border-left: 4px solid;
+}
+.panel-kpi:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+}
+
+.panel-kpi .panel-heading {
+    background: transparent !important;
+    border: none !important;
+    padding: 12px 15px 0 15px;
+}
+.panel-kpi .panel-body {
+    padding: 5px 15px 15px 15px;
+}
+
+.filter-well {
+    border-radius: 6px !important;
+}
+
+.custom-tabs > li > a {
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.tab-pane {
+    animation: fadeIn 0.4s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.table-report th {
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+}
+
+/* Print Settings Styling */
+@media print {
+    body * { visibility: hidden; }
+    .printable-area, .printable-area * { visibility: visible; }
+    .printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+    .show-on-print { display: block !important; }
+    .table-report th { background: #f1f1f1 !important; color: #000 !important; }
+    .global-cockpit, .filter-well, .action-bar, .panel-kpi, .nav-tabs, .panel-default > .panel-heading { display: none !important; }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // 0. Dynamic System Theme Color Extraction & Adaptation
+    function getThemeColors() {
+        var tempBtnPrimary = $('<button class="btn btn-primary" style="display:none;"></button>').appendTo('body');
+        var tempBtnInfo = $('<button class="btn btn-info" style="display:none;"></button>').appendTo('body');
+        var tempBtnSuccess = $('<button class="btn btn-success" style="display:none;"></button>').appendTo('body');
+        var tempBtnWarning = $('<button class="btn btn-warning" style="display:none;"></button>').appendTo('body');
+        var tempBtnDanger = $('<button class="btn btn-danger" style="display:none;"></button>').appendTo('body');
+        var tempMuted = $('<span class="text-muted" style="display:none;"></span>').appendTo('body');
+        var tempPanel = $('<div class="panel panel-default" style="display:none;"></div>').appendTo('body');
+        var tempWell = $('<div class="well" style="display:none;"></div>').appendTo('body');
+        
+        var colors = {
+            primary: tempBtnPrimary.css('background-color') || '#4e73df',
+            info: tempBtnInfo.css('background-color') || '#36b9cc',
+            success: tempBtnSuccess.css('background-color') || '#1cc88a',
+            warning: tempBtnWarning.css('background-color') || '#f6c23e',
+            danger: tempBtnDanger.css('background-color') || '#e74a3b',
+            muted: tempMuted.css('color') || '#858796',
+            panelBg: tempPanel.css('background-color') || '#ffffff',
+            panelBorder: tempPanel.css('border-color') || '#e3e6f0',
+            wellBg: tempWell.css('background-color') || '#f8f9fc',
+            wellBorder: tempWell.css('border-color') || '#eaecf4'
+        };
+        
+        tempBtnPrimary.remove();
+        tempBtnInfo.remove();
+        tempBtnSuccess.remove();
+        tempBtnWarning.remove();
+        tempMuted.remove();
+        tempPanel.remove();
+        tempWell.remove();
+        
+        return colors;
+    }
+
+    function isDarkTheme() {
+        var bodyBg = $('body').css('background-color');
+        if (!bodyBg) return false;
+        var rgb = bodyBg.match(/\d+/g);
+        if (!rgb || rgb.length < 3) return false;
+        var r = parseInt(rgb[0]);
+        var g = parseInt(rgb[1]);
+        var b = parseInt(rgb[2]);
+        var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+
+    var themeColors = getThemeColors();
+    var isDark = isDarkTheme();
+    
+    // Inject dynamic CSS overrides using theme colors
+    $('<style>')
+        .prop('type', 'text/css')
+        .html(
+            '.panel { border-radius: 8px !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important; border: 1px solid ' + themeColors.panelBorder + ' !important; overflow: hidden !important; margin-bottom: 20px !important; }' +
+            '.panel-heading { border-top-left-radius: 8px !important; border-top-right-radius: 8px !important; padding: 12px 15px !important; font-weight: bold !important; }' +
+            '.btn { border-radius: 6px !important; font-weight: bold !important; padding: 6px 14px !important; transition: all 0.2s ease-in-out !important; }' +
+            '.btn-sm { border-radius: 4px !important; padding: 4px 10px !important; }' +
+            '.btn:hover { transform: translateY(-1px) !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important; }' +
+            '.btn:active { transform: translateY(0px) !important; box-shadow: none !important; }' +
+            '.panel-default { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+            '.panel-default > .panel-heading { background-color: ' + themeColors.wellBg + ' !important; border-bottom: 1px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.primary + ' !important; }' +
+            '.form-control { background-color: ' + (isDark ? themeColors.wellBg : '#ffffff') + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + (isDark ? '#eaecf4' : '#495057') + ' !important; }' +
+            '.input-group-addon { background-color: ' + themeColors.wellBg + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+            '.table > thead > tr { background-color: ' + themeColors.wellBg + ' !important; }' +
+            '.table > thead > tr > th { border-bottom: 2px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+            '.table > tbody > tr > td { border-top: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+            '.table-striped > tbody > tr:nth-of-type(odd) { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)') + ' !important; }' +
+            '.table-hover > tbody > tr:hover { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)') + ' !important; }' +
+            '.custom-tabs > li > a { color: ' + themeColors.muted + ' !important; }' +
+            '.custom-tabs > li.active > a, .custom-tabs > li.active > a:hover, .custom-tabs > li.active > a:focus {' +
+            '    color: ' + themeColors.primary + ' !important;' +
+            '    border-bottom: 3px solid ' + themeColors.primary + ' !important;' +
+            '    background: transparent !important;' +
+            '}' +
+            '.custom-tabs > li > a:hover {' +
+            '    color: ' + themeColors.primary + ' !important;' +
+            '    border-bottom: 3px solid ' + themeColors.panelBorder + ' !important;' +
+            '    background: transparent !important;' +
+            '}' +
+            '.panel-kpi { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+            '.panel-primary.panel-kpi { border-left: 4px solid ' + themeColors.primary + ' !important; }' +
+            '.panel-info.panel-kpi { border-left: 4px solid ' + themeColors.info + ' !important; }' +
+            '.panel-success.panel-kpi { border-left: 4px solid ' + themeColors.success + ' !important; }' +
+            '.panel-warning.panel-kpi { border-left: 4px solid ' + themeColors.warning + ' !important; }' +
+            '.global-cockpit { background-color: ' + themeColors.wellBg + ' !important; border: 1px solid ' + themeColors.wellBorder + ' !important; border-left: 5px solid ' + themeColors.primary + ' !important; }' +
+            '.filter-well { background-color: ' + themeColors.wellBg + ' !important; border: 1px solid ' + themeColors.wellBorder + ' !important; }'
+        )
+        .appendTo('head');
+
+    // ChartJS dark mode defaults
+    if (typeof Chart !== 'undefined') {
+        var chartTextColor = isDark ? '#eaecf4' : '#5a5c69';
+        var chartGridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+        
+        // Setup base font
+        Chart.defaults.font = {
+            family: "'Inter', sans-serif"
+        };
+    }
+
+    // 1. Reset selectator if active to prevent overlapping mLite widgets
+    try { $('.select2').selectator('destroy'); } catch(e) {}
+    try { $('.autocomplete-barang').selectator('destroy'); } catch(e) {}
+
+    $('.select2').select2({
+        width: '100%'
+    });
+
+    // Dynamic Select2 Auto-complete for Choosing Items in Tab 3 (Tren Konsumsi)
+    $('.autocomplete-barang').select2({
+        width: '100%',
+        placeholder: 'Ketik Kode / Nama Barang...',
+        minimumInputLength: 1,
+        ajax: {
+            url: '{?=url(ADMIN."/logistik_non_medis/getbarangautocomplete")?}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return { q: params.term };
+            },
+            processResults: function (data) {
+                return { results: data.results };
+            },
+            cache: true
+        }
+    });
+
+    // 2. Global state for Chart.js instances to properly re-render on query changes
+    var chartPemakaian = null;
+    var chartTren = null;
+    var chartFrekVol = null;
+    var chartBoros = null;
+
+    // 3. Autoload default reports on load
+    updateGlobalKPIs();
+    loadLaporanDistribusi();
+    
+    // Autoload active tabs dynamically
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href");
+        if (target === "#laporan-distribusi-tab") {
+            loadLaporanDistribusi();
+        } else if (target === "#pemakaian-unit-tab") {
+            loadPemakaianUnit();
+        } else if (target === "#tren-konsumsi-tab") {
+            loadTrenKonsumsi();
+        } else if (target === "#realisasi-kuota-tab") {
+            loadRealisasiKuota();
+        } else if (target === "#sppb-periode-tab") {
+            loadSppbPeriode();
+        } else if (target === "#frekuensi-volume-tab") {
+            loadFrekuensiVolume();
+        } else if (target === "#unit-terboros-tab") {
+            loadUnitTerboros();
+        }
+    });
+
+    // 4. Global cockpit filter submissions
+    $('#btn-update-global').click(function(e) {
+        e.preventDefault();
+        updateGlobalKPIs();
+        
+        var start = $('#global-tgl-awal').val();
+        var end = $('#global-tgl-akhir').val();
+        
+        // Sync dates to other tab inputs
+        $('#dist-tgl-awal, #pemakaian-tgl-awal, #sppb-tgl-awal, #frek-tgl-awal, #boros-tgl-awal').val(start);
+        $('#dist-tgl-akhir, #pemakaian-tgl-akhir, #sppb-tgl-akhir, #frek-tgl-akhir, #boros-tgl-akhir').val(end);
+        
+        // Auto-refresh the currently active tab
+        var activeTab = $('.nav-tabs.custom-tabs li.active a').attr('href');
+        if (activeTab === "#laporan-distribusi-tab") loadLaporanDistribusi();
+        else if (activeTab === "#pemakaian-unit-tab") loadPemakaianUnit();
+        else if (activeTab === "#tren-konsumsi-tab") loadTrenKonsumsi();
+        else if (activeTab === "#realisasi-kuota-tab") loadRealisasiKuota();
+        else if (activeTab === "#sppb-periode-tab") loadSppbPeriode();
+        else if (activeTab === "#frekuensi-volume-tab") loadFrekuensiVolume();
+        else if (activeTab === "#unit-terboros-tab") loadUnitTerboros();
+    });
+
+    function updateGlobalKPIs() {
+        var start_date = $('#global-tgl-awal').val();
+        var end_date = $('#global-tgl-akhir').val();
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/getlaporandistribusikpi")?}', {
+            start_date: start_date,
+            end_date: end_date
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#kpi-total-distribusi').text(data.total_distribusi);
+            $('#kpi-volume-terdistribusi').text(data.volume_terdistribusi);
+            $('#kpi-total-nilai').text(data.total_nilai);
+            $('#kpi-unit-aktif').text(data.unit_aktif);
+        });
+    }
+
+    // 5. TAB 1: Log Transaksi Distribusi Handlers
+    $('#form-laporan-distribusi').submit(function(e) {
+        e.preventDefault();
+        loadLaporanDistribusi();
+    });
+
+    function loadLaporanDistribusi() {
+        var start = $('#dist-tgl-awal').val();
+        var end = $('#dist-tgl-akhir').val();
+        var kode_unit = $('#dist-unit').val();
+        var status = $('#dist-status').val();
+
+        $('#tbody-laporan-distribusi').html('<tr><td colspan="9" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat log transaksi...</td></tr>');
+        $('#print-distribusi-detail').text('Periode SPPB: ' + start + ' s/d ' + end + ' | Unit: ' + ($('#dist-unit option:selected').text() || 'Semua') + ' | Status: ' + (status || 'Semua'));
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporandistribusi")?}', {
+            tgl_awal: start,
+            tgl_akhir: end,
+            kode_unit: kode_unit,
+            status: status
+        }, function(html) {
+            $('#tbody-laporan-distribusi').html(html);
+        });
+    }
+
+    // 6. TAB 2: Pemakaian Barang per Unit Handlers
+    $('#form-pemakaian-unit').submit(function(e) {
+        e.preventDefault();
+        loadPemakaianUnit();
+    });
+
+    function loadPemakaianUnit() {
+        var start = $('#pemakaian-tgl-awal').val();
+        var end = $('#pemakaian-tgl-akhir').val();
+        var kode_unit = $('#pemakaian-unit').val();
+        var kategori = $('#pemakaian-kategori').val();
+
+        $('#tbody-pemakaian-unit').html('<tr><td colspan="6" class="text-center"><i class="fa fa-spinner fa-spin"></i> Menganalisis data...</td></tr>');
+        $('#print-pemakaian-detail').text('Periode Pemakaian: ' + start + ' s/d ' + end + ' | Unit: ' + ($('#pemakaian-unit option:selected').text() || 'Semua') + ' | Kategori: ' + (kategori || 'Semua'));
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaypemakaianperunit")?}', {
+            tgl_awal: start,
+            tgl_akhir: end,
+            kode_unit: kode_unit,
+            kategori: kategori
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-pemakaian-unit').html(data.html);
+            renderPemakaianChart(data.chart_labels, data.chart_data);
+        });
+    }
+
+    function renderPemakaianChart(labels, values) {
+        var ctx = document.getElementById('chart-pemakaian-unit').getContext('2d');
+        
+        if (chartPemakaian !== null) {
+            chartPemakaian.destroy();
+        }
+
+        if (labels.length === 0) {
+            labels = ['Tidak ada data'];
+            values = [0];
+        }
+
+        chartPemakaian = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Nilai Pemakaian (Rupiah)',
+                    data: values,
+                    backgroundColor: themeColors.info,
+                    borderColor: themeColors.info,
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp. ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 7. TAB 3: Tren Konsumsi Bulanan Handlers
+    $('#form-tren-konsumsi').submit(function(e) {
+        e.preventDefault();
+        loadTrenKonsumsi();
+    });
+
+    function loadTrenKonsumsi() {
+        var tahun = $('#tren-tahun').val();
+        var kategori = $('#tren-kategori').val();
+        var kode_item = $('#tren-barang').val();
+
+        $('#tbody-tren-konsumsi').html('<tr><td colspan="4" class="text-center"><i class="fa fa-spinner fa-spin"></i> Menghitung tren bulanan...</td></tr>');
+        $('#print-tren-detail').text('Tahun Tren: ' + tahun + ' | Kategori: ' + (kategori || 'Semua') + ' | Barang: ' + ($('#tren-barang option:selected').text() || 'Semua'));
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaytrenkonsumsi")?}', {
+            tahun: tahun,
+            kategori: kategori,
+            kode_item: kode_item
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-tren-konsumsi').html(data.html);
+            renderTrenChart(data.chart_labels, data.chart_qty, data.chart_val);
+        });
+    }
+
+    function renderTrenChart(labels, qty, val) {
+        var ctx = document.getElementById('chart-tren-konsumsi').getContext('2d');
+        
+        if (chartTren !== null) {
+            chartTren.destroy();
+        }
+
+        chartTren = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Total Nilai Pengeluaran (Rp)',
+                        data: val,
+                        borderColor: themeColors.success,
+                        backgroundColor: themeColors.success + '1f', // light opacity fill
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Total Qty Barang (Unit)',
+                        data: qty,
+                        borderColor: themeColors.primary,
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp. ' + value.toLocaleString('id-ID');
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nilai Konsumsi (Rp)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('id-ID') + ' Unit';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Volume Konsumsi (Unit)'
+                        },
+                        grid: {
+                            drawOnChartArea: false // prevent grid lines overlapping
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 8. TAB 4: Realisasi vs Kuota Handlers
+    $('#form-realisasi-kuota').submit(function(e) {
+        e.preventDefault();
+        loadRealisasiKuota();
+    });
+
+    function loadRealisasiKuota() {
+        var tahun = $('#kuota-tahun').val();
+        var bulan = $('#kuota-bulan').val();
+        var kode_unit = $('#kuota-unit').val();
+
+        $('#tbody-realisasi-kuota').html('<tr><td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin"></i> Mengaudit realisasi vs kuota...</td></tr>');
+        $('#print-kuota-detail').text('Periode Audit: ' + $('#kuota-bulan option:selected').text() + ' ' + tahun + ' | Unit: ' + ($('#kuota-unit option:selected').text() || 'Semua'));
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displayrealisasivskuota")?}', {
+            tahun: tahun,
+            bulan: bulan,
+            kode_unit: kode_unit
+        }, function(html) {
+            $('#tbody-realisasi-kuota').html(html);
+        });
+    }
+
+    // 9. TAB 5: Laporan SPPB per Periode Handlers
+    $('#form-sppb-periode').submit(function(e) {
+        e.preventDefault();
+        loadSppbPeriode();
+    });
+
+    function loadSppbPeriode() {
+        var start = $('#sppb-tgl-awal').val();
+        var end = $('#sppb-tgl-akhir').val();
+        var status = $('#sppb-status').val();
+
+        $('#tbody-sppb-periode').html('<tr><td colspan="10" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat logs pengajuan SPPB...</td></tr>');
+        $('#print-sppb-detail').text('Periode SPPB: ' + start + ' s/d ' + end + ' | Status: ' + (status || 'Semua'));
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporansppbperiode")?}', {
+            tgl_awal: start,
+            tgl_akhir: end,
+            status: status
+        }, function(html) {
+            $('#tbody-sppb-periode').html(html);
+        });
+    }
+
+    // 10. TAB 6: Frekuensi & Volume Permintaan Handlers
+    $('#form-frekuensi-volume').submit(function(e) {
+        e.preventDefault();
+        loadFrekuensiVolume();
+    });
+
+    function loadFrekuensiVolume() {
+        var start = $('#frek-tgl-awal').val();
+        var end = $('#frek-tgl-akhir').val();
+        var kategori = $('#frek-kategori').val();
+
+        $('#tbody-frekuensi-volume').html('<tr><td colspan="6" class="text-center"><i class="fa fa-spinner fa-spin"></i> Menganalisis fast-moving items...</td></tr>');
+        $('#print-frek-detail').text('Periode Permintaan: ' + start + ' s/d ' + end + ' | Kategori: ' + (kategori || 'Semua'));
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displayfrekuensivolume")?}', {
+            tgl_awal: start,
+            tgl_akhir: end,
+            kategori: kategori
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-frekuensi-volume').html(data.html);
+            renderFrekVolChart(data.chart_labels, data.chart_freq, data.chart_vol);
+        });
+    }
+
+    function renderFrekVolChart(labels, freq, vol) {
+        var ctx = document.getElementById('chart-frekuensi-volume').getContext('2d');
+        
+        if (chartFrekVol !== null) {
+            chartFrekVol.destroy();
+        }
+
+        if (labels.length === 0) {
+            labels = ['Tidak ada data'];
+            freq = [0];
+            vol = [0];
+        }
+
+        chartFrekVol = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Frekuensi Permintaan (Kali)',
+                        data: freq,
+                        backgroundColor: themeColors.info,
+                        borderColor: themeColors.info,
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Volume Disetujui (Unit)',
+                        data: vol,
+                        backgroundColor: themeColors.primary,
+                        borderColor: themeColors.primary,
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Frekuensi (Kali)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Volume (Unit)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // 11. TAB 7: Analisis Unit Terboros Handlers
+    $('#form-unit-terboros').submit(function(e) {
+        e.preventDefault();
+        loadUnitTerboros();
+    });
+
+    function loadUnitTerboros() {
+        var start = $('#boros-tgl-awal').val();
+        var end = $('#boros-tgl-akhir').val();
+
+        $('#tbody-unit-terboros').html('<tr><td colspan="5" class="text-center"><i class="fa fa-spinner fa-spin"></i> Menghitung kontribusi Pareto unit...</td></tr>');
+        $('#print-boros-detail').text('Periode Analisis Pareto: ' + start + ' s/d ' + end);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displayunitterboros")?}', {
+            tgl_awal: start,
+            tgl_akhir: end
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-unit-terboros').html(data.html);
+            renderBorosChart(data.chart_labels, data.chart_data);
+        });
+    }
+
+    function renderBorosChart(labels, values) {
+        var ctx = document.getElementById('chart-unit-terboros').getContext('2d');
+        
+        if (chartBoros !== null) {
+            chartBoros.destroy();
+        }
+
+        if (labels.length === 0) {
+            labels = ['Tidak ada data'];
+            values = [0];
+        }
+
+        chartBoros = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: [
+                        themeColors.danger,
+                        themeColors.warning,
+                        themeColors.primary,
+                        themeColors.info,
+                        themeColors.success,
+                        '#858796'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 12. EXCEL AND PRINT PLUGINS (Premium client-side triggers)
+    $('.btn-export').click(function() {
+        var target_id = $(this).data('target');
+        var filename = $(this).data('filename');
+        var table = document.getElementById(target_id);
+        if (!table) {
+            alert('Data tidak tersedia untuk diexport.');
+            return;
+        }
+        var html = table.outerHTML;
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{?=url([ADMIN, "logistik_non_medis", "ExportExcelHtml"])?}';
+        form.target = '_blank';
+
+        var inputFilename = document.createElement('input');
+        inputFilename.type = 'hidden';
+        inputFilename.name = 'filename';
+        inputFilename.value = filename;
+        form.appendChild(inputFilename);
+
+        var inputHtml = document.createElement('input');
+        inputHtml.type = 'hidden';
+        inputHtml.name = 'html';
+        inputHtml.value = html;
+        form.appendChild(inputHtml);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    });
+
+    $('.btn-print').click(function() {
+        var target_id = $(this).data('target');
+        var printContents = document.getElementById(target_id).innerHTML;
+        var originalContents = document.body.innerHTML;
+        
+        document.body.innerHTML = printContents;
+        window.print();
+        
+        document.body.innerHTML = originalContents;
+        window.location.reload();
+    });
+});
+</script>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Berita Acara Pemusnahan</title>
+    <style>
+        body { font-family: sans-serif; font-size: 12px; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .header img { height: 60px; }
+        .content { line-height: 1.6; }
+        .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .table th, .table td { border: 1px solid #000; padding: 8px; text-align: left; }
+        .footer { margin-top: 50px; }
+        .signature { width: 33%; display: inline-block; text-align: center; }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <img src="{$logo}" alt="Logo"><br>
+        <strong>BERITA ACARA PEMUSNAHAN BARANG NON-MEDIS</strong><br>
+        No: {$rusak.no_transaksi}
+    </div>
+
+    <div class="content">
+        Pada hari ini, tanggal <strong>{$rusak.tgl_pemusnahan}</strong>, kami yang bertanda tangan di bawah ini telah melaksanakan pemusnahan barang non-medis dengan detail sebagai berikut:
+        
+        <table class="table">
+            <tr><th width="30%">Nama Barang</th><td>{$rusak.nama_barang}</td></tr>
+            <tr><th>Kode Item</th><td>{$rusak.kode_item}</td></tr>
+            <tr><th>Batch / No. Lot</th><td>{$rusak.batch}</td></tr>
+            <tr><th>Jumlah</th><td>{$rusak.jumlah}</td></tr>
+            <tr><th>Kategori Kerusakan</th><td>{$rusak.kategori_kerusakan}</td></tr>
+            <tr><th>Metode Pemusnahan</th><td>{$rusak.metode_pemusnahan}</td></tr>
+            <tr><th>Keterangan</th><td>{$rusak.catatan_logistik}</td></tr>
+        </table>
+
+        Pemusnahan dilaksanakan sesuai dengan prosedur yang berlaku dan disaksikan oleh pihak-pihak terkait.
+    </div>
+
+    <div class="footer">
+        <div class="signature">
+            Petugas Logistik<br><br><br><br>
+            ( {$rusak.user_input} )
+        </div>
+        <div class="signature">
+            Saksi 1<br><br><br><br>
+            ( {$rusak.saksi_1} )
+        </div>
+        <div class="signature">
+            Saksi 2<br><br><br><br>
+            ( {$rusak.saksi_2} )
+        </div>
+    </div>
+</body>
+</html>

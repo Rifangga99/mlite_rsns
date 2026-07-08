@@ -1,0 +1,146 @@
+<div id="opname_container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Manajemen Stock Opname</h3>
+                    <div class="panel-options">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab_transaksi" data-toggle="tab">Transaksi Opname</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab_transaksi">
+                            <div class="row mb-4" style="margin-bottom: 20px;">
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary" id="btn_tambah_opname">
+                                        <i class="fa fa-plus"></i> Mulai Opname Baru
+                                    </button>
+                                    <button class="btn btn-info" id="btn_tambah_jadwal">
+                                        <i class="fa fa-calendar"></i> Buat Jadwal
+                                    </button>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Periode:</span>
+                                        <input type="text" id="tgl_awal" class="form-control datepicker" value="{?=date('Y-m-01')?}">
+                                        <span class="input-group-addon">s/d</span>
+                                        <input type="text" id="tgl_akhir" class="form-control datepicker" value="{?=date('Y-m-d')?}">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-success" id="btn_cetak_rekap" type="button">
+                                                <i class="fa fa-print"></i> Cetak Rekap
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        <input type="text" id="cari_opname" class="form-control" placeholder="Cari...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" id="btn_cari_opname" type="button">Cari</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="display_opname">
+                                <div class="text-center">
+                                    <i class="fa fa-spinner fa-spin fa-3x"></i>
+                                    <p>Memuat data...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="form_opname_container" style="display: none;">
+    <!-- Form will be loaded here -->
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+
+    loadOpname();
+
+    function loadOpname(halaman = 1, cari = '') {
+        $.post('{?=url([ADMIN, "logistik_non_medis", "displayopname"])?}', {
+            halaman: halaman,
+            cari: cari,
+            tgl_awal: $('#tgl_awal').val(),
+            tgl_akhir: $('#tgl_akhir').val()
+        }, function(data) {
+            $('#display_opname').html(data);
+        });
+    }
+
+    $('#btn_cetak_rekap').click(function() {
+        let tgl1 = $('#tgl_awal').val();
+        let tgl2 = $('#tgl_akhir').val();
+        window.open('{?=url([ADMIN, "logistik_non_medis", "printrekapopname"])?}&tgl_awal=' + tgl1 + '&tgl_akhir=' + tgl2, '_blank');
+    });
+
+    $('#btn_cari_opname').click(function() {
+        loadOpname(1, $('#cari_opname').val());
+    });
+
+    $('#cari_opname').keypress(function(e) {
+        if(e.which == 13) loadOpname(1, $(this).val());
+    });
+
+    $('#btn_tambah_opname').click(function() {
+        $('#opname_container').hide();
+        $('#form_opname_container').show().html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+        $.post('{?=url([ADMIN, "logistik_non_medis", "formopname"])?}', { mode: 'add' }, function(data) {
+            $('#form_opname_container').html(data);
+        });
+    });
+
+    $('#btn_tambah_jadwal').click(function() {
+        $('#opname_container').hide();
+        $('#form_opname_container').show().html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+        $.post('{?=url([ADMIN, "logistik_non_medis", "formopname"])?}', { mode: 'add', status: 'Jadwal' }, function(data) {
+            $('#form_opname_container').html(data);
+        });
+    });
+
+    // Handle pagination clicks
+    $(document).on('click', '.pagination_opname a', function(e) {
+        e.preventDefault();
+        loadOpname($(this).attr('data-halaman'), $('#cari_opname').val());
+    });
+
+    // Global event for editing
+    $(document).on('click', '.btn_edit_opname', function() {
+        let no_opname = $(this).attr('data-no');
+        $('#opname_container').hide();
+        $('#form_opname_container').show().html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+        $.post('{?=url([ADMIN, "logistik_non_medis", "formopname"])?}', { mode: 'edit', no_opname: no_opname }, function(data) {
+            $('#form_opname_container').html(data);
+        });
+    });
+
+    $(document).on('click', '.btn_hapus_opname', function() {
+        let no = $(this).attr('data-no');
+        if(confirm('Hapus data opname ' + no + '?')) {
+            $.post('{?=url([ADMIN, "logistik_non_medis", "hapusopname"])?}', { no_opname: no }, function(data) {
+                let res = JSON.parse(data);
+                if(res.status == 'success') {
+                    loadOpname();
+                } else {
+                    alert(res.message);
+                }
+            });
+        }
+    });
+});
+</script>

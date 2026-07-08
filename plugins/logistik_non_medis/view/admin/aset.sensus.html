@@ -1,0 +1,741 @@
+<style>
+    .filter-well {
+        background-color: #fcfcfc;
+        border: 1px solid #e3e3e3;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    #tableKertasKerja th, #tableRekonsiliasi th, #tableHilang th, #tablePenyesuaian th {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+    #tableKertasKerja td, #tableRekonsiliasi td, #tableHilang td, #tablePenyesuaian td {
+        vertical-align: middle !important;
+        padding: 12px 8px;
+    }
+</style>
+
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-clipboard-check"></i> Sensus & Verifikasi Aset Berkala
+                </h3>
+            </div>
+            <div class="panel-body">
+                
+                <!-- Nav Tabs System Style -->
+                <ul class="nav nav-tabs" id="sensusTabs" style="margin-bottom: 20px;">
+                    <li class="active"><a href="#tab-periode" data-toggle="tab"><i class="fa fa-calendar-alt"></i> Periode Sensus</a></li>
+                    <li><a href="#tab-kertas-kerja" data-toggle="tab"><i class="fa fa-file-invoice"></i> Kertas Kerja Sensus</a></li>
+                    <li><a href="#tab-rekonsiliasi" data-toggle="tab"><i class="fa fa-balance-scale"></i> Rekonsiliasi Hasil</a></li>
+                    <li><a href="#tab-hilang" data-toggle="tab"><i class="fa fa-ghost text-danger"></i> Aset Hilang</a></li>
+                    <li><a href="#tab-penyesuaian" data-toggle="tab"><i class="fa fa-sliders-h text-primary"></i> Penyesuaian Data</a></li>
+                    <li><a href="#tab-sertifikasi" data-toggle="tab"><i class="fa fa-certificate text-warning"></i> Sertifikasi & BAHS</a></li>
+                </ul>
+
+                <!-- Tab Panes -->
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: PERIODE SENSUS -->
+                    <div class="tab-pane active" id="tab-periode">
+                        <div class="row" style="margin-bottom: 15px;">
+                            <div class="col-md-6">
+                                <h4 style="margin-top: 5px; font-weight: bold;">Manajemen Periode Sensus Aset</h4>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <a href="{?=url('admin/logistik_non_medis/scanqrfield')?}" class="btn btn-success" target="_blank">
+                                    <i class="fa fa-qrcode"></i> Scan QR Lapangan
+                                </a>
+                                <button class="btn btn-primary" onclick="$('#modalPeriode').modal('show')">
+                                    <i class="fa fa-plus"></i> Buat Periode Baru
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped" id="tablePeriode">
+                                <thead>
+                                    <tr>
+                                        <th>Nama Sensus</th>
+                                        <th>Mulai</th>
+                                        <th>Selesai</th>
+                                        <th>Total Aset</th>
+                                        <th>Progres Scan</th>
+                                        <th>Status</th>
+                                        <th class="text-center" style="width: 100px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic content via AJAX -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: KERTAS KERJA SENSUS -->
+                    <div class="tab-pane" id="tab-kertas-kerja">
+                        <div class="filter-well">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Pilih Periode Sensus</label>
+                                        <select class="form-control" id="selectPeriodeFilter" onchange="loadKertasKerja(1)"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Filter Temuan Fisik</label>
+                                        <select class="form-control" id="selectStatusItemFilter" onchange="loadKertasKerja(1)">
+                                            <option value="">Semua Status</option>
+                                            <option value="Belum Sensus">Belum Sensus</option>
+                                            <option value="Sesuai">Sesuai (Cocok)</option>
+                                            <option value="Selisih Lokasi">Selisih Lokasi (Pindah)</option>
+                                            <option value="Selisih Kondisi">Selisih Kondisi</option>
+                                            <option value="Tidak Ditemukan">Tidak Ditemukan (Hilang)</option>
+                                            <option value="Aset Baru">Aset Baru Found</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Cari Kode Aset / Temuan</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="searchKertasKerja" placeholder="Ketik kode aset...">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-primary" onclick="loadKertasKerja(1)"><i class="fa fa-search"></i> Cari</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="tableKertasKerja">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Aset</th>
+                                        <th>Nama Aset</th>
+                                        <th>Lokasi Sistem</th>
+                                        <th>Lokasi Fisik</th>
+                                        <th>Kondisi Sistem</th>
+                                        <th>Kondisi Fisik</th>
+                                        <th>Status Sensus</th>
+                                        <th>Tanggal Scan</th>
+                                        <th class="text-center" style="width: 120px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic content via AJAX -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-right" id="paginationKertasKerja" style="margin-top: 15px;"></div>
+                    </div>
+
+                    <!-- TAB 3: REKONSILIASI HASIL -->
+                    <div class="tab-pane" id="tab-rekonsiliasi">
+                        <h4 style="margin-bottom: 15px; font-weight: bold;">Hasil Rekonsiliasi Fisik vs Data Sistem</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="well text-center" style="padding: 20px;">
+                                    <h5 style="color: #777;">Total Aset Terdaftar</h5>
+                                    <div style="font-size: 36px; font-weight: bold;" id="reconTotal">0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="panel panel-success text-center">
+                                            <div class="panel-body" style="padding: 15px;">
+                                                <h5 style="margin: 0 0 5px 0;">Sesuai / Cocok</h5>
+                                                <div style="font-size: 24px; font-weight: bold;" id="reconSesuai">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="panel panel-warning text-center">
+                                            <div class="panel-body" style="padding: 15px;">
+                                                <h5 style="margin: 0 0 5px 0;">Selisih Lokasi</h5>
+                                                <div style="font-size: 24px; font-weight: bold;" id="reconSelisihLokasi">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="panel panel-danger text-center">
+                                            <div class="panel-body" style="padding: 15px;">
+                                                <h5 style="margin: 0 0 5px 0;">Tidak Ditemukan</h5>
+                                                <div style="font-size: 24px; font-weight: bold; color: red;" id="reconTidakDitemukan">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive" style="margin-top: 15px;">
+                            <table class="table table-hover table-striped" id="tableRekonsiliasi">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Aset</th>
+                                        <th>Nama Aset</th>
+                                        <th>Kondisi Terakhir</th>
+                                        <th>Selisih Lokasi</th>
+                                        <th>Selisih Kondisi</th>
+                                        <th>Status Sensus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic recon list -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: ASET HILANG -->
+                    <div class="tab-pane" id="tab-hilang">
+                        <h4 style="color: #d9534f; margin-bottom: 15px; font-weight: bold;"><i class="fa fa-exclamation-triangle"></i> Laporan Aset Tidak Ditemukan</h4>
+                        <div class="alert alert-danger">
+                            <i class="fa fa-info-circle"></i> Daftar aset di bawah ini tercatat aktif di sistem namun tidak ditemukan keberadaan fisiknya saat sensus lapangan. Investigasi internal wajib dilakukan.
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped" id="tableHilang">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Aset</th>
+                                        <th>Nama Aset</th>
+                                        <th>Unit Sistem</th>
+                                        <th>Catatan Temuan</th>
+                                        <th>Petugas Sensus</th>
+                                        <th class="text-center" style="width: 180px;">Aksi Tindak Lanjut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic missing items list -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: PENYESUAIAN DATA -->
+                    <div class="tab-pane" id="tab-penyesuaian">
+                        <div class="row" style="margin-bottom: 15px;">
+                            <div class="col-md-8">
+                                <h4 style="margin-top: 5px; font-weight: bold;">Sinkronisasi / Penyesuaian Data Master Aset</h4>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <button class="btn btn-primary" onclick="eksekusiPenyesuaianMassal()">
+                                    <i class="fa fa-sync-alt"></i> Sesuaikan Semua Terpilih
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped" id="tablePenyesuaian">
+                                <thead>
+                                    <tr>
+                                        <th width="40"><input type="checkbox" id="checkAllPenyesuaian"></th>
+                                        <th>Kode Aset</th>
+                                        <th>Nama Aset</th>
+                                        <th>Unit Asal (Sistem)</th>
+                                        <th>Unit Baru (Fisik)</th>
+                                        <th>Kondisi Asal (Sistem)</th>
+                                        <th>Kondisi Baru (Fisik)</th>
+                                        <th>Status Penyesuaian</th>
+                                        <th class="text-center" style="width: 120px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic adjustment list -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 6: SERTIFIKASI & BAHS -->
+                    <div class="tab-pane" id="tab-sertifikasi">
+                        <h4 style="margin-bottom: 20px; font-weight: bold;">Digital Certification & Berita Acara Hasil Sensus</h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <h4 style="margin-top: 0; margin-bottom: 15px; font-weight: bold;"><i class="fa fa-file-signature"></i> Alur Persetujuan BAHS</h4>
+                                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f2f5; padding-bottom: 10px;">
+                                                <div>
+                                                    <h5 style="font-weight: bold; margin: 0;">1. Tanda Tangan Petugas Lapangan</h5>
+                                                    <p class="text-muted" style="font-size: 11px; margin: 0;" id="signPetugasName">Status: Belum Menandatangani</p>
+                                                </div>
+                                                <button class="btn btn-sm btn-default" onclick="openSignatureModal('petugas')">Tanda Tangan</button>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f2f5; padding-bottom: 10px;">
+                                                <div>
+                                                    <h5 style="font-weight: bold; margin: 0;">2. Persetujuan Kepala Unit Kerja</h5>
+                                                    <p class="text-muted" style="font-size: 11px; margin: 0;" id="signKaUnitName">Status: Belum Menandatangani</p>
+                                                </div>
+                                                <button class="btn btn-sm btn-default" onclick="openSignatureModal('ka_unit')">Tanda Tangan</button>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px;">
+                                                <div>
+                                                    <h5 style="font-weight: bold; margin: 0;">3. Persetujuan Kepala Bidang Logistik</h5>
+                                                    <p class="text-muted" style="font-size: 11px; margin: 0;" id="signKaLogistikName">Status: Belum Menandatangani</p>
+                                                </div>
+                                                <button class="btn btn-sm btn-default" onclick="openSignatureModal('ka_logistik')">Tanda Tangan</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-body text-center" style="padding: 30px 15px;">
+                                        <i class="fa fa-print" style="font-size: 48px; color: #777; margin-bottom: 15px;"></i>
+                                        <h4 style="font-weight: bold; margin-top: 0;">Cetak Berita Acara Hasil Sensus</h4>
+                                        <p class="text-muted" style="margin-bottom: 20px;">Cetak laporan Berita Acara Hasil Sensus (BAHS) lengkap dengan tanda tangan digital secara resmi ke format PDF.</p>
+                                        <button class="btn btn-primary" onclick="cetakLaporanBAHS()">
+                                            <i class="fa fa-file-pdf"></i> Cetak Laporan PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- MODAL 1: BUAT PERIODE SENSUS BARU -->
+<div class="modal fade" id="modalPeriode" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="fa fa-calendar-plus"></i> Buat Periode Sensus Baru</h4>
+            </div>
+            <form id="formPeriode">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nama / Judul Sensus</label>
+                        <input type="text" class="form-control" name="nama_sensus" placeholder="Contoh: Sensus Semester I 2026" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Tanggal Mulai</label>
+                                <input type="date" class="form-control" name="tanggal_mulai" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Tanggal Selesai</label>
+                                <input type="date" class="form-control" name="tanggal_selesai" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Keterangan / Ruang Lingkup</label>
+                        <textarea class="form-control" name="keterangan_sensus" rows="3" placeholder="Tuliskan cakupan sensus..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Inisiasi Sensus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: TANDA TANGAN DIGITAL -->
+<div class="modal fade" id="modalSignature" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="fa fa-signature"></i> Tanda Tangan Digital</h4>
+            </div>
+            <form id="formSignature">
+                <input type="hidden" id="signatureRole">
+                <div class="modal-body">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Tulis Nama Anda</label>
+                        <input type="text" class="form-control" id="signatureNameInput" placeholder="Masukkan nama terang..." required style="margin-bottom: 10px;">
+                        <div class="alert alert-info" style="font-size: 11px; margin-bottom: 0; padding: 8px;">
+                            Menuliskan nama pada form ini berfungsi sebagai tanda tangan digital resmi pada sistem mLite.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Tandatangani</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT CUSTOM LOGIC -->
+<script>
+$(document).ready(function() {
+    loadPeriodeSensus();
+    
+    // Bind form submit for new Period
+    $('#formPeriode').submit(function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        $.post('{?=url("admin/logistik_non_medis/saveperiodesensus")?}', formData, function(res) {
+            var data = JSON.parse(res);
+            if (data.status === 'success') {
+                $('#modalPeriode').modal('hide');
+                $('#formPeriode')[0].reset();
+                loadPeriodeSensus();
+                alert('Periode sensus berhasil diinisiasi! Semua aset aktif berhasil disnapshot.');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    // Bind form submit for signature
+    $('#formSignature').submit(function(e) {
+        e.preventDefault();
+        var role = $('#signatureRole').val();
+        var name = $('#signatureNameInput').val();
+        var namaSensus = $('#selectPeriodeFilter').val() || ($('#tablePeriode tbody tr:first').data('sensus'));
+        
+        if(!namaSensus) {
+            alert('Pilih periode sensus terlebih dahulu!');
+            return;
+        }
+
+        $.post('{?=url("admin/logistik_non_medis/signsertifikat")?}', {
+            nama_sensus: namaSensus,
+            role_sign: role,
+            signature_name: name
+        }, function(res) {
+            var data = JSON.parse(res);
+            if (data.status === 'success') {
+                $('#modalSignature').modal('hide');
+                $('#formSignature')[0].reset();
+                loadPeriodeSensus();
+                alert('Tanda tangan berhasil direkam!');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+});
+
+// Load period list and populate drop downs
+function loadPeriodeSensus() {
+    $.get('{?=url("admin/logistik_non_medis/displayperiodesensus")?}', function(res) {
+        var data = JSON.parse(res);
+        if (data.status === 'success') {
+            var html = '';
+            var selectHtml = '';
+            
+            data.data.forEach(function(row) {
+                var progressColor = row.progress_percent > 80 ? 'progress-bar-success' : (row.progress_percent > 40 ? 'progress-bar-primary' : 'progress-bar-warning');
+                var badgeColor = row.status_sensus_periode === 'Selesai' ? 'label-success' : 'label-primary';
+                
+                html += '<tr data-sensus="' + row.nama_sensus + '">';
+                html += '<td style="font-weight:500;">' + row.nama_sensus + '</td>';
+                html += '<td>' + row.tanggal_mulai + '</td>';
+                html += '<td>' + row.tanggal_selesai + '</td>';
+                html += '<td>' + row.total_aset + ' Item</td>';
+                html += '<td style="width:20%;">';
+                html += '  <div class="progress" style="margin-bottom:0; height:12px; border-radius:6px; background:#f0f2f5;">';
+                html += '    <div class="progress-bar ' + progressColor + '" style="width:' + row.progress_percent + '%; font-size:9px; line-height:12px;">' + row.progress_percent + '%</div>';
+                html += '  </div>';
+                html += '</td>';
+                html += '<td><span class="label ' + badgeColor + '" style="border-radius:4px; padding:4px 8px;">' + row.status_sensus_periode + '</span></td>';
+                html += '<td class="text-center">';
+                if(row.status_sensus_periode !== 'Selesai') {
+                    html += '  <button class="btn btn-xs btn-danger" onclick="hapusPeriode(\'' + row.nama_sensus + '\')"><i class="fa fa-trash"></i> Hapus</button>';
+                } else {
+                    html += '  <span style="color:#777;"><i class="fa fa-lock"></i> Terkunci</span>';
+                }
+                html += '</td>';
+                html += '</tr>';
+
+                selectHtml += '<option value="' + row.nama_sensus + '">' + row.nama_sensus + '</option>';
+            });
+
+            if (data.data.length === 0) {
+                html = '<tr><td colspan="7" class="text-center" style="padding:30px; color:#999;"><i class="fa fa-folder-open" style="font-size:32px; margin-bottom:10px;"></i><br>Belum ada periode sensus. Klik "Buat Periode Baru" untuk memulai.</td></tr>';
+                selectHtml = '<option value="">-- Belum Ada Periode --</option>';
+            }
+
+            $('#tablePeriode tbody').html(html);
+            $('#selectPeriodeFilter').html(selectHtml);
+
+            // Populate signature status if we have periods
+            if (data.data.length > 0) {
+                var first = data.data[0];
+                $('#signPetugasName').text(first.ttd_petugas ? 'Ditandatangani oleh: ' + first.ttd_petugas : 'Status: Belum Menandatangani');
+                $('#signKaUnitName').text(first.ttd_ka_unit ? 'Disetujui oleh: ' + first.ttd_ka_unit : 'Status: Belum Menandatangani');
+                $('#signKaLogistikName').text(first.ttd_ka_logistik ? 'Sertifikat selesai: ' + first.ttd_ka_logistik : 'Status: Belum Menandatangani');
+                
+                loadKertasKerja(1);
+            }
+        }
+    });
+}
+
+// Load detailed census worksheet
+function loadKertasKerja(halaman) {
+    var sensus = $('#selectPeriodeFilter').val();
+    var status = $('#selectStatusItemFilter').val();
+    var cari = $('#searchKertasKerja').val();
+    
+    if(!sensus) return;
+
+    $.post('{?=url("admin/logistik_non_medis/displayasetsensus")?}', {
+        nama_sensus: sensus,
+        status_item: status,
+        cari: cari,
+        halaman: halaman
+    }, function(res) {
+        var data = JSON.parse(res);
+        var html = '';
+        
+        // Recon counters
+        var countSesuai = 0;
+        var countSelisihLokasi = 0;
+        var countTidakDitemukan = 0;
+        var reconHtml = '';
+        var hilangHtml = '';
+        var penyesuaianHtml = '';
+
+        data.rows.forEach(function(row) {
+            var statusBadge = '';
+            var actionBtn = '';
+
+            // Color badges
+            if (row.status_sensus_item === 'Belum Sensus') {
+                statusBadge = '<span class="label label-default">Belum Sensus</span>';
+                actionBtn = '<button class="btn btn-xs btn-danger" onclick="tandaiHilang(\'' + row.kode_aset + '\')"><i class="fa fa-ghost"></i> Tandai Hilang</button>';
+            } else if (row.status_sensus_item === 'Sesuai') {
+                statusBadge = '<span class="label label-success">Sesuai</span>';
+                countSesuai++;
+            } else if (row.status_sensus_item === 'Selisih Lokasi') {
+                statusBadge = '<span class="label label-warning">Selisih Lokasi</span>';
+                countSelisihLokasi++;
+            } else if (row.status_sensus_item === 'Selisih Kondisi') {
+                statusBadge = '<span class="label label-info">Selisih Kondisi</span>';
+            } else if (row.status_sensus_item === 'Tidak Ditemukan') {
+                statusBadge = '<span class="label label-danger">Tidak Ditemukan</span>';
+                countTidakDitemukan++;
+            } else if (row.status_sensus_item === 'Aset Baru') {
+                statusBadge = '<span class="label label-primary">Aset Baru</span>';
+            }
+
+            html += '<tr>';
+            html += '<td><strong>' + row.kode_aset + '</strong></td>';
+            html += '<td>' + row.nama_aset + '</td>';
+            html += '<td>' + row.sistem_nama_unit + '</td>';
+            html += '<td>' + (row.fisik_nama_unit || '-') + '</td>';
+            html += '<td><span class="label label-default">' + row.sistem_status_kondisi + '</span></td>';
+            html += '<td>' + (row.fisik_status_kondisi ? '<span class="label label-info">' + row.fisik_status_kondisi + '</span>' : '-') + '</td>';
+            html += '<td>' + statusBadge + '</td>';
+            html += '<td>' + (row.tanggal_scan || '-') + '</td>';
+            html += '<td class="text-center">' + actionBtn + '</td>';
+            html += '</tr>';
+
+            // Recon tab row builder
+            if(row.status_sensus_item !== 'Belum Sensus') {
+                reconHtml += '<tr>';
+                reconHtml += '<td><strong>' + row.kode_aset + '</strong></td>';
+                reconHtml += '<td>' + row.nama_aset + '</td>';
+                reconHtml += '<td>' + row.sistem_status_kondisi + ' -> ' + (row.fisik_status_kondisi || '-') + '</td>';
+                reconHtml += '<td>' + (row.sistem_kode_unit !== row.fisik_kode_unit ? 'Ya (Pindah)' : 'Tidak') + '</td>';
+                reconHtml += '<td>' + (row.sistem_status_kondisi !== row.fisik_status_kondisi ? 'Ya' : 'Tidak') + '</td>';
+                reconHtml += '<td>' + statusBadge + '</td>';
+                reconHtml += '</tr>';
+            }
+
+            // Missing assets tab row builder
+            if (row.status_sensus_item === 'Tidak Ditemukan') {
+                hilangHtml += '<tr>';
+                hilangHtml += '<td><strong>' + row.kode_aset + '</strong></td>';
+                hilangHtml += '<td>' + row.nama_aset + '</td>';
+                hilangHtml += '<td>' + row.sistem_nama_unit + '</td>';
+                hilangHtml += '<td>' + (row.catatan_temuan || 'Hilang / Tidak Ditemukan') + '</td>';
+                hilangHtml += '<td>' + (row.petugas_scan || '-') + '</td>';
+                hilangHtml += '<td class="text-center">';
+                if (row.status_penyesuaian === 'Belum Disesuaikan') {
+                    hilangHtml += '  <span class="text-muted"><i class="fa fa-info-circle"></i> Rekomendasi Penghapusan</span>';
+                } else {
+                    hilangHtml += '  <span class="text-success"><i class="fa fa-check-circle"></i> Sudah Diproses</span>';
+                }
+                hilangHtml += '</td>';
+                hilangHtml += '</tr>';
+            }
+
+            // Adjustment tab row builder
+            if (row.status_sensus_item !== 'Belum Sensus' && row.status_sensus_item !== 'Sesuai') {
+                var adjStatusBadge = row.status_penyesuaian === 'Sudah Disesuaikan' ? '<span class="label label-success">Disesuaikan</span>' : '<span class="label label-warning">Belum Disesuaikan</span>';
+                var adjAction = row.status_penyesuaian === 'Belum Disesuaikan' ? '<button class="btn btn-xs btn-primary" onclick="eksekusiPenyesuaianSingle(\'' + row.kode_aset + '\')"><i class="fa fa-sync-alt"></i> Sesuaikan</button>' : '<span class="text-success"><i class="fa fa-check"></i> Selesai</span>';
+                
+                penyesuaianHtml += '<tr>';
+                penyesuaianHtml += '<td><input type="checkbox" class="checkPenyesuaianItem" value="' + row.kode_aset + '" ' + (row.status_penyesuaian === 'Sudah Disesuaikan' ? 'disabled' : '') + '></td>';
+                penyesuaianHtml += '<td><strong>' + row.kode_aset + '</strong></td>';
+                penyesuaianHtml += '<td>' + row.nama_aset + '</td>';
+                penyesuaianHtml += '<td>' + row.sistem_nama_unit + '</td>';
+                penyesuaianHtml += '<td>' + (row.status_sensus_item === 'Tidak Ditemukan' ? '<span class="text-danger">[HAPUSKAN]</span>' : row.fisik_nama_unit) + '</td>';
+                penyesuaianHtml += '<td>' + row.sistem_status_kondisi + '</td>';
+                penyesuaianHtml += '<td>' + (row.status_sensus_item === 'Tidak Ditemukan' ? '-' : row.fisik_status_kondisi) + '</td>';
+                penyesuaianHtml += '<td>' + adjStatusBadge + '</td>';
+                penyesuaianHtml += '<td class="text-center">' + adjAction + '</td>';
+                penyesuaianHtml += '</tr>';
+            }
+        });
+
+        if (data.rows.length === 0) {
+            html = '<tr><td colspan="9" class="text-center" style="padding:20px; color:#999;">Tidak ada data kertas kerja sensus ditemukan.</td></tr>';
+        }
+        if (reconHtml === '') {
+            reconHtml = '<tr><td colspan="6" class="text-center" style="padding:20px; color:#999;">Belum ada hasil sensus terverifikasi. Sensus lapangan harus dilakukan dahulu.</td></tr>';
+        }
+        if (hilangHtml === '') {
+            hilangHtml = '<tr><td colspan="6" class="text-center" style="padding:20px; color:#999;">Hebat! Tidak ada aset yang hilang pada periode sensus ini.</td></tr>';
+        }
+        if (penyesuaianHtml === '') {
+            penyesuaianHtml = '<tr><td colspan="9" class="text-center" style="padding:20px; color:#999;">Semua data sesuai atau sudah disesuaikan secara penuh.</td></tr>';
+        }
+
+        $('#tableKertasKerja tbody').html(html);
+        $('#tableRekonsiliasi tbody').html(reconHtml);
+        $('#tableHilang tbody').html(hilangHtml);
+        $('#tablePenyesuaian tbody').html(penyesuaianHtml);
+
+        // Update Recon tab counters
+        $('#reconTotal').text(data.jumlah_data);
+        $('#reconSesuai').text(countSesuai);
+        $('#reconSelisihLokasi').text(countSelisihLokasi);
+        $('#reconTidakDitemukan').text(countTidakDitemukan);
+
+        // Pagination renderer
+        var pagHtml = '';
+        if(data.jml_halaman > 1) {
+            pagHtml += '<ul class="pagination pagination-sm" style="margin:0;">';
+            for (var i = 1; i <= data.jml_halaman; i++) {
+                var activeClass = i === halaman ? 'active' : '';
+                pagHtml += '<li class="' + activeClass + '"><a href="javascript:void(0)" onclick="loadKertasKerja(' + i + ')">' + i + '</a></li>';
+            }
+            pagHtml += '</ul>';
+        }
+        $('#paginationKertasKerja').html(pagHtml);
+    });
+}
+
+// Action: Delete sensus period
+function hapusPeriode(name) {
+    if(confirm('Apakah Anda yakin ingin menghapus periode sensus "' + name + '"? Semua kertas kerja snapshot untuk periode ini akan terhapus secara permanen.')) {
+        $.post('{?=url("admin/logistik_non_medis/hapusperiodesensus")?}', { nama_sensus: name }, function(res) {
+            var data = JSON.parse(res);
+            if (data.status === 'success') {
+                loadPeriodeSensus();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+// Action: Mark asset as missing physically
+function tandaiHilang(kodeAset) {
+    var sensus = $('#selectPeriodeFilter').val();
+    if(confirm('Apakah Anda yakin ingin menandai aset ' + kodeAset + ' ini sebagai "Tidak Ditemukan" pada periode sensus ini?')) {
+        $.post('{?=url("admin/logistik_non_medis/markasmissing")?}', {
+            kode_aset: kodeAset,
+            nama_sensus: sensus
+        }, function(res) {
+            var data = JSON.parse(res);
+            if (data.status === 'success') {
+                loadKertasKerja(1);
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+// Action: Open signature e-signature modal
+function openSignatureModal(role) {
+    $('#signatureRole').val(role);
+    $('#modalSignature').modal('show');
+}
+
+// Action: Single Asset adjustment
+function eksekusiPenyesuaianSingle(kodeAset) {
+    var sensus = $('#selectPeriodeFilter').val();
+    if(confirm('Apakah Anda yakin ingin mengeksekusi penyesuaian master data untuk aset ' + kodeAset + '? Data unit/kondisi fisik akan menimpa data master sistem.')) {
+        $.post('{?=url("admin/logistik_non_medis/eksekusipenyesuaian")?}', {
+            nama_sensus: sensus,
+            kode_aset: kodeAset
+        }, function(res) {
+            var data = JSON.parse(res);
+            if (data.status === 'success') {
+                alert('Data master aset berhasil disesuaikan!');
+                loadKertasKerja(1);
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+// Action: Bulk adjustment execution
+function eksekusiPenyesuaianMassal() {
+    var sensus = $('#selectPeriodeFilter').val();
+    var selected = [];
+    $('.checkPenyesuaianItem:checked').each(function() {
+        selected.push($(this).val());
+    });
+
+    if(selected.length === 0) {
+        alert('Pilih minimal satu aset yang ingin disesuaikan!');
+        return;
+    }
+
+    if(confirm('Apakah Anda yakin ingin mengeksekusi penyesuaian masal untuk ' + selected.length + ' aset terpilih?')) {
+        var promises = selected.map(function(kode) {
+            return $.post('{?=url("admin/logistik_non_medis/eksekusipenyesuaian")?}', {
+                nama_sensus: sensus,
+                kode_aset: kode
+            });
+        });
+
+        Promise.all(promises).then(function() {
+            alert('Penyesuaian massal berhasil diselesaikan!');
+            loadKertasKerja(1);
+        });
+    }
+}
+
+// Action: Print BAHS PDF Laporan
+function cetakLaporanBAHS() {
+    var sensus = $('#selectPeriodeFilter').val();
+    if(!sensus) {
+        alert('Pilih periode sensus terlebih dahulu!');
+        return;
+    }
+    window.open('{?=url("admin/logistik_non_medis/cetakbahs")?}&nama_sensus=' + encodeURIComponent(sensus), '_blank');
+}
+
+// Check all penyesuaian checkboxes toggle
+$(document).on('change', '#checkAllPenyesuaian', function() {
+    $('.checkPenyesuaianItem').prop('checked', $(this).prop('checked'));
+});
+</script>

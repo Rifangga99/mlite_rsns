@@ -1,0 +1,58 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-shopping-cart"></i> Permintaan Pembelian (PR)</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="col-md-12">
+                        <button class="btn btn-primary" onclick="tambahPR()"><i class="fa fa-plus"></i> Tambah Pengajuan</button>
+                        <div class="input-group pull-right" style="width: 300px;">
+                            <input type="text" id="cariPR" class="form-control" placeholder="Cari No. PR atau Unit...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" onclick="loadPR()"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {$js_auto}
+<script>
+var baseURL = mlite.url + '/' + mlite.admin + '/logistik_non_medis';
+
+$(document).ready(function() {
+    loadPR();
+});
+
+function loadPR(halaman = 1) {
+    var cari = $('#cariPR').val();
+    $('#displayPR').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Memuat data...</p></div>');
+    $.post(baseURL + '/displaypr?t=' + mlite.token, {halaman: halaman, cari: cari}, function(data) {
+        $('#displayPR').html(data);
+    });
+}
+
+function tambahPR(katalog_id = '') {
+    $.post(baseURL + '/formpr?t=' + mlite.token, {katalog_id: katalog_id}, function(data) {
+        $('#pr_modal_content').html(data);
+        $('#modalPR').modal('show');
+    });
+}
+</script>
+                
+                <div id="displayPR">
+                    <div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Memuat data...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Global -->
+<div class="modal fade" id="modalPR" tabindex="-1" role="dialog" aria-labelledby="modalPRLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="pr_modal_content">
+            <!-- Content loaded via AJAX -->
+        </div>
+    </div>
+</div>

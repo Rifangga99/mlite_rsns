@@ -1,0 +1,442 @@
+<style>
+    .disposal-widget {
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+        border-radius: 4px;
+        border: 1px solid transparent;
+    }
+    .disposal-widget:hover {
+        transform: translateY(-3px);
+    }
+    .disposal-widget .icon-bg {
+        position: absolute;
+        right: 15px;
+        bottom: 10px;
+        font-size: 60px;
+        opacity: 0.15;
+    }
+    .disposal-widget h4 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0;
+        margin-bottom: 8px;
+    }
+    .disposal-widget h2 {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0;
+    }
+    .ui-autocomplete {
+        z-index: 2150000000 !important;
+    }
+    .step-flow {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 5px;
+        border: 1px solid #eee;
+    }
+    .step-item {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        padding: 10px;
+    }
+    .step-item:not(:last-child)::after {
+        content: "\f0da";
+        font-family: FontAwesome;
+        position: absolute;
+        right: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        color: #ccc;
+    }
+    .step-number {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        background: #ddd;
+        color: #333;
+        border-radius: 50%;
+        display: inline-block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .step-item.active .step-number {
+        background: #337ab7;
+        color: #fff;
+    }
+    .step-item.completed .step-number {
+        background: #5cb85c;
+        color: #fff;
+    }
+    .step-title {
+        font-size: 11px;
+        font-weight: bold;
+        display: block;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-trash-o"></i> Penghapusan & Disposal Aset</h3>
+                <ul class="nav nav-tabs pull-right panel-options" role="tablist">
+                    <li role="presentation" class="active"><a href="#dashboard-tab" aria-controls="dashboard-tab" role="tab" data-toggle="tab" onclick="loadDashboard()"><i class="fa fa-dashboard"></i> Dashboard & Alur</a></li>
+                    <li role="presentation"><a href="#transaksi-tab" aria-controls="transaksi-tab" role="tab" data-toggle="tab" onclick="loadTransaksi()"><i class="fa fa-exchange"></i> Transaksi Aktif</a></li>
+                    <li role="presentation"><a href="#histori-tab" aria-controls="histori-tab" role="tab" data-toggle="tab" onclick="loadHistori()"><i class="fa fa-history"></i> Histori Penghapusan</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: DASHBOARD & WORKFLOW -->
+                    <div role="tabpanel" class="tab-pane active" id="dashboard-tab">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="disposal-widget bg-primary text-white" style="background-color: #337ab7; color: white;">
+                                    <div class="icon-bg"><i class="fa fa-paper-plane"></i></div>
+                                    <h4>Usulan Aktif</h4>
+                                    <h2 id="widget-usulan">-</h2>
+                                    <p style="margin: 5px 0 0 0; font-size: 11px;">Pengajuan sedang diproses</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="disposal-widget bg-warning text-white" style="background-color: #f0ad4e; color: white;">
+                                    <div class="icon-bg"><i class="fa fa-gavel"></i></div>
+                                    <h4>Metode Pelepasan</h4>
+                                    <h2>Lelang / Hibah / Musnah</h2>
+                                    <p style="margin: 5px 0 0 0; font-size: 11px;">Pilihan pelepasan resmi</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="disposal-widget bg-success text-white" style="background-color: #5cb85c; color: white;">
+                                    <div class="icon-bg"><i class="fa fa-check-circle"></i></div>
+                                    <h4>Aset Dihapuskan</h4>
+                                    <h2 id="widget-dihapus">-</h2>
+                                    <p style="margin: 5px 0 0 0; font-size: 11px;">Total aset sukses disposal</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default" style="margin-top: 10px;">
+                            <div class="panel-heading"><i class="fa fa-info-circle"></i> <strong>Siklus Hidup & Prosedur Penghapusan Aset Non-Medis</strong></div>
+                            <div class="panel-body">
+                                <p class="text-muted">Proses pelepasan aset non-medis wajib melalui 5 tahapan integrasi sistem guna menjaga transparansi dan akurasi nilai buku inventaris rumah sakit:</p>
+                                
+                                <div class="step-flow">
+                                    <div class="step-item active">
+                                        <span class="step-number">1</span>
+                                        <span class="step-title">Pengajuan Usulan</span>
+                                        <small class="text-muted" style="font-size: 9px;">Pilih aset & ajukan alasan</small>
+                                    </div>
+                                    <div class="step-item active">
+                                        <span class="step-number">2</span>
+                                        <span class="step-title">Penilaian Kondisi</span>
+                                        <small class="text-muted" style="font-size: 9px;">Cek fisik & taksiran harga</small>
+                                    </div>
+                                    <div class="step-item active">
+                                        <span class="step-number">3</span>
+                                        <span class="step-title">Persetujuan & SK</span>
+                                        <small class="text-muted" style="font-size: 9px;">Input SK & Metode disposal</small>
+                                    </div>
+                                    <div class="step-item active">
+                                        <span class="step-number">4</span>
+                                        <span class="step-title">Eksekusi & BA</span>
+                                        <small class="text-muted" style="font-size: 9px;">Pemuatan Berita Acara</small>
+                                    </div>
+                                    <div class="step-item active">
+                                        <span class="step-number">5</span>
+                                        <span class="step-title">Otomasi Inventaris</span>
+                                        <small class="text-muted" style="font-size: 9px;">Aset berubah: Dihapuskan</small>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning" style="margin-top: 15px;">
+                                    <i class="fa fa-exclamation-triangle"></i> <strong>Pemberitahuan Sistem:</strong> Aset yang telah melalui tahap ke-5 (Berita Acara Selesai) akan secara otomatis diperbarui status inventarisnya menjadi <strong>Dihapuskan</strong>. Rekor aset tersebut tidak akan didepresiasi atau dihitung dalam KIB aktif, namun tetap diarsipkan demi akuntabilitas laporan keuangan rumah sakit.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TAB 2: TRANSAKSI AKTIF -->
+                    <div role="tabpanel" class="tab-pane" id="transaksi-tab">
+                        <div class="well well-sm">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary" onclick="formPengajuan()"><i class="fa fa-plus-circle"></i> Ajukan Penghapusan Baru</button>
+                                </div>
+                                <div class="col-md-4 col-md-offset-4">
+                                    <div class="input-group">
+                                        <input type="text" id="cari_transaksi" class="form-control" placeholder="Cari No. Pengajuan, Kode atau Nama Aset...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" onclick="loadTransaksi()"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="container-transaksi">
+                            <div class="text-center" style="padding: 40px;"><i class="fa fa-spinner fa-spin fa-2x"></i> Memuat data transaksi...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- TAB 3: HISTORI PENGHAPUSAN -->
+                    <div role="tabpanel" class="tab-pane" id="histori-tab">
+                        <div class="well well-sm">
+                            <div class="row">
+                                <div class="col-md-4 col-md-offset-8">
+                                    <div class="input-group">
+                                        <input type="text" id="cari_histori" class="form-control" placeholder="Cari arsip pembuangan...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" onclick="loadHistori()"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="container-histori">
+                            <div class="text-center" style="padding: 40px;"><i class="fa fa-spinner fa-spin fa-2x"></i> Memuat histori arsip...</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TRANSAKSI PENGAJUAN -->
+<div class="modal fade" id="pengajuanModal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="form-pengajuan-body"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PENILAIAN FISIK -->
+<div class="modal fade" id="penilaianModal" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="form-penilaian-body"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL INPUT SK & METODE -->
+<div class="modal fade" id="skModal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="form-sk-body"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL BERITA ACARA (BA) -->
+<div class="modal fade" id="baModal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="form-ba-body"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    loadDashboard();
+});
+
+// 1. Load Dashboard Counter & Widgets
+function loadDashboard() {
+    // We can pull simple counting metrics from display queries
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayasetpenghapusan")?}', {status: 'Aktif'}, function(data) {
+        var tempDiv = $('<div>').html(data);
+        var activeCount = tempDiv.find('tbody tr:not(.empty-row)').length;
+        $('#widget-usulan').text(activeCount);
+    });
+
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayasetpenghapusan")?}', {status: 'Selesai'}, function(data) {
+        var tempDiv = $('<div>').html(data);
+        var resolvedCount = tempDiv.find('tbody tr:not(.empty-row)').length;
+        $('#widget-dihapus').text(resolvedCount);
+    });
+}
+
+// 2. Load Active Transactions Tab
+function loadTransaksi() {
+    var cari = $('#cari_transaksi').val();
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayasetpenghapusan")?}', {cari: cari, status: 'Aktif'}, function(data) {
+        $('#container-transaksi').html(data);
+    });
+}
+
+// 3. Load Histori Archive Tab
+function loadHistori() {
+    var cari = $('#cari_histori').val();
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayasetpenghapusan")?}', {cari: cari, status: 'Selesai'}, function(data) {
+        $('#container-histori').html(data);
+    });
+}
+
+// 4. Open Form Pengajuan Modal
+function formPengajuan(id = '') {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formpengajuanpenghapusan")?}', {id: id}, function(data) {
+        $('#form-pengajuan-body').html(data);
+        $('#pengajuanModal').modal('show');
+    });
+}
+
+// 5. Save Proposal (Draft / Submitted)
+function savePengajuan() {
+    var data = $('#pengajuanForm').serialize();
+    $.post('{?=url(ADMIN."/logistik_non_medis/savepengajuanpenghapusan")?}', data, function(response) {
+        var res = JSON.parse(response);
+        if (res.status == 'success') {
+            $('#pengajuanModal').modal('hide');
+            loadTransaksi();
+            loadDashboard();
+            bootbox.alert({
+                message: '<i class="fa fa-check-circle text-success fa-2x"></i> &nbsp;<strong>Pengajuan penghapusan berhasil diajukan!</strong>',
+                buttons: { ok: { label: 'OK', className: 'btn-success' } }
+            });
+        } else {
+            bootbox.alert({
+                message: '<i class="fa fa-times-circle text-danger fa-2x"></i> &nbsp;<strong>Gagal:</strong> ' + res.message,
+                buttons: { ok: { label: 'OK', className: 'btn-danger' } }
+            });
+        }
+    });
+}
+
+// 6. Delete Draft proposal
+function hapusPengajuan(id) {
+    bootbox.confirm('Apakah Anda yakin ingin menghapus usulan penghapusan aset ini?', function(res) {
+        if (res) {
+            $.post('{?=url(ADMIN."/logistik_non_medis/hapuspengajuanpenghapusan")?}', {id: id}, function(response) {
+                var res = JSON.parse(response);
+                if (res.status == 'success') {
+                    loadTransaksi();
+                    loadDashboard();
+                } else {
+                    bootbox.alert(res.message);
+                }
+            });
+        }
+    });
+}
+
+// 7. Open Assessment Modal
+function formPenilaian(id) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formpenilaianpenghapusan")?}', {id: id}, function(data) {
+        $('#form-penilaian-body').html(data);
+        $('#penilaianModal').modal('show');
+    });
+}
+
+// 8. Save Assessment Result
+function savePenilaian() {
+    var data = $('#penilaianForm').serialize();
+    $.post('{?=url(ADMIN."/logistik_non_medis/savepenilaianpenghapusan")?}', data, function(response) {
+        var res = JSON.parse(response);
+        if (res.status == 'success') {
+            $('#penilaianModal').modal('hide');
+            loadTransaksi();
+            bootbox.alert({
+                message: '<i class="fa fa-check-circle text-success fa-2x"></i> &nbsp;<strong>Hasil penilaian kondisi berhasil disimpan!</strong>',
+                buttons: { ok: { label: 'OK', className: 'btn-success' } }
+            });
+        } else {
+            bootbox.alert({
+                message: '<i class="fa fa-times-circle text-danger fa-2x"></i> &nbsp;<strong>Gagal:</strong> ' + res.message,
+                buttons: { ok: { label: 'OK', className: 'btn-danger' } }
+            });
+        }
+    });
+}
+
+// 9. Open SK & Method Modal
+function formSK(id) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formskpenghapusan")?}', {id: id}, function(data) {
+        $('#form-sk-body').html(data);
+        $('#skModal').modal('show');
+    });
+}
+
+// 10. Save SK Details & Method (using FormData for file upload)
+function saveSK() {
+    var form = $('#skForm')[0];
+    var data = new FormData(form);
+    
+    $.ajax({
+        url: '{?=url(ADMIN."/logistik_non_medis/saveskpenghapusan")?}',
+        type: 'POST',
+        data: data,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            var res = JSON.parse(response);
+            if (res.status == 'success') {
+                $('#skModal').modal('hide');
+                loadTransaksi();
+                bootbox.alert({
+                    message: '<i class="fa fa-check-circle text-success fa-2x"></i> &nbsp;<strong>SK & Metode Penghapusan berhasil ditetapkan!</strong>',
+                    buttons: { ok: { label: 'OK', className: 'btn-success' } }
+                });
+            } else {
+                bootbox.alert({
+                    message: '<i class="fa fa-times-circle text-danger fa-2x"></i> &nbsp;<strong>Gagal:</strong> ' + res.message,
+                    buttons: { ok: { label: 'OK', className: 'btn-danger' } }
+                });
+            }
+        }
+    });
+}
+
+// 11. Open Berita Acara (BA) Modal
+function formBA(id) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formbapenghapusan")?}', {id: id}, function(data) {
+        $('#form-ba-body').html(data);
+        $('#baModal').modal('show');
+    });
+}
+
+// 12. Save BA & Mark Asset as Disposed (using FormData for file upload)
+function saveBA() {
+    var form = $('#baForm')[0];
+    var data = new FormData(form);
+    
+    $.ajax({
+        url: '{?=url(ADMIN."/logistik_non_medis/selesaikanpenghapusan")?}',
+        type: 'POST',
+        data: data,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            var res = JSON.parse(response);
+            if (res.status == 'success') {
+                $('#baModal').modal('hide');
+                loadTransaksi();
+                loadDashboard();
+                bootbox.alert({
+                    message: '<i class="fa fa-check-circle text-success fa-2x"></i> &nbsp;<strong>Berita Acara selesai diunggah. Inventaris Aset diperbarui!</strong>',
+                    buttons: { ok: { label: 'OK', className: 'btn-success' } }
+                });
+            } else {
+                bootbox.alert({
+                    message: '<i class="fa fa-times-circle text-danger fa-2x"></i> &nbsp;<strong>Gagal:</strong> ' + res.message,
+                    buttons: { ok: { label: 'OK', className: 'btn-danger' } }
+                });
+            }
+        }
+    });
+}
+</script>

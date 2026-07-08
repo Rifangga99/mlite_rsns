@@ -1,0 +1,36 @@
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>No. SPPB</th>
+                <th>Tanggal</th>
+                <th>Unit Pemohon</th>
+                <th>Items</th>
+                <th class="text-center">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: $sppb}
+                {loop: $sppb}
+                <tr>
+                    <td><strong>{$value.no_sppb}</strong></td>
+                    <td>{?=date('d/m/Y', strtotime($value.tgl_sppb))?}</td>
+                    <td>{$value.nama_unit}</td>
+                    <td><span class="label label-info">Detail item tersedia di Verifikasi</span></td>
+                    <td class="text-center">
+                        <button class="btn btn-primary btn-xs btn-verif" data-no="{$value.no_sppb}">
+                            <i class="fa fa-check-square-o"></i> Verifikasi
+                        </button>
+                    </td>
+                </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="5" class="text-center">Tidak ada permintaan yang menunggu verifikasi.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination removed for debugging -->

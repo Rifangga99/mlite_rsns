@@ -1,0 +1,577 @@
+<div class="row" id="manage" style="margin-bottom:100px;">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading clearfix">
+        <div class="pull-right" style="margin-top: -3px;">
+          <input type="text" id="cari_modul" class="form-control input-sm" placeholder="Pencarian modul..." style="width: 250px;">
+        </div>
+        <h3 class="panel-title" style="padding-top: 5px;">Dashboard Logistik Non Medis</h3>
+      </div>
+      <div class="panel-body">
+        
+        <div class="row">
+          <div class="col-md-12">
+            <h4><i class="fa fa-database"></i> Master Data</h4>
+            <hr style="margin-top: 5px; margin-bottom: 15px;">
+            <ul class="modules" style="padding:0;margin:0;">
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','masterbarang'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-cubes"></i>
+                                <div class="desc">Manajemen Data Barang & Katalog</div>
+                            </div>
+                            <h4><b>Data Barang</b></h4>
+                        </a>
+                    </div>
+                </li>
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','mastervendor'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-users"></i>
+                                <div class="desc">Manajemen Data Vendor & Supplier</div>
+                            </div>
+                            <h4><b>Data Vendor</b></h4>
+                        </a>
+                    </div>
+                </li>
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','masterunit'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-building"></i>
+                                <div class="desc">Manajemen Data Unit & Departemen</div>
+                            </div>
+                            <h4><b>Data Unit</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','masterlokasi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-map-marker"></i>
+                                <div class="desc">Manajemen Data Lokasi Gudang</div>
+                            </div>
+                            <h4><b>Lokasi Gudang</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','mastersatuan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-balance-scale"></i>
+                                <div class="desc">Manajemen Satuan & Konversi</div>
+                            </div>
+                            <h4><b>Satuan</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','masterkategori'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-tags"></i>
+                                <div class="desc">Manajemen Kategori & Klasifikasi</div>
+                            </div>
+                            <h4><b>Kategori</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','masterrekanan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-handshake-o"></i>
+                                <div class="desc">Manajemen Data Rekanan Jasa</div>
+                            </div>
+                            <h4><b>Data Rekanan</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','mastercoa'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-book"></i>
+                                <div class="desc">Manajemen Kode Akun (COA)</div>
+                            </div>
+                            <h4><b>Kode Akun</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 25px;">
+          <div class="col-md-12">
+            <h4><i class="fa fa-shopping-cart"></i> Pengadaan</h4>
+            <hr style="margin-top: 5px; margin-bottom: 15px;">
+            <ul class="modules" style="padding:0;margin:0;">
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanperencanaan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-calendar-check-o"></i>
+                                <div class="desc">Perencanaan Kebutuhan</div>
+                            </div>
+                            <h4><b>Perencanaan</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanpr'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-cart-plus"></i>
+                                <div class="desc">Permintaan Pembelian (PR)</div>
+                            </div>
+                            <h4><b>Permintaan (PR)</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanvendor'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-address-book"></i>
+                                <div class="desc">Manajemen Vendor</div>
+                            </div>
+                            <h4><b>Manajemen Vendor</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanpo'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-file-text-o"></i>
+                                <div class="desc">Purchase Order (PO)</div>
+                            </div>
+                            <h4><b>Purchase Order</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanekatalog'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-globe"></i>
+                                <div class="desc">E-Katalog & E-Purchasing</div>
+                            </div>
+                            <h4><b>E-Katalog</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanpenerimaan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-check-square-o"></i>
+                                <div class="desc">Penerimaan & Verifikasi</div>
+                            </div>
+                            <h4><b>Penerimaan</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','pengadaankontrak'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-file-text-o"></i>
+                                <div class="desc">Manajemen Kontrak</div>
+                            </div>
+                            <h4><b>Manajemen Kontrak</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 25px;">
+          <div class="col-md-12">
+            <h4><i class="fa fa-home"></i> Manajemen Gudang</h4>
+            <hr style="margin-top: 5px; margin-bottom: 15px;">
+            <ul class="modules" style="padding:0;margin:0;">
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','gudangpenerimaan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-truck"></i>
+                                <div class="desc">Penerimaan Barang Masuk</div>
+                            </div>
+                            <h4><b>Barang Masuk</b></h4>
+                        </a>
+                    </div>
+                </li>
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','gudanglokasi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-map-marker"></i>
+                                <div class="desc">Manajemen Lokasi & Rak</div>
+                            </div>
+                            <h4><b>Manajemen Lokasi</b></h4>
+                        </a>
+                    </div>
+                </li>
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','gudangstok'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-archive"></i>
+                                <div class="desc">Pengelolaan Stok Barang</div>
+                            </div>
+                            <h4><b>Pengelolaan Stok</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','gudangopname'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-list-alt"></i>
+                                <div class="desc">Stock Opname & Inventarisasi</div>
+                            </div>
+                            <h4><b>Stock Opname</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','gudangmetode'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-random"></i>
+                                <div class="desc">Metode FIFO / FEFO</div>
+                            </div>
+                            <h4><b>FIFO / FEFO</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','gudangrusak'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-trash"></i>
+                                <div class="desc">Penanganan Barang Rusak</div>
+                            </div>
+                            <h4><b>Barang Rusak</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','gudangmutasi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-exchange"></i>
+                                <div class="desc">Mutasi Antar Gudang</div>
+                            </div>
+                            <h4><b>Mutasi</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+            </ul>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 25px;">
+          <div class="col-md-12">
+            <h4><i class="fa fa-share-alt"></i> Distribusi</h4>
+            <hr style="margin-top: 5px; margin-bottom: 15px;">
+            <ul class="modules" style="padding:0;margin:0;">
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','distribusisppb'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-file-text-o"></i>
+                                <div class="desc">Permintaan Barang (SPPB)</div>
+                            </div>
+                            <h4><b>Permintaan (SPPB)</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','distribusiverifikasi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-check-square-o"></i>
+                                <div class="desc">Verifikasi Permintaan (SPPB)</div>
+                            </div>
+                            <h4><b>Verifikasi SPPB</b> {if: $count_verif > 0}<span class="label label-danger">{$count_verif}</span>{/if}</h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','distribusipacking'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-cube"></i>
+                                <div class="desc">Picking & Packing</div>
+                            </div>
+                            <h4><b>Picking & Packing</b> {if: $count_packing > 0}<span class="label label-danger">{$count_packing}</span>{/if}</h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','distribusiserahterima'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-handshake-o"></i>
+                                <div class="desc">Serah Terima Barang</div>
+                            </div>
+                            <h4><b>Serah Terima</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','distribusitracking'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-map-o"></i>
+                                <div class="desc">Tracking Pengiriman</div>
+                            </div>
+                            <h4><b>Tracking</b></h4>
+                        </a>
+                    </div>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','distribusiretur'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-undo"></i>
+                                <div class="desc">Retur Barang dari Unit</div>
+                            </div>
+                            <h4><b>Retur Barang</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','distribusikuota'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-battery-half"></i>
+                                <div class="desc">Kuota & Alokasi Unit</div>
+                            </div>
+                            <h4><b>Kuota & Alokasi</b></h4>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 25px;">
+          <div class="col-md-12">
+            <h4><i class="fa fa-cubes"></i> Aset</h4>
+            <hr style="margin-top: 5px; margin-bottom: 15px;">
+            <ul class="modules" style="padding:0;margin:0;">
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','asetregistrasi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-plus-circle"></i>
+                                <div class="desc">Registrasi & Pencatatan Aset</div>
+                            </div>
+                            <h4><b>Registrasi Aset</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','asetkib'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-map-o"></i>
+                                <div class="desc">Kartu Inventaris Barang</div>
+                            </div>
+                            <h4><b>KIB</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','asetpenyusutan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-calculator"></i>
+                                <div class="desc">Penyusutan Nilai Aset</div>
+                            </div>
+                            <h4><b>Penyusutan</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','asetpemeliharaan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-wrench"></i>
+                                <div class="desc">Jadwal & Riwayat Pemeliharaan</div>
+                            </div>
+                            <h4><b>Pemeliharaan</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','asetmutasi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-exchange"></i>
+                                <div class="desc">Mutasi & Pemindahan Aset</div>
+                            </div>
+                            <h4><b>Mutasi</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','asetpenghapusan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-trash-o"></i>
+                                <div class="desc">Penghapusan & Usulan Scrapping</div>
+                            </div>
+                            <h4><b>Penghapusan</b></h4>
+                        </a>
+                    </div>
+                </li>
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','asetsensus'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-qrcode"></i>
+                                <div class="desc">Sensus & Stock Opname Aset</div>
+                            </div>
+                            <h4><b>Sensus & Verifikasi</b></h4>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 25px;">
+          <div class="col-md-12">
+            <h4><i class="fa fa-line-chart"></i> Laporan & Audit</h4>
+            <hr style="margin-top: 5px; margin-bottom: 15px;">
+            <ul class="modules" style="padding:0;margin:0;">
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','laporanstokmutasi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-exchange"></i>
+                                <div class="desc">Laporan Stok & Mutasi Real-Time</div>
+                            </div>
+                            <h4><b>Stok & Mutasi</b></h4>
+                        </a>
+                    </div>
+                </li>
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','laporanpengadaan'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-shopping-cart"></i>
+                                <div class="desc">Laporan Pengadaan & PO</div>
+                            </div>
+                            <h4><b>Pengadaan</b></h4>
+                        </a>
+                    </div>
+                </li>
+                
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','laporandistribusi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-truck"></i>
+                                <div class="desc">Laporan Distribusi Barang ke Unit</div>
+                            </div>
+                            <h4><b>Distribusi</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','laporanaset'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-cubes"></i>
+                                <div class="desc">Laporan Inventaris & Nilai Aset</div>
+                            </div>
+                            <h4><b>Laporan Aset</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','laporandashboardkpi'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-dashboard"></i>
+                                <div class="desc">Dashboard Analisis & KPI Logistik</div>
+                            </div>
+                            <h4><b>Dashboard & KPI</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+
+                <li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','laporaneksporcetak'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-print"></i>
+                                <div class="desc">Ekspor & Cetak Laporan PDF/Excel</div>
+                            </div>
+                            <h4><b>Ekspor & Cetak</b></h4>
+                        </a>
+                    </div>
+                </li>
+
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function(){
+    $("#cari_modul").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $(".modules li.module").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+      // Sembunyikan judul kategori jika semua isinya tersembunyi (opsional)
+      // Ini bisa dikembangkan nanti jika diperlukan.
+    });
+  });
+</script>

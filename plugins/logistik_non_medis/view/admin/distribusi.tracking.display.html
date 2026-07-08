@@ -1,0 +1,93 @@
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th width="5%">No</th>
+                <th width="15%">No. SPPB</th>
+                <th width="20%">Unit Tujuan</th>
+                <th width="15%">Info Pengiriman</th>
+                <th width="30%">Timeline Status</th>
+                <th width="15%">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($tracking)}
+                {loop: $tracking}
+                <tr>
+                    <td>{?= ($halaman - 1) * 10 + $key + 1 ?}</td>
+                    <td>
+                        <strong>{?= $value['no_sppb'] ?}</strong><br>
+                        <small class="text-muted"><i class="fa fa-calendar"></i> {?= date('d/m/Y', strtotime($value['tgl_sppb'])) ?}</small>
+                    </td>
+                    <td>{?= $value['nama_unit'] ?}</td>
+                    <td>
+                        {if: !empty($value['no_manifest'])}
+                            <span class="label label-info">{?= $value['no_manifest'] ?}</span><br>
+                            <small><i class="fa fa-truck"></i> {?= $value['kurir'] ?} ({?= $value['kendaraan'] ?})</small>
+                        {else}
+                            <span class="label label-default">Belum ada Manifest</span>
+                        {/if}
+                    </td>
+                    <td>
+                        <div style="font-size: 11px;">
+                            <div>
+                                <i class="fa {?= !empty($value['tgl_input']) ? 'fa-check-circle text-success' : 'fa-circle-o text-muted' ?}"></i> 
+                                Request: {?= !empty($value['tgl_input']) ? date('d/m/Y H:i', strtotime($value['tgl_input'])) : '-' ?}
+                            </div>
+                            <div>
+                                <i class="fa {?= !empty($value['waktu_packing']) ? 'fa-check-circle text-success' : 'fa-circle-o text-muted' ?}"></i> 
+                                Siap Kirim (Packed): {?= !empty($value['waktu_packing']) ? date('d/m/Y H:i', strtotime($value['waktu_packing'])) : '-' ?}
+                            </div>
+                            <div>
+                                <i class="fa {?= !empty($value['waktu_kirim']) ? 'fa-check-circle text-success' : 'fa-circle-o text-muted' ?}"></i> 
+                                <strong>Dikirim:</strong> {?= !empty($value['waktu_kirim']) ? date('d/m/Y H:i', strtotime($value['waktu_kirim'])) : '-' ?}
+                            </div>
+                            <div>
+                                <i class="fa {?= !empty($value['waktu_terima']) ? 'fa-check-circle text-success' : 'fa-circle-o text-muted' ?}"></i> 
+                                <strong>Diterima:</strong> {?= !empty($value['waktu_terima']) ? date('d/m/Y H:i', strtotime($value['waktu_terima'])) : '-' ?}
+                                {if: !empty($value['penerima'])}
+                                    <br><span style="padding-left:14px;" class="text-primary">(Oleh: {?= $value['penerima'] ?})</span>
+                                {/if}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        {if: $value['status'] == 'Dikirim' || $value['tracking_status'] == 'Dikirim' || (!empty($value['waktu_kirim']) && $value['status'] != 'Selesai' && $value['status'] != 'Diterima')}
+                            <button class="btn btn-sm btn-success btn-block" data-sppb="{$value.no_sppb}" onclick="showKonfirmasi(this.getAttribute('data-sppb'))"><i class="fa fa-check"></i> Konfirmasi Terima</button>
+                        {elseif: $value['status'] == 'Diterima' || $value['status'] == 'Selesai' || $value['tracking_status'] == 'Diterima'}
+                            <span class="label label-success" style="font-size: 12px; display:block; padding: 5px;"><i class="fa fa-check-circle"></i> Selesai</span>
+                        {else}
+                            <span class="label label-warning" style="font-size: 12px; display:block; padding: 5px;"><i class="fa fa-clock-o"></i> Menunggu Manifest</span>
+                        {/if}
+                    </td>
+                </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="6" class="text-center">Tidak ada data tracking yang ditemukan.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <p>Total Data: {?= $jumlah_data ?}</p>
+    </div>
+    <div class="col-md-6">
+        <ul class="pagination pull-right" style="margin: 0;">
+            {if: $jml_halaman > 1}
+                {if: $halaman > 1}
+                    <li><a href="javascript:void(0)" data-tab="{$tab}" data-page="{?= $halaman - 1 ?}" onclick="loadTracking(this.getAttribute('data-tab'), this.getAttribute('data-page'))">&laquo;</a></li>
+                {/if}
+                {for: $i=1; $i<=$jml_halaman; $i++}
+                    <li class="{?= ($i == $halaman) ? 'active' : '' ?}"><a href="javascript:void(0)" data-tab="{$tab}" data-page="{$i}" onclick="loadTracking(this.getAttribute('data-tab'), this.getAttribute('data-page'))">{$i}</a></li>
+                {/for}
+                {if: $halaman < $jml_halaman}
+                    <li><a href="javascript:void(0)" data-tab="{$tab}" data-page="{?= $halaman + 1 ?}" onclick="loadTracking(this.getAttribute('data-tab'), this.getAttribute('data-page'))">&raquo;</a></li>
+                {/if}
+            {/if}
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+{if: !empty($lokasi)}
+    {loop: $lokasi}
+    <tr>
+        <td><strong>{$value.kode_lokasi}</strong></td>
+        <td>{$value.nama_lokasi}</td>
+        <td>
+            <span class="label label-info">{$value.kode_zona}</span>
+            <span class="label label-default">{$value.rak}</span>
+            <span class="label label-default">{$value.bin}</span>
+            <span class="label label-default">{$value.slot}</span>
+        </td>
+        <td>{$value.kapasitas} {$value.satuan_kapasitas}</td>
+        <td><span class="text-primary"><i class="fa fa-cube"></i> {$value.tipe_penyimpanan}</span></td>
+        <td>
+            {if: !empty($value.suhu_min) || !empty($value.suhu_max)}
+                <i class="fa fa-thermometer-half"></i> {$value.suhu_min} - {$value.suhu_max} &deg;C<br>
+            {/if}
+            {if: !empty($value.berat_max)}
+                <i class="fa fa-balance-scale"></i> Max: {$value.berat_max} Kg
+            {/if}
+        </td>
+        <td>
+            {if: $value.status == 'Aktif'}
+                <span class="label label-success">Aktif</span>
+            {else}
+                <span class="label label-danger">Tidak Aktif</span>
+            {/if}
+        </td>
+        <td class="text-right">
+            <div class="btn-group">
+                {if: !empty($value.denah_digital)}
+                    <button type="button" class="btn btn-info btn-xs" onclick="previewDenah('{$value.denah_digital}')" title="Lihat Denah">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                {/if}
+                <button type="button" class="btn btn-success btn-xs btn-edit-lokasi" data-id="{$value.id}" title="Edit">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button type="button" class="btn btn-danger btn-xs btn-hapus-lokasi" data-id="{$value.id}" title="Hapus">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+    {/loop}
+{else}
+    <tr>
+        <td colspan="8" class="text-center">Data tidak ditemukan.</td>
+    </tr>
+{/if}
+
+<script>
+    $('#total-lokasi').text('{$jumlah_data}');
+    var halaman = {?= (int)$halaman ?};
+    var jml_halaman = {?= (int)$jml_halaman ?};
+    
+    $('.pagination-master-lokasi').html('');
+    if (jml_halaman > 1) {
+        var pagination = '';
+        for (var i = 1; i <= jml_halaman; i++) {
+            pagination += '<li class="' + (i == halaman ? 'active' : '') + '"><a href="#" data-page="' + i + '">' + i + '</a></li>';
+        }
+        $('.pagination-master-lokasi').html(pagination);
+    }
+</script>

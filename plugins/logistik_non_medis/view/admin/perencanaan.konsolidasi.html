@@ -1,0 +1,41 @@
+<div class="well well-sm">
+    <h4>Rekapitulasi Konsolidasi Tahun {$tahun}</h4>
+    <p><small>Menampilkan total usulan dari seluruh unit yang telah berstatus <b>Disetujui</b>.</small></p>
+</div>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr class="bg-primary">
+                <th>No</th>
+                <th>Kode Barang</th>
+                <th>Nama Barang</th>
+                <th>Satuan</th>
+                <th class="text-right">Total Kebutuhan</th>
+                <th class="text-right">Harga Rata-rata</th>
+                <th class="text-right">Estimasi Biaya</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($data)}
+                {loop: $data as $key => $val}
+                <tr>
+                    <td>{?= $key + 1 ?}</td>
+                    <td>{$val.kode_item}</td>
+                    <td>{$val.nama_barang}</td>
+                    <td>{$val.satuan_dasar}</td>
+                    <td class="text-right"><b>{$val.total_qty}</b></td>
+                    <td class="text-right">Rp. {number_format($val.harga_avg, 0, ',', '.')}</td>
+                    <td class="text-right">Rp. {number_format($val.total_qty * $val.harga_avg, 0, ',', '.')}</td>
+                </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="7" class="text-center">Tidak ada data yang disetujui untuk dikonsolidasi pada tahun ini.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+<div class="text-right">
+    <button class="btn btn-success" onclick="window.print()"><i class="fa fa-print"></i> Cetak Konsolidasi</button>
+</div>

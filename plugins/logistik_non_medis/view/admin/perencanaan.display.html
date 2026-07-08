@@ -1,0 +1,69 @@
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Unit</th>
+                <th>Tahun</th>
+                <th>Barang</th>
+                <th>Total Qty</th>
+                <th>Anggaran (Est)</th>
+                <th>Prioritas</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($perencanaan)}
+                {loop: $perencanaan as $key => $value}
+                <tr>
+                    <td>{?= $key + 1 ?}</td>
+                    <td><b>{$value.nama_unit}</b><br><small>{$value.kode_perencanaan}</small></td>
+                    <td>{$value.tahun}</td>
+                    <td>{$value.nama_barang}<br><small>{$value.kode_item}</small></td>
+                    <td>{$value.total_qty} {$value.satuan_dasar}</td>
+                    <td>Rp. {number_format($value.total_qty * $value.harga_referensi, 0, ',', '.')}</td>
+                    <td>
+                        {if: $value.prioritas == 'Vital'}
+                            <span class="label label-danger">Vital</span>
+                        {elseif: $value.prioritas == 'Essential'}
+                            <span class="label label-warning">Essential</span>
+                        {else}
+                            <span class="label label-info">Desirable</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if: $value.status == 'Disetujui'}
+                            <span class="label label-success">Disetujui</span>
+                        {elseif: $value.status == 'Diajukan'}
+                            <span class="label label-primary">Diajukan</span>
+                        {elseif: $value.status == 'Ditolak'}
+                            <span class="label label-danger">Ditolak</span>
+                        {else}
+                            <span class="label label-default">Draft</span>
+                        {/if}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-xs btn-default" onclick="editRKBU('{$value.id}')"><i class="fa fa-edit"></i></button>
+                            <button class="btn btn-xs btn-danger" onclick="hapusRKBU('{$value.id}')"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="9" class="text-center">Belum ada data perencanaan untuk tahun ini.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+<nav class="text-center">
+    <ul class="pagination">
+        {loop: $i = 1 to $jml_halaman}
+            <li class="{if: $halaman == $i}active{/if}"><a href="javascript:void(0)" onclick="loadRKBU('{$i}')">{$i}</a></li>
+        {/loop}
+    </ul>
+</nav>

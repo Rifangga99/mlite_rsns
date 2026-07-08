@@ -1,0 +1,57 @@
+<div class="panel panel-default" style="border-radius: 8px;">
+    <div class="panel-heading" style="background-color: #f7f7f7; font-weight: bold; color: #444;">
+        <i class="fa fa-calendar"></i> Daftar Rancangan Jadwal Perawatan Berkala (Preventive Maintenance)
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr style="background-color: #f5f5f5;">
+                        <th style="width: 50px;" class="text-center">No</th>
+                        <th style="width: 140px;">Kode Jadwal</th>
+                        <th>Nama Aset</th>
+                        <th>Kegiatan Pemeliharaan</th>
+                        <th>Frekuensi</th>
+                        <th style="width: 140px;" class="text-center">Target Servis Berikutnya</th>
+                        <th style="width: 150px;" class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {if: !empty($jadwal)}
+                        {loop: $jadwal}
+                        <tr>
+                            <td class="text-center" style="vertical-align: middle;">{$key+1}</td>
+                            <td style="vertical-align: middle;"><code>{$value.kode_pemeliharaan}</code></td>
+                            <td style="vertical-align: middle;">
+                                <strong>{$value.nama_aset}</strong><br>
+                                <small class="text-muted">Kode Aset: {$value.kode_aset}</small>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <strong>{$value.nama_kegiatan}</strong><br>
+                                <small class="text-muted">{$value.deskripsi}</small>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <span class="label label-info" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-refresh"></i> {$value.frekuensi} {if: $value.frekuensi == 'Kustom'}({$value.hari_kustom} Hari){/if}</span>
+                            </td>
+                            <td class="text-center" style="vertical-align: middle; font-weight: bold;">
+                                <span class="text-primary">{?=date('d M Y', strtotime($value['tanggal_direncanakan']))?}</span>
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                <div class="btn-group">
+                                    <button class="btn btn-warning btn-xs" onclick="formJadwal('{$value.id}')" title="Edit Jadwal"><i class="fa fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-xs" onclick="hapusJadwal('{$value.id}')" title="Hapus Jadwal"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-success btn-xs" onclick="formWO('', '{$value.id}')" title="Terbitkan WO Baru"><i class="fa fa-wrench"></i> WO</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {/loop}
+                    {else}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted" style="padding: 20px;">Tidak ada rancangan jadwal perawatan berkala yang terdaftar. Klik "Tambah Jadwal PM Baru" di atas untuk membuat.</td>
+                        </tr>
+                    {/if}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

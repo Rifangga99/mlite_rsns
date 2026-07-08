@@ -1,0 +1,204 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-exchange"></i> Mutasi Antar Gudang</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#daftar-mutasi" aria-controls="daftar-mutasi" role="tab" data-toggle="tab">Daftar Mutasi</a></li>
+                    <li role="presentation"><a href="#kartu-stok" aria-controls="kartu-stok" role="tab" data-toggle="tab">Kartu Stok (Histori)</a></li>
+                </ul>
+
+                <div class="tab-content" style="padding-top: 20px;">
+                    <!-- TAB DAFTAR MUTASI -->
+                    <div role="tabpanel" class="tab-pane active" id="daftar-mutasi">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <button class="btn btn-primary" onclick="tambahMutasi()"><i class="fa fa-plus"></i> Tambah Mutasi</button>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <input type="text" id="cari-mutasi" class="form-control" placeholder="Cari no mutasi / lokasi...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" id="btn-cari-mutasi"><i class="fa fa-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="display-mutasi" style="margin-top: 20px;">
+                            <div class="text-center" style="padding: 50px;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- TAB KARTU STOK -->
+                    <div role="tabpanel" class="tab-pane" id="kartu-stok">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Pilih Barang</label>
+                                    <select id="filter-item-mutasi" class="form-control" style="width: 100%;">
+                                        <option value="">-- Semua Barang --</option>
+                                        {loop: $items}
+                                        <option value="{$value.kode_item}">{$value.kode_item} - {$value.nama_barang}</option>
+                                        {/loop}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Pilih Lokasi</label>
+                                    <select id="filter-lokasi-mutasi" class="form-control" style="width: 100%;">
+                                        <option value="">-- Semua Lokasi --</option>
+                                        {loop: $lokasi}
+                                        <option value="{$value.kode_lokasi}">{$value.nama_lokasi}</option>
+                                        {/loop}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Dari Tanggal</label>
+                                    <input type="text" id="tgl-awal" class="form-control datepicker" value="{?=date('Y-m-01')?}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Sampai Tanggal</label>
+                                    <input type="text" id="tgl-akhir" class="form-control datepicker" value="{?=date('Y-m-d')?}">
+                                </div>
+                            </div>
+                            <div class="col-md-2" style="padding-top: 25px;">
+                                <button class="btn btn-primary btn-block" id="btn-filter-kartu"><i class="fa fa-search"></i> Tampilkan</button>
+                            </div>
+                        </div>
+                        <div id="display-kartu-stok" style="margin-top: 20px;">
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle"></i> Silakan pilih barang dan periode tanggal untuk menampilkan kartu stok.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Mutasi -->
+<div class="modal fade" id="modalMutasi" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <!-- Content loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+
+
+
+
+
+    loadMutasi();
+
+    // Auto-filter if coming from Stock Management
+    {if: !empty($selected_item)}
+        $('#filter-item-mutasi').val('{$selected_item}').trigger('change').trigger('change.select2');
+        $('a[href="#kartu-stok"]').tab('show');
+        setTimeout(function() {
+            $('#btn-filter-kartu').click();
+        }, 800);
+    {/if}
+
+    $('#btn-cari-mutasi').click(function() {
+        loadMutasi();
+    });
+
+    $('#cari-mutasi').keypress(function(e) {
+        if(e.which == 13) loadMutasi();
+    });
+
+    $('#btn-filter-kartu').click(function() {
+        var item = $('#filter-item-mutasi').val();
+        var lokasi = $('#filter-lokasi-mutasi').val();
+        var tgl1 = $('#tgl-awal').val();
+        var tgl2 = $('#tgl-akhir').val();
+        
+        console.log("Filtering for Item:", item, "Location:", lokasi, "Dates:", tgl1, tgl2);
+        
+        if(!item) {
+            alert('Pilih barang terlebih dahulu!');
+            return;
+        }
+
+        $('#display-kartu-stok').html('<div class="text-center" style="padding: 50px;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaykartustok")?}', {
+            kode_item: item,
+            kode_lokasi: lokasi,
+            tgl_awal: tgl1,
+            tgl_akhir: tgl2
+        }, function(data) {
+            console.log("Kartu Stok Data Received");
+            $('#display-kartu-stok').html(data);
+        }).fail(function(xhr, status, error) {
+            console.error("AJAX Error:", status, error);
+            alert("Gagal memuat data kartu stok.");
+        });
+    });
+});
+
+function loadMutasi(hal = 1) {
+    var cari = $('#cari-mutasi').val();
+    $('#display-mutasi').html('<div class="text-center" style="padding: 50px;"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+    $.post('{?=url(ADMIN."/logistik_non_medis/displaymutasi")?}', {
+        halaman: hal,
+        cari: cari
+    }, function(data) {
+        $('#display-mutasi').html(data);
+    });
+}
+
+function tambahMutasi() {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formmutasi")?}', { mode: 'add' }, function(data) {
+        $('#modalMutasi .modal-content').html(data);
+        $('#modalMutasi').modal('show');
+    });
+}
+
+function editMutasi(no) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formmutasi")?}', { mode: 'edit', no_mutasi: no }, function(data) {
+        $('#modalMutasi .modal-content').html(data);
+        $('#modalMutasi').modal('show');
+    });
+}
+
+function detailMutasi(no) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/detailmutasi")?}', { no_mutasi: no }, function(data) {
+        $('#modalMutasi .modal-content').html(data);
+        $('#modalMutasi').modal('show');
+    });
+}
+
+function prosesMutasi(no, action) {
+    var msg = "Apakah Anda yakin ingin memproses mutasi ini?";
+    if(action == 'batal') msg = "Apakah Anda yakin ingin membatalkan mutasi ini?";
+    
+    if(confirm(msg)) {
+        $.post('{?=url(ADMIN."/logistik_non_medis/prosesmutasi")?}', { no_mutasi: no, action: action }, function(res) {
+            var data = JSON.parse(res);
+            if(data.status == 'success') {
+                loadMutasi();
+                if($('#modalMutasi').hasClass('in')) $('#modalMutasi').modal('hide');
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+</script>

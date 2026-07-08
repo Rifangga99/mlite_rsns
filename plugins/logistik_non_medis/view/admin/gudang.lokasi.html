@@ -1,0 +1,133 @@
+<div class="row">
+    <div class="col-md-3">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-dashboard"></i> Ringkasan Gudang</h3>
+            </div>
+            <div class="panel-body">
+                <div class="text-center">
+                    <canvas id="chartUtilisasi" style="max-height: 200px;"></canvas>
+                </div>
+                <hr>
+                <button class="btn btn-block btn-success" onclick="relokasiBarang()">
+                    <i class="fa fa-exchange"></i> Relokasi Antar Bin
+                </button>
+                <button class="btn btn-block btn-info" onclick="location.href='{?=url([ADMIN, 'logistik_non_medis', 'masterlokasi'])?}'">
+                    <i class="fa fa-plus"></i> Tambah Lokasi/Bin
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-map"></i> Peta Digital Rak & Bin</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    {loop: $map}
+                    <div class="col-md-12">
+                        <h4 class="page-header" style="margin-top: 10px; border-bottom: 2px solid #337ab7; padding-bottom: 5px;">
+                            Rak: {$key}
+                        </h4>
+                        <div class="rack-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                            {loop: $value}
+                            <div class="bin-slot {if: $value.utilisasi >= 90}full{elseif: $value.utilisasi >= 50}partial{else}empty{/if}" 
+                                 style="width: 120px; height: 100px; border: 2px solid #ddd; border-radius: 5px; position: relative; padding: 5px; cursor: pointer;"
+                                 onclick="detailBin('{$value.kode_lokasi}')"
+                                 title="Utilisasi: {?=number_format($value.utilisasi, 1)?}%">
+                                <div style="font-weight: bold; font-size: 11px;">{$value.bin}-{$value.slot}</div>
+                                <div style="font-size: 10px; color: #666;">{$value.tipe_penyimpanan}</div>
+                                {if: $value.is_fragile}
+                                <i class="fa fa-glass text-warning" style="position: absolute; top: 5px; right: 5px;"></i>
+                                {/if}
+                                {if: $value.tipe_penyimpanan == 'Hazardous'}
+                                <i class="fa fa-warning text-danger" style="position: absolute; top: 5px; right: 20px;"></i>
+                                {/if}
+                                <div class="progress" style="height: 10px; margin-top: 15px; margin-bottom: 0;">
+                                    <div class="progress-bar {if: $value.utilisasi >= 90}progress-bar-danger{elseif: $value.utilisasi >= 50}progress-bar-warning{else}progress-bar-success{/if}" 
+                                         role="progressbar" style="width: {$value.utilisasi}%">
+                                    </div>
+                                </div>
+                                <div style="font-size: 9px; margin-top: 2px; text-align: center;">
+                                    {?=number_format($value.stok_saat_ini)?} / {$value.kapasitas}
+                                </div>
+                            </div>
+                            {/loop}
+                        </div>
+                    </div>
+                    {/loop}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bin-slot { transition: all 0.2s; }
+    .bin-slot:hover { transform: scale(1.05); border-color: #337ab7; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .bin-slot.empty { background: #f9f9f9; }
+    .bin-slot.partial { background: #fffde7; }
+    .bin-slot.full { background: #ffebee; }
+</style>
+
+<div class="modal fade" id="modalRelokasi" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="relokasi-content"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+<script>
+function relokasiBarang() {
+    console.log('Opening relocation modal...');
+    $('#relokasi-content').html('<div class="text-center" style="padding:20px;"><i class="fa fa-spinner fa-spin fa-3x"></i><br>Memuat form...</div>');
+    $('#modalRelokasi').modal('show');
+    $.post('{?=url([ADMIN, "logistik_non_medis", "relokasibin"])?}', {t: '{?=$token?}'}, function(data) {
+        $('#relokasi-content').html(data);
+    }).fail(function(xhr, status, error) {
+        console.error('AJAX Error:', error);
+        $('#relokasi-content').html('<div class="alert alert-danger">Gagal memuat form. Silakan coba lagi.</div>');
+    });
+}
+
+function detailBin(kode) {
+    alert('Detail Lokasi: ' + kode + '\n(Fitur detail stok per bin sedang disiapkan)');
+}
+
+$(document).ready(function() {
+    console.log('Dashboard ready');
+    var ctx = document.getElementById('chartUtilisasi');
+    if(!ctx) return;
+    
+    var fullSlots = 0;
+    var partialSlots = 0;
+    var emptySlots = 0;
+
+    {loop: $lokasi}
+        var util = parseFloat('{?=$value.utilisasi ?: 0?}');
+        if(util >= 90) fullSlots++;
+        else if(util > 0) partialSlots++;
+        else emptySlots++;
+    {/loop}
+
+    try {
+        new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Penuh', 'Terisi', 'Kosong'],
+                datasets: [{
+                    data: [fullSlots, partialSlots, emptySlots],
+                    backgroundColor: ['#d9534f', '#f0ad4e', '#5cb85c']
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: { position: 'bottom' }
+            }
+        });
+    } catch(e) {
+        console.error('Chart.js Error:', e);
+    }
+});
+</script>

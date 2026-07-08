@@ -1,0 +1,60 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">Sinkronisasi / Impor Katalog LKPP</h4>
+</div>
+<div class="modal-body">
+    <div class="alert alert-info">
+        <i class="fa fa-info-circle"></i> Tempelkan data katalog dalam format JSON di bawah ini untuk mensimulasikan sinkronisasi dari sistem LKPP.
+    </div>
+    <div class="form-group">
+        <label>Data Katalog (JSON Array):</label>
+        <textarea id="import_data" class="form-control" rows="10" placeholder='[{"kode":"123","nama":"Kertas A4","merk":"Sinar Dunia","penyedia":"PT. Kertas Jaya","harga":55000,"satuan":"Rim","link":""}]'></textarea>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+    <button type="button" class="btn btn-primary" id="btnImport">Impor Sekarang</button>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Default placeholder data
+    var defaultData = [
+        {"kode":"LKPP-001","nama":"Kertas HVS A4 80gr","merk":"Sinar Dunia","penyedia":"PT. ATK Makmur","harga":55000,"satuan":"Rim","link":"https://e-katalog.lkpp.go.id/"},
+        {"kode":"LKPP-002","nama":"Kertas HVS A4 80gr","merk":"PaperOne","penyedia":"CV. Stationery Jaya","harga":53000,"satuan":"Rim","link":"https://e-katalog.lkpp.go.id/"},
+        {"kode":"LKPP-003","nama":"Toner HP 85A Black","merk":"HP","penyedia":"PT. Komputerindo","harga":850000,"satuan":"Pcs","link":"https://e-katalog.lkpp.go.id/"},
+        {"kode":"LKPP-004","nama":"Kursi Kerja Staff","merk":"Chitose","penyedia":"PT. Furniture Abadi","harga":1250000,"satuan":"Unit","link":"https://e-katalog.lkpp.go.id/"}
+    ];
+    $('#import_data').val(JSON.stringify(defaultData, null, 4));
+
+    $('#btnImport').on('click', function() {
+        var dataStr = $('#import_data').val();
+        var btn = $(this);
+        
+        try {
+            JSON.parse(dataStr);
+        } catch(e) {
+            alert('Format JSON tidak valid!');
+            return;
+        }
+        
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Memproses...');
+        
+        $.post(mlite.url + '/' + mlite.admin + '/logistik_non_medis/importekatalog?t=' + mlite.token, {
+            data: dataStr
+        }, function(res) {
+            if(res.status == 'success') {
+                alert(res.message);
+                $('#modalEkatalog').modal('hide');
+                loadKatalog('master');
+            } else {
+                alert(res.message);
+                btn.prop('disabled', false).html('Impor Sekarang');
+            }
+        }, 'json').fail(function() {
+            alert('Terjadi kesalahan saat mengimpor data.');
+            btn.prop('disabled', false).html('Impor Sekarang');
+        });
+    });
+});
+</script>

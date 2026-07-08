@@ -1,0 +1,46 @@
+{if: !empty($kategori)}
+    {loop: $kategori}
+    <tr>
+        <td>{$value.id}</td>
+        <td>{$value.nama_kategori}</td>
+        <td>{$value.deskripsi}</td>
+        <td class="text-right">
+            <div class="btn-group">
+                <button type="button" class="btn btn-info btn-xs edit-kategori" data-id="{$value.id}">
+                    <i class="fa fa-edit"></i> Edit
+                </button>
+                <button type="button" class="btn btn-danger btn-xs hapus-kategori" data-id="{$value.id}">
+                    <i class="fa fa-trash"></i> Hapus
+                </button>
+            </div>
+        </td>
+    </tr>
+    {/loop}
+{else}
+    <tr>
+        <td colspan="4" class="text-center">Data kategori tidak ditemukan.</td>
+    </tr>
+{/if}
+
+<script>
+    var halaman = {?= (int)$halaman ?};
+    var jml_halaman = {?= (int)$jml_halaman ?};
+    
+    var pagination = '';
+    if (jml_halaman > 1) {
+        if (halaman > 1) {
+            pagination += '<li><a href="javascript:void(0)" data-page="'+(halaman-1)+'">&laquo; Prev</a></li>';
+        }
+        for (var i = 1; i <= jml_halaman; i++) {
+            if (i == halaman) {
+                pagination += '<li class="active"><a href="javascript:void(0)" data-page="'+i+'">'+i+'</a></li>';
+            } else {
+                pagination += '<li><a href="javascript:void(0)" data-page="'+i+'">'+i+'</a></li>';
+            }
+        }
+        if (halaman < jml_halaman) {
+            pagination += '<li><a href="javascript:void(0)" data-page="'+(halaman+1)+'">Next &raquo;</a></li>';
+        }
+    }
+    $('.pagination-master-kategori').html(pagination);
+</script>

@@ -1,0 +1,153 @@
+<div class="row">
+    <!-- Left Column: Cost Summary Per Asset -->
+    <div class="col-md-5">
+        <div class="panel panel-default" style="border-radius: 8px;">
+            <div class="panel-heading" style="background-color: #f7f7f7; font-weight: bold; color: #444;">
+                <i class="fa fa-calculator"></i> Akumulasi Biaya Pemeliharaan Per-Aset
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                    <table class="table table-bordered table-striped table-hover" style="margin-bottom: 0;">
+                        <thead>
+                            <tr style="background-color: #f9f9f9; font-size: 12px;">
+                                <th>Nama Aset</th>
+                                <th style="width: 70px;" class="text-center">Kondisi</th>
+                                <th style="width: 60px;" class="text-center">Servis</th>
+                                <th style="width: 140px;" class="text-right">Total Biaya</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {if: !empty($biaya_aset)}
+                                {loop: $biaya_aset}
+                                <tr>
+                                    <td>
+                                        <strong>{$value.nama_aset}</strong><br>
+                                        <small class="text-muted">{$value.kode_aset}</small>
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        {if: $value.status_kondisi == 'Baik'}
+                                            <span class="label label-success" style="font-size: 10px;">Baik</span>
+                                        {elseif: $value.status_kondisi == 'Rusak Ringan'}
+                                            <span class="label label-warning" style="font-size: 10px;">Rusak Ringan</span>
+                                        {else}
+                                            <span class="label label-danger" style="font-size: 10px;">Rusak Berat</span>
+                                        {/if}
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle; font-weight: bold;">
+                                        {$value.total_servis} x
+                                    </td>
+                                    <td class="text-right text-success" style="vertical-align: middle; font-weight: bold; font-size: 13px;">
+                                        Rp. {?=number_format($value['total_pemeliharaan'] ?? 0, 0, ',', '.')?}
+                                    </td>
+                                </tr>
+                                {/loop}
+                            {else}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted" style="padding: 20px;">Tidak ada data pemeliharaan aset terdaftar.</td>
+                                </tr>
+                            {/if}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Detailed Maintenance Event Logs -->
+    <div class="col-md-7">
+        <div class="panel panel-default" style="border-radius: 8px;">
+            <div class="panel-heading" style="background-color: #f7f7f7; font-weight: bold; color: #444;">
+                <div class="row">
+                    <div class="col-xs-6" style="padding-top: 5px;">
+                        <i class="fa fa-history"></i> Log Riwayat Tindakan Perbaikan Detail
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="cari_histori" class="form-control" placeholder="Cari nama aset/tindakan..." onkeyup="filterHistori()">
+                            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                    <table class="table table-bordered table-striped table-hover" style="margin-bottom: 0;" id="table-histori-log">
+                        <thead>
+                            <tr style="background-color: #f9f9f9; font-size: 12px;">
+                                <th style="width: 100px;">Tanggal</th>
+                                <th>Aset & Kegiatan</th>
+                                <th>Tindakan & Suku Cadang</th>
+                                <th style="width: 120px;" class="text-right">Biaya Servis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {if: !empty($riwayat)}
+                                {loop: $riwayat}
+                                <tr class="histori-row">
+                                    <td style="vertical-align: top; font-size: 12px;">
+                                        <strong>{?=date('d-m-Y', strtotime($value['tanggal_pelaksanaan']))?}</strong><br>
+                                        <small class="text-muted">{?=date('H:i', strtotime($value['tanggal_pelaksanaan']))?}</small><br>
+                                        <code>{$value.kode_pemeliharaan}</code>
+                                    </td>
+                                    <td style="vertical-align: top; font-size: 12px;">
+                                        <strong class="searchable-aset-name">{$value.nama_aset}</strong><br>
+                                        <span class="label label-default">{$value.jenis_pemeliharaan}</span> <strong>{$value.nama_kegiatan}</strong>
+                                    </td>
+                                    <td style="vertical-align: top;">
+                                        <div style="font-size: 12px; margin-bottom: 5px;" class="searchable-tindakan">
+                                            <strong>Tindakan:</strong> {$value.tindakan_perbaikan}<br>
+                                            <small class="text-muted"><i class="fa fa-user"></i> Teknisi: {$value.nama_teknisi}</small>
+                                        </div>
+                                        
+                                        <!-- PHP Parsing dynamic Spareparts from JSON safely -->
+                                        <?php
+                                            $parts = json_decode($value['detail_sparepart'], true);
+                                            if (!empty($parts)) {
+                                                echo '<div style="margin-top: 4px; border-top: 1px dashed #ddd; padding-top: 4px;">';
+                                                echo '<span class="text-muted" style="font-size: 11px; font-weight: bold;"><i class="fa fa-cogs"></i> Suku Cadang Terpakai:</span>';
+                                                echo '<ul class="list-unstyled" style="margin-bottom:0; font-size:11px; padding-left: 5px;">';
+                                                foreach ($parts as $p) {
+                                                    echo '<li style="margin-bottom: 2px;"><i class="fa fa-caret-right text-info"></i> ' . htmlspecialchars($p['nama']) . ' (x' . $p['qty'] . '): <span style="font-weight:bold;">Rp. ' . number_format($p['subtotal'], 0, ',', '.') . '</span></li>';
+                                                }
+                                                echo '</ul>';
+                                                echo '</div>';
+                                            }
+                                        ?>
+                                    </td>
+                                    <td class="text-right text-success" style="vertical-align: top; font-weight: bold; font-size: 12px;">
+                                        <div style="font-size: 11px; font-weight: normal; color: #777;">Jasa: Rp. {?=number_format($value['biaya_jasa'], 0, ',', '.')?}</div>
+                                        <div style="font-size: 11px; font-weight: normal; color: #777; margin-bottom: 4px;">Part: Rp. {?=number_format($value['biaya_sparepart'], 0, ',', '.')?}</div>
+                                        Rp. {?=number_format($value['total_biaya'], 0, ',', '.')?}
+                                    </td>
+                                </tr>
+                                {/loop}
+                            {else}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted" style="padding: 20px;">Belum ada log perbaikan yang diselesaikan.</td>
+                                </tr>
+                            {/if}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter pencarian live-search lokal di halaman riwayat detail
+function filterHistori() {
+    var query = $('#cari_histori').val().toLowerCase();
+    
+    $('#table-histori-log tbody tr.histori-row').each(function() {
+        var asetName = $(this).find('.searchable-aset-name').text().toLowerCase();
+        var tindakan = $(this).find('.searchable-tindakan').text().toLowerCase();
+        
+        if (asetName.indexOf(query) !== -1 || tindakan.indexOf(query) !== -1) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
+</script>

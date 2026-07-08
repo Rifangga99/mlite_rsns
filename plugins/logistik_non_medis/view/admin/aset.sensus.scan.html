@@ -1,0 +1,351 @@
+<style>
+    #reader-wrapper {
+        position: relative;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto 15px auto;
+        aspect-ratio: 1;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    #reader {
+        width: 100%;
+        height: 100%;
+    }
+    .scan-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 30px solid rgba(0,0,0,0.5);
+        pointer-events: none;
+        box-sizing: border-box;
+    }
+    .scan-laser {
+        position: absolute;
+        top: 50%;
+        left: 30px;
+        right: 30px;
+        height: 2px;
+        background-color: #d9534f;
+        box-shadow: 0 0 8px #d9534f;
+        animation: scanning 2s linear infinite;
+    }
+    @keyframes scanning {
+        0% { top: 30px; }
+        50% { top: calc(100% - 30px); }
+        100% { top: 30px; }
+    }
+    
+    /* Verification Pop up Card styling */
+    #detail-card {
+        display: none;
+        background: #fcfcfc;
+        border: 1px solid #e3e3e3;
+        border-radius: 6px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #f0f2f5;
+        padding: 8px 0;
+        font-size: 14px;
+    }
+    .detail-row .label-detail {
+        color: #777;
+    }
+    .detail-row .value-detail {
+        font-weight: bold;
+    }
+    .radio-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 5px;
+    }
+    .radio-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .radio-btn input {
+        display: none;
+    }
+    .radio-btn.active {
+        border-color: #3c8dbc;
+        background: #ecf0f5;
+        color: #3c8dbc;
+    }
+</style>
+
+<article class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-qrcode text-success"></i> Scanner Sensus Aset Lapangan
+                </h3>
+            </div>
+            <div class="panel-body">
+                
+                <!-- Period Selection -->
+                <div class="form-group">
+                    <label><i class="fa fa-calendar-alt text-primary"></i> Pilih Periode Sensus Aktif</label>
+                    <select class="form-control" id="selectSensus">
+                        {if: !empty($active_sensus)}
+                        {loop: $active_sensus}
+                        <option value="{$value.nama_sensus}">{$value.nama_sensus}</option>
+                        {/loop}
+                        {/if}
+                    </select>
+                </div>
+
+                <!-- Camera Area -->
+                <div id="reader-wrapper">
+                    <div id="reader"></div>
+                    <div class="scan-overlay"></div>
+                    <div class="scan-laser"></div>
+                </div>
+
+                <div class="row" style="margin-top: 15px; margin-bottom: 15px;">
+                    <div class="col-xs-6">
+                        <button class="btn btn-default btn-block" onclick="startScanner()"><i class="fa fa-camera"></i> Aktifkan Camera</button>
+                    </div>
+                    <div class="col-xs-6">
+                        <button class="btn btn-default btn-block" onclick="manualInput()"><i class="fa fa-keyboard"></i> Input Manual</button>
+                    </div>
+                </div>
+
+                <!-- Form Verification (Details Pop up) -->
+                <div id="detail-card">
+                    <h4 style="margin-top: 0; margin-bottom: 15px; font-weight: bold; border-bottom: 2px solid #3c8dbc; padding-bottom: 8px;">
+                        <i class="fa fa-clipboard-check"></i> Hasil Pemindaian Aset
+                    </h4>
+                    
+                    <form id="formSubmitSensus" enctype="multipart/form-data">
+                        <input type="hidden" name="kode_aset" id="fieldKodeAset">
+                        <input type="hidden" name="nama_sensus" id="fieldNamaSensus">
+                        <input type="hidden" name="is_new" id="fieldIsNew" value="0">
+
+                        <div class="detail-row">
+                            <span class="label-detail">Kode Aset</span>
+                            <span class="value-detail" id="lblKodeAset">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label-detail">Nama Aset</span>
+                            <span class="value-detail" id="lblNamaAset">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label-detail">Nomor Seri</span>
+                            <span class="value-detail" id="lblNoSeri">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label-detail">Unit Sistem</span>
+                            <span class="value-detail"><span class="label label-info" id="lblUnitSistem">-</span></span>
+                        </div>
+                        <div class="detail-row" style="margin-bottom: 15px;">
+                            <span class="label-detail">Kondisi Sistem</span>
+                            <span class="value-detail"><span class="label label-default" id="lblKondisiSistem">-</span></span>
+                        </div>
+
+                        <!-- Input Fisik -->
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label><i class="fa fa-map-marker-alt text-primary"></i> Temuan Lokasi Fisik</label>
+                            <select class="form-control" name="fisik_kode_unit" id="fieldFisikUnit">
+                                {if: !empty($units)}
+                                {loop: $units}
+                                <option value="{$value.kode_unit}">{$value.nama_unit}</option>
+                                {/loop}
+                                {/if}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa fa-star text-warning"></i> Kondisi Fisik Aktual</label>
+                            <div class="radio-group">
+                                <div class="radio-btn active" onclick="selectCondition('Baik', this)">
+                                    <input type="radio" name="fisik_status_kondisi" value="Baik" checked> Baik
+                                </div>
+                                <div class="radio-btn" onclick="selectCondition('Rusak Ringan', this)">
+                                    <input type="radio" name="fisik_status_kondisi" value="Rusak Ringan"> R. Ringan
+                                </div>
+                                <div class="radio-btn" onclick="selectCondition('Rusak Berat', this)">
+                                    <input type="radio" name="fisik_status_kondisi" value="Rusak Berat"> R. Berat
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa fa-camera-retro text-success"></i> Unggah Foto Fisik (Opsional)</label>
+                            <input type="file" class="form-control" name="foto_fisik" accept="image/*" capture="camera">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label><i class="fa fa-comment-dots text-info"></i> Catatan Temuan</label>
+                            <textarea class="form-control" name="catatan_temuan" rows="2" placeholder="Masukkan catatan kondisi fisik..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-block"><i class="fa fa-save"></i> Simpan Verifikasi Aset</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Include html5-qrcode from CDN -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+<script>
+    var html5QrcodeScanner = null;
+    
+    $(document).ready(function() {
+        startScanner();
+        
+        // Handle form submission
+        $('#formSubmitSensus').submit(function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            
+            $.ajax({
+                url: '{?=url("admin/logistik_non_medis/submitsensusfisik")?}',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(res) {
+                    var data = JSON.parse(res);
+                    if (data.status === 'success') {
+                        alert('Verifikasi aset berhasil disimpan!');
+                        $('#detail-card').hide();
+                        startScanner(); // Restart camera scanning
+                    } else {
+                        alert(data.message);
+                    }
+                }
+            });
+        });
+    });
+
+    function startScanner() {
+        $('#detail-card').hide();
+        
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+        }
+
+        html5QrcodeScanner = new Html5Qrcode("reader");
+        
+        var config = { fps: 10, qrbox: { width: 220, height: 220 } };
+        
+        html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess
+        ).catch(err => {
+            console.log("Gagal menyalakan kamera: ", err);
+        });
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        console.log(`Code scanned = ${decodedText}`);
+        html5QrcodeScanner.stop().then(function() {
+            fetchAssetDetails(decodedText);
+        });
+    }
+
+    function fetchAssetDetails(kodeAset) {
+        var namaSensus = $('#selectSensus').val();
+        if(!namaSensus) {
+            alert('Silakan buat atau pilih periode sensus terlebih dahulu!');
+            startScanner();
+            return;
+        }
+
+        $.post('{?=url("admin/logistik_non_medis/getassetdetailssensus")?}', {
+            kode_aset: kodeAset,
+            nama_sensus: namaSensus
+        }, function(res) {
+            var data = JSON.parse(res);
+            if (data.status === 'success') {
+                // Populate details
+                $('#fieldKodeAset').val(kodeAset);
+                $('#fieldNamaSensus').val(namaSensus);
+                $('#fieldIsNew').val('0');
+
+                $('#lblKodeAset').text(kodeAset);
+                $('#lblNamaAset').text(data.asset_name);
+                $('#lblNoSeri').text(data.serial_number);
+                $('#lblUnitSistem').text(data.sensus_row.sistem_kode_unit);
+                $('#lblKondisiSistem').text(data.sensus_row.sistem_status_kondisi);
+                
+                $('#fieldFisikUnit').val(data.sensus_row.sistem_kode_unit);
+                
+                var defaultCond = data.sensus_row.sistem_status_kondisi;
+                $('input[name="fisik_status_kondisi"][value="' + defaultCond + '"]').prop('checked', true);
+                $('.radio-btn').removeClass('active');
+                $('.radio-btn input[value="' + defaultCond + '"]').parent().addClass('active');
+
+                $('#detail-card').show();
+                
+                $('html, body').animate({
+                    scrollTop: $("#detail-card").offset().top - 80
+                }, 500);
+
+            } else if (data.status === 'new_asset') {
+                if (confirm(data.message)) {
+                    $('#fieldKodeAset').val(kodeAset);
+                    $('#fieldNamaSensus').val(namaSensus);
+                    $('#fieldIsNew').val('1');
+
+                    $('#lblKodeAset').text(kodeAset);
+                    $('#lblNamaAset').text(data.asset.nama_aset);
+                    $('#lblNoSeri').text(data.asset.serial_number);
+                    $('#lblUnitSistem').text(data.asset.sistem_kode_unit + ' (Baru Found)');
+                    $('#lblKondisiSistem').text(data.asset.sistem_status_kondisi);
+                    
+                    $('#fieldFisikUnit').val(data.asset.sistem_kode_unit);
+
+                    $('#detail-card').show();
+                } else {
+                    startScanner();
+                }
+            } else {
+                alert(data.message);
+                startScanner();
+            }
+        });
+    }
+
+    function manualInput() {
+        var code = prompt("Masukkan Kode Aset secara manual:");
+        if (code && code.trim() !== "") {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(function() {
+                    fetchAssetDetails(code.trim());
+                }).catch(function() {
+                    fetchAssetDetails(code.trim());
+                });
+            } else {
+                fetchAssetDetails(code.trim());
+            }
+        }
+    }
+
+    function selectCondition(value, el) {
+        $('.radio-group .radio-btn').removeClass('active');
+        $(el).addClass('active');
+        $('input[name="fisik_status_kondisi"][value="' + value + '"]').prop('checked', true);
+    }
+</script>

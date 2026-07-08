@@ -1,0 +1,104 @@
+{if: $is_history}
+    <!-- DISPLAY KARTU STOK -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>No. Referensi</th>
+                    <th>Tipe</th>
+                    <th>Batch</th>
+                    <th>Masuk</th>
+                    <th>Keluar</th>
+                    <th>Stok Akhir</th>
+                    <th>User</th>
+                </tr>
+            </thead>
+            <tbody>
+                {if: !empty($mutasi_history)}
+                {loop: $mutasi_history}
+                <tr>
+                    <td>{$value.tgl_transaksi}</td>
+                    <td>{$value.no_referensi}</td>
+                    <td>
+                        {if: $value.tipe_transaksi == 'Masuk'}<span class="label label-success">Masuk</span>
+                        {elseif: $value.tipe_transaksi == 'Keluar'}<span class="label label-danger">Keluar</span>
+                        {elseif: $value.tipe_transaksi == 'Mutasi Masuk'}<span class="label label-primary">Mutasi Masuk</span>
+                        {elseif: $value.tipe_transaksi == 'Mutasi Keluar'}<span class="label label-warning">Mutasi Keluar</span>
+                        {else}<span class="label label-default">{$value.tipe_transaksi}</span>
+                        {/if}
+                    </td>
+                    <td>{$value.batch_no}</td>
+                    <td class="text-right">{$value.qty_masuk}</td>
+                    <td class="text-right">{$value.qty_keluar}</td>
+                    <td class="text-right"><b>{$value.stok_akhir}</b></td>
+                    <td>{$value.user_input}</td>
+                </tr>
+                {/loop}
+                {else}
+                <tr><td colspan="8" class="text-center">Data tidak ditemukan</td></tr>
+                {/if}
+            </tbody>
+        </table>
+    </div>
+{else}
+    <!-- DISPLAY DAFTAR MUTASI -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>No. Mutasi</th>
+                    <th>Tanggal</th>
+                    <th>Gudang Asal</th>
+                    <th>Gudang Tujuan</th>
+                    <th>Status</th>
+                    <th width="150">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {if: !empty($mutasi)}
+                {loop: $mutasi}
+                <tr>
+                    <td><b>{$value.no_mutasi}</b></td>
+                    <td>{$value.tgl_mutasi}</td>
+                    <td>{$value.asal}</td>
+                    <td>{$value.tujuan}</td>
+                    <td>
+                        {if: $value.status == 'Draft'}<span class="label label-default">Draft</span>
+                        {elseif: $value.status == 'Dikirim'}<span class="label label-info">Dikirim</span>
+                        {elseif: $value.status == 'Diterima'}<span class="label label-success">Diterima</span>
+                        {elseif: $value.status == 'Batal'}<span class="label label-danger">Batal</span>
+                        {/if}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-xs btn-primary" onclick="detailMutasi('{$value.no_mutasi}')" title="Detail"><i class="fa fa-eye"></i></button>
+                            {if: $value.status == 'Draft'}
+                            <button class="btn btn-xs btn-success" onclick="editMutasi('{$value.no_mutasi}')" title="Edit"><i class="fa fa-edit"></i></button>
+                            <button class="btn btn-xs btn-info" onclick="prosesMutasi('{$value.no_mutasi}', 'kirim')" title="Kirim Barang"><i class="fa fa-truck"></i></button>
+                            {/if}
+                            {if: $value.status == 'Dikirim'}
+                            <button class="btn btn-xs btn-success" onclick="prosesMutasi('{$value.no_mutasi}', 'terima')" title="Konfirmasi Terima"><i class="fa fa-check"></i></button>
+                            {/if}
+                            <a href="{?=url(ADMIN.'/logistik_non_medis/printmutasi?no_mutasi='.$value.no_mutasi)?}" class="btn btn-xs btn-default" target="_blank" title="Cetak Surat Jalan"><i class="fa fa-print"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {/loop}
+                {else}
+                <tr><td colspan="6" class="text-center">Data tidak ditemukan</td></tr>
+                {/if}
+            </tbody>
+        </table>
+    </div>
+
+    {if: $jml_halaman > 1}
+    <nav class="text-center">
+        <ul class="pagination pagination-sm">
+            {loop: $jml_halaman}
+            <li class="{if: $halaman == $value}active{/if}"><a href="javascript:void(0)" onclick="loadMutasi({$value})">{$value}</a></li>
+            {/loop}
+        </ul>
+    </nav>
+    {/if}
+{/if}

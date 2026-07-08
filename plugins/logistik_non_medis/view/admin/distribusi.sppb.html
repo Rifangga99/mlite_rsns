@@ -1,0 +1,142 @@
+<div id="display">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="overflow: hidden;">
+                    <h3 class="panel-title pull-left" style="line-height: 34px;"><i class="fa fa-shopping-cart"></i> Permintaan Barang (SPPB)</h3>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-primary" id="btn-tambah"><i class="fa fa-plus"></i> Tambah Permintaan</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="well well-sm">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <input type="text" id="cari" class="form-control" placeholder="Cari No. SPPB / Unit / Barang...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" id="btn-cari"><i class="fa fa-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="filter-status" class="form-control">
+                                    <option value="">-- Semua Status --</option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Diajukan">Diajukan</option>
+                                    <option value="Disetujui Unit">Disetujui Unit</option>
+                                    <option value="Terverifikasi">Terverifikasi</option>
+                                    <option value="Selesai">Selesai</option>
+                                    <option value="Ditolak">Ditolak</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="sppb-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="form-container" style="display:none;"></div>
+
+<div class="modal fade" id="modal-detail" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="detail-content"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    loadDisplay();
+
+    $('#btn-cari').click(function() {
+        loadDisplay();
+    });
+
+    $('#cari').keypress(function(e) {
+        if(e.which == 13) loadDisplay();
+    });
+
+    $('#filter-status').change(function() {
+        loadDisplay();
+    });
+
+    $('#btn-tambah').click(function() {
+        $.post('{?=url(ADMIN."/logistik_non_medis/formsppb")?}', function(data) {
+            $('#display').hide();
+            $('#form-container').html(data).show();
+        });
+    });
+});
+
+function loadDisplay(halaman = 1) {
+    var cari = $('#cari').val();
+    var status = $('#filter-status').val();
+    $.post('{?=url(ADMIN."/logistik_non_medis/displaysppb")?}', {
+        cari: cari,
+        status: status,
+        halaman: halaman
+    }, function(data) {
+        $('#sppb-list').html(data);
+    });
+}
+
+function editSPPB(no_sppb) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formsppb")?}', {no_sppb: no_sppb}, function(data) {
+        $('#display').hide();
+        $('#form-container').html(data).show();
+    });
+}
+
+function detailSPPB(no_sppb) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/detailsppb")?}', {no_sppb: no_sppb}, function(data) {
+        $('#detail-content').html(data);
+        $('#modal-detail').modal('show');
+    });
+}
+
+function hapusSPPB(no_sppb) {
+    if(confirm('Yakin ingin menghapus permintaan ini?')) {
+        $.post('{?=url(ADMIN."/logistik_non_medis/hapussppb")?}', {no_sppb: no_sppb}, function(data) {
+            var res = JSON.parse(data);
+            if(res.status == 'success') {
+                loadDisplay();
+            } else {
+                alert(res.message);
+            }
+        });
+    }
+}
+
+function approveUnit(no_sppb) {
+    if(confirm('Setujui permintaan ini (Kepala Unit)?')) {
+        $.post('{?=url(ADMIN."/logistik_non_medis/approvesppb")?}', {no_sppb: no_sppb}, function(data) {
+            var res = JSON.parse(data);
+            if(res.status == 'success') {
+                loadDisplay();
+                if($('#modal-detail').hasClass('in')) $('#modal-detail').modal('hide');
+            } else {
+                alert(res.message);
+            }
+        });
+    }
+}
+
+function verifikasiLogistik(no_sppb) {
+    if(confirm('Verifikasi kuota dan setujui permintaan ini untuk diproses gudang?')) {
+        $.post('{?=url(ADMIN."/logistik_non_medis/verifikasisppb")?}', {no_sppb: no_sppb}, function(data) {
+            var res = JSON.parse(data);
+            if(res.status == 'success') {
+                loadDisplay();
+                if($('#modal-detail').hasClass('in')) $('#modal-detail').modal('hide');
+            } else {
+                alert(res.message);
+            }
+        });
+    }
+}
+</script>

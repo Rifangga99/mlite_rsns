@@ -1,0 +1,56 @@
+{if: !empty($unit)}
+    {loop: $unit}
+    <tr>
+        <td><strong>{$value.kode_unit}</strong></td>
+        <td>{$value.nama_unit}</td>
+        <td>{$value.pj_unit}</td>
+        <td>
+            <small class="text-muted">{$value.gedung} - Lt.{$value.lantai}</small>
+        </td>
+        <td><span class="label label-default">{$value.kode_cost_center}</span></td>
+        <td>{$value.kuota_periode}</td>
+        <td>
+            {if: $value.status == 'Aktif'}
+                <span class="label label-success">Aktif</span>
+            {else}
+                <span class="label label-danger">Tidak Aktif</span>
+            {/if}
+        </td>
+        <td class="text-right">
+            <div class="btn-group">
+                <button type="button" class="btn btn-info btn-xs btn-detail-unit" data-id="{$value.id}" title="Detail"><i class="fa fa-eye"></i></button>
+                <button type="button" class="btn btn-success btn-xs btn-edit-unit" data-id="{$value.id}" title="Edit"><i class="fa fa-edit"></i></button>
+                <button type="button" class="btn btn-danger btn-xs btn-hapus-unit" data-id="{$value.id}" title="Hapus"><i class="fa fa-trash"></i></button>
+            </div>
+        </td>
+    </tr>
+    {/loop}
+{else}
+    <tr>
+        <td colspan="8" class="text-center text-muted">Data tidak ditemukan.</td>
+    </tr>
+{/if}
+
+<script>
+    $('#total-unit').text('{$jumlah_data}');
+    var halaman = {?= (int)$halaman ?};
+    var jml_halaman = {?= (int)$jml_halaman ?};
+    
+    var pagination = '';
+    if (jml_halaman > 1) {
+        if (halaman > 1) {
+            pagination += '<li><a href="javascript:void(0)" data-page="'+(halaman-1)+'">&laquo; Prev</a></li>';
+        }
+        for (var i = 1; i <= jml_halaman; i++) {
+            if (i == halaman) {
+                pagination += '<li class="active"><a href="javascript:void(0)" data-page="'+i+'">'+i+'</a></li>';
+            } else {
+                pagination += '<li><a href="javascript:void(0)" data-page="'+i+'">'+i+'</a></li>';
+            }
+        }
+        if (halaman < jml_halaman) {
+            pagination += '<li><a href="javascript:void(0)" data-page="'+(halaman+1)+'">Next &raquo;</a></li>';
+        }
+    }
+    $('.pagination-master-unit').html(pagination);
+</script>

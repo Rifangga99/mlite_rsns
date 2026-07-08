@@ -1,0 +1,704 @@
+<form id="form-save-aset" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="id" value="{$aset.id}">
+    
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">
+            <i class="fa fa-pencil-square-o"></i> {if: $mode == 'add'}Registrasi Aset Baru{else}Edit Registrasi Aset: {$aset.kode_aset}{/if}
+        </h4>
+    </div>
+    
+    <div class="modal-body">
+        <div class="row">
+            
+            <!-- Sektor Kiri: Identitas Utama & Spesifikasi -->
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-info-circle"></i> Identitas & Spesifikasi Aset
+                    </div>
+                    <div class="panel-body">
+                        
+                        <!-- Unit Penugasan -->
+                        <div class="form-group">
+                            <label class="control-label">Unit Penugasan <span class="text-danger">*</span></label>
+                            <select name="kode_unit" id="form_kode_unit" class="form-control" required {if: $mode == 'edit'}disabled{/if}>
+                                <option value="">-- Pilih Unit Penugasan --</option>
+                                {if: !empty($units)}
+                                {loop: $units}
+                                <option value="{$value.kode_unit}" {if: $value.kode_unit == $aset.kode_unit}selected{/if}>{$value.nama_unit}</option>
+                                {/loop}
+                                {/if}
+                            </select>
+                            {if: $mode == 'edit'}
+                            <input type="hidden" name="kode_unit" value="{$aset.kode_unit}">
+                            {/if}
+                        </div>
+
+                        <!-- Kode Aset Unik -->
+                        <div class="form-group">
+                            <label class="control-label">Kode Aset Unik</label>
+                            <input type="text" name="kode_aset" id="form_kode_aset" class="form-control" style="font-weight: bold; font-family: monospace;" value="{$aset.kode_aset}" readonly placeholder="[Akan dibuat otomatis setelah memilih Unit]">
+                            <p class="help-block" style="font-size: 11px;">Format: <code>AST-NM/[KODE-UNIT]/[TAHUN]/[SEQUENCE]</code></p>
+                        </div>
+
+                        <!-- Serial Number Manufaktur -->
+                        <div class="form-group">
+                            <label class="control-label">Serial Number (S/N) Pabrik</label>
+                            <input type="text" name="serial_number" class="form-control" value="{$aset.serial_number}" placeholder="Contoh: SN-AC-992138">
+                        </div>
+
+                        <!-- Klasifikasi KIB -->
+                        <div class="form-group">
+                            <label class="control-label">Klasifikasi KIB</label>
+                            <select name="kib_jenis" id="form_kib_jenis" class="form-control">
+                                <option value="">-- Bukan KIB / Aset Umum --</option>
+                                <option value="A" {if: $aset.kib_jenis == 'A'}selected{/if}>KIB A — Tanah</option>
+                                <option value="B" {if: $aset.kib_jenis == 'B'}selected{/if}>KIB B — Peralatan & Mesin</option>
+                                <option value="C" {if: $aset.kib_jenis == 'C'}selected{/if}>KIB C — Gedung & Bangunan</option>
+                                <option value="D" {if: $aset.kib_jenis == 'D'}selected{/if}>KIB D — Jalan, Irigasi, Jaringan</option>
+                                <option value="E" {if: $aset.kib_jenis == 'E'}selected{/if}>KIB E — Aset Tetap Lainnya</option>
+                                <option value="F" {if: $aset.kib_jenis == 'F'}selected{/if}>KIB F — Konstruksi Dalam Pengerjaan</option>
+                            </select>
+                        </div>
+
+                        <!-- Linkage ke Master Barang -->
+                        <div class="form-group">
+                            <label class="control-label">Pilih Item Barang Katalog <span class="text-danger">*</span></label>
+                            <select name="kode_item" id="form_kode_item" class="form-control" required>
+                                <option value="">-- Hubungkan dengan Data Barang --</option>
+                                {if: !empty($master_barang)}
+                                {loop: $master_barang}
+                                <option value="{$value.kode_item}" data-nama="{$value.nama_barang}" {if: $value.kode_item == $aset.kode_item}selected{/if}>[{$value.kode_item}] {$value.nama_barang}</option>
+                                {/loop}
+                                {/if}
+                            </select>
+                        </div>
+
+                        <!-- Nama Aset -->
+                        <div class="form-group">
+                            <label class="control-label">Nama Aset / Label Penugasan <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_aset" id="form_nama_aset" class="form-control" value="{$aset.nama_aset}" required placeholder="Contoh: AC Sharp Unit 1 Lantai 2">
+                        </div>
+
+                        <!-- Spesifikasi Teknis Lengkap -->
+                        <div class="form-group">
+                            <label class="control-label">Spesifikasi Teknis Lengkap</label>
+                            <textarea name="spesifikasi" class="form-control" rows="4" style="resize: vertical; font-family: monospace; font-size:12px;" placeholder="Merk:&#10;Tipe/Model:&#10;Kapasitas:&#10;Daya Listrik:&#10;Dimensi:&#10;Keterangan Lain:">{$aset.spesifikasi}</textarea>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sektor Kanan: Finansial, PIC, & Dokumentasi Gambar -->
+            <div class="col-md-6">
+                
+                <!-- Panel Finansial & PIC -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-money"></i> Data Perolehan & Penugasan
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Tanggal Perolehan</label>
+                                    <input type="date" name="tanggal_perolehan" class="form-control" value="{$aset.tanggal_perolehan}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Sumber Perolehan</label>
+                                    <select name="sumber_perolehan" class="form-control">
+                                        <option value="Beli" {if: $aset.sumber_perolehan == 'Beli'}selected{/if}>Beli</option>
+                                        <option value="Hibah" {if: $aset.sumber_perolehan == 'Hibah'}selected{/if}>Hibah</option>
+                                        <option value="APBD" {if: $aset.sumber_perolehan == 'APBD'}selected{/if}>APBD</option>
+                                        <option value="Lainnya" {if: $aset.sumber_perolehan == 'Lainnya'}selected{/if}>Lainnya</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label">Harga Beli / Nilai Aset (Rp)</label>
+                                    <input type="text" id="form_harga_beli" name="harga_beli" class="form-control" style="font-weight: bold;" value="{$aset.harga_beli}" placeholder="Rp. 0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Masa Manfaat (Tahun)</label>
+                                    <input type="number" name="masa_manfaat_tahun" class="form-control" value="{$aset.masa_manfaat_tahun}" min="0" placeholder="0 (Ikuti default jenis KIB)">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Nilai Residu (Rp)</label>
+                                    <input type="text" id="form_nilai_residu" name="nilai_residu" class="form-control" value="{$aset.nilai_residu}" placeholder="Rp. 0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Person In Charge (PIC)</label>
+                                    <input type="text" name="pic" class="form-control" value="{$aset.pic}" placeholder="Nama PIC Penanggung Jawab" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Kondisi Aset <span class="text-danger">*</span></label>
+                                    <select name="status_kondisi" class="form-control" required>
+                                        <option value="Baik" {if: $aset.status_kondisi == 'Baik'}selected{/if}>Baik</option>
+                                        <option value="Rusak Ringan" {if: $aset.status_kondisi == 'Rusak Ringan'}selected{/if}>Rusak Ringan</option>
+                                        <option value="Rusak Berat" {if: $aset.status_kondisi == 'Rusak Berat'}selected{/if}>Rusak Berat</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Upload Media -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-camera"></i> Dokumentasi Foto (Ganda)
+                    </div>
+                    <div class="panel-body">
+                        
+                        <!-- Upload Tampak Depan -->
+                        <div class="form-group">
+                            <label class="control-label">Foto Tampak Depan</label>
+                            <input type="file" name="foto_depan" id="input_foto_depan" class="form-control" accept="image/*">
+                            <p class="help-block" style="font-size: 11px;">Gunakan file JPG/JPEG/PNG, maks 2MB.</p>
+                            {if: !empty($aset.foto_depan)}
+                            <div style="margin-top: 10px;">
+                                <img src="{?=url('uploads/logistik_non_medis/aset/' . $aset.foto_depan)?}" style="max-height: 80px; border-radius:4px; border: 1px solid #ddd; padding: 2px;" alt="Tampak Depan">
+                                <span class="label label-info" style="vertical-align: bottom; margin-left: 5px;">Telah diunggah</span>
+                            </div>
+                            {/if}
+                        </div>
+
+                        <!-- Upload Tampak Detail -->
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label class="control-label">Foto Detail (Fokus/Stiker Teknis)</label>
+                            <input type="file" name="foto_detail" id="input_foto_detail" class="form-control" accept="image/*">
+                            <p class="help-block" style="font-size: 11px;">Gunakan file JPG/JPEG/PNG, maks 2MB.</p>
+                            {if: !empty($aset.foto_detail)}
+                            <div style="margin-top: 10px;">
+                                <img src="{?=url('uploads/logistik_non_medis/aset/' . $aset.foto_detail)?}" style="max-height: 80px; border-radius:4px; border: 1px solid #ddd; padding: 2px;" alt="Detail">
+                                <span class="label label-info" style="vertical-align: bottom; margin-left: 5px;">Telah diunggah</span>
+                            </div>
+                            {/if}
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Dynamic KIB Panels -->
+        <div class="row kib-spec-wrapper" style="margin-top: 15px; display: none;">
+            <div class="col-md-12">
+                
+                <!-- KIB A PANEL -->
+                <div class="panel panel-info kib-panel" id="panel-kib-A" style="display: none;">
+                    <div class="panel-heading">
+                        <i class="fa fa-map"></i> <strong>Atribut Tambahan KIB A (Tanah)</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Luas Tanah (m²)</label>
+                                    <input type="number" step="any" name="kib_luas_A" class="form-control" value="{$aset.kib_luas}" placeholder="Contoh: 500">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Hak Tanah</label>
+                                    <input type="text" name="kib_hak" class="form-control" value="{$aset.kib_hak}" placeholder="Contoh: Sertifikat Hak Pakai">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor Sertifikat</label>
+                                    <input type="text" name="kib_no_sertifikat_A" class="form-control" value="{$aset.kib_no_sertifikat}" placeholder="Contoh: HP 0021/2015">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Tanggal Sertifikat</label>
+                                    <input type="date" name="kib_tgl_sertifikat_A" class="form-control" value="{$aset.kib_tgl_sertifikat}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Peruntukan / Penggunaan</label>
+                                    <input type="text" name="kib_penggunaan" class="form-control" value="{$aset.kib_penggunaan}" placeholder="Contoh: Gedung Klinik Rawat Jalan">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Alamat / Lokasi Lengkap</label>
+                                    <textarea name="kib_alamat_A" class="form-control" rows="1" placeholder="Contoh: Jl. Sudirman No. 123">{$aset.kib_alamat}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KIB B PANEL -->
+                <div class="panel panel-info kib-panel" id="panel-kib-B" style="display: none;">
+                    <div class="panel-heading">
+                        <i class="fa fa-cogs"></i> <strong>Atribut Tambahan KIB B (Peralatan & Mesin)</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Merk / Tipe</label>
+                                    <input type="text" name="kib_merk" class="form-control" value="{$aset.kib_merk}" placeholder="Contoh: Honda / Vario 150">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Ukuran / Kapasitas (CC/Dimensi)</label>
+                                    <input type="text" name="kib_ukuran_B" class="form-control" value="{$aset.kib_ukuran}" placeholder="Contoh: 150 cc / 2 PK">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Bahan Pembuat</label>
+                                    <input type="text" name="kib_bahan_B" class="form-control" value="{$aset.kib_bahan}" placeholder="Contoh: Besi / Plastik">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor Seri Pabrik</label>
+                                    <input type="text" name="kib_no_pabrik" class="form-control" value="{$aset.kib_no_pabrik}" placeholder="Contoh: SN-12839218">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor Rangka</label>
+                                    <input type="text" name="kib_no_rangka" class="form-control" value="{$aset.kib_no_rangka}" placeholder="Contoh: MH1KF1111XXXX">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor Mesin</label>
+                                    <input type="text" name="kib_no_mesin" class="form-control" value="{$aset.kib_no_mesin}" placeholder="Contoh: JF11E-128392">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor Polisi (Plat)</label>
+                                    <input type="text" name="kib_no_polisi" class="form-control" value="{$aset.kib_no_polisi}" placeholder="Contoh: B 1234 ABC">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor BPKB</label>
+                                    <input type="text" name="kib_no_bpkb" class="form-control" value="{$aset.kib_no_bpkb}" placeholder="Contoh: L-128392">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KIB C PANEL -->
+                <div class="panel panel-info kib-panel" id="panel-kib-C" style="display: none;">
+                    <div class="panel-heading">
+                        <i class="fa fa-building-o"></i> <strong>Atribut Tambahan KIB C (Gedung & Bangunan)</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Apakah Bertingkat?</label>
+                                    <select name="kib_bertingkat" class="form-control">
+                                        <option value="Tidak" {if: $aset.kib_bertingkat == 'Tidak'}selected{/if}>Tidak</option>
+                                        <option value="Ya" {if: $aset.kib_bertingkat == 'Ya'}selected{/if}>Ya</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Konstruksi Beton?</label>
+                                    <select name="kib_beton" class="form-control">
+                                        <option value="Ya" {if: $aset.kib_beton == 'Ya'}selected{/if}>Ya (Beton Permanen)</option>
+                                        <option value="Tidak" {if: $aset.kib_beton == 'Tidak'}selected{/if}>Tidak (Kayu/Semi)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Luas Lantai (m²)</label>
+                                    <input type="number" step="any" name="kib_luas_C" class="form-control" value="{$aset.kib_luas}" placeholder="Contoh: 1200">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Status Kepemilikan Tanah</label>
+                                    <input type="text" name="kib_status_tanah_C" class="form-control" value="{$aset.kib_status_tanah}" placeholder="Contoh: Milik Rumah Sakit">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor Dokumen Gedung / IMB</label>
+                                    <input type="text" name="kib_no_sertifikat_C" class="form-control" value="{$aset.kib_no_sertifikat}" placeholder="Contoh: IMB 503/482/2018">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Tanggal Dokumen / IMB</label>
+                                    <input type="date" name="kib_tgl_sertifikat_C" class="form-control" value="{$aset.kib_tgl_sertifikat}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Alamat / Lokasi Gedung</label>
+                                    <textarea name="kib_alamat_C" class="form-control" rows="1" placeholder="Contoh: Kompleks RS Sektor Barat">{$aset.kib_alamat}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KIB D PANEL -->
+                <div class="panel panel-info kib-panel" id="panel-kib-D" style="display: none;">
+                    <div class="panel-heading">
+                        <i class="fa fa-road"></i> <strong>Atribut Tambahan KIB D (Jalan, Irigasi, Jaringan)</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Jenis Konstruksi</label>
+                                    <input type="text" name="kib_konstruksi" class="form-control" value="{$aset.kib_konstruksi}" placeholder="Contoh: Aspal Hotmix / Fiber Optic">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Panjang (m)</label>
+                                    <input type="number" step="any" name="kib_panjang" class="form-control" value="{$aset.kib_panjang}" placeholder="Contoh: 150">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Lebar (m)</label>
+                                    <input type="number" step="any" name="kib_lebar" class="form-control" value="{$aset.kib_lebar}" placeholder="Contoh: 4">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Total Luas (m²)</label>
+                                    <input type="number" step="any" name="kib_luas_D" class="form-control" value="{$aset.kib_luas}" placeholder="Contoh: 600">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Nomor Dokumen Jaringan</label>
+                                    <input type="text" name="kib_no_sertifikat_D" class="form-control" value="{$aset.kib_no_sertifikat}" placeholder="Contoh: DOK-JNT-2022">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Tanggal Dokumen</label>
+                                    <input type="date" name="kib_tgl_sertifikat_D" class="form-control" value="{$aset.kib_tgl_sertifikat}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Status Kepemilikan Tanah</label>
+                                    <input type="text" name="kib_status_tanah_D" class="form-control" value="{$aset.kib_status_tanah}" placeholder="Contoh: Tanah Pemda">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Lokasi / Alamat</label>
+                                    <input type="text" name="kib_alamat_D" class="form-control" value="{$aset.kib_alamat}" placeholder="Contoh: Area Parkir Utama">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KIB E PANEL -->
+                <div class="panel panel-info kib-panel" id="panel-kib-E" style="display: none;">
+                    <div class="panel-heading">
+                        <i class="fa fa-book"></i> <strong>Atribut Tambahan KIB E (Aset Tetap Lainnya)</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Judul / Nama Spesies</label>
+                                    <input type="text" name="kib_judul" class="form-control" value="{$aset.kib_judul}" placeholder="Contoh: Buku Ajar Kedokteran Interna">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Pencipta / Penerbit</label>
+                                    <input type="text" name="kib_pencipta" class="form-control" value="{$aset.kib_pencipta}" placeholder="Contoh: EGC Penerbit">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Bahan Pembuat</label>
+                                    <input type="text" name="kib_bahan_E" class="form-control" value="{$aset.kib_bahan}" placeholder="Contoh: Kertas Lux / Kayu Jati">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Dimensi / Ukuran</label>
+                                    <input type="text" name="kib_ukuran_E" class="form-control" value="{$aset.kib_ukuran}" placeholder="Contoh: A4 / 1.5 x 2 Meter">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KIB F PANEL -->
+                <div class="panel panel-info kib-panel" id="panel-kib-F" style="display: none;">
+                    <div class="panel-heading">
+                        <i class="fa fa-gavel"></i> <strong>Atribut Tambahan KIB F (Konstruksi Dalam Pengerjaan)</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Jenis Bangunan Proyek</label>
+                                    <input type="text" name="kib_proyek_bangunan" class="form-control" value="{$aset.kib_proyek_bangunan}" placeholder="Contoh: Pembangunan R. Rawat Inap Baru">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Konstruksi Bertingkat?</label>
+                                    <select name="kib_bertingkat_F" class="form-control">
+                                        <option value="Tidak" {if: $aset.kib_bertingkat == 'Tidak'}selected{/if}>Tidak</option>
+                                        <option value="Ya" {if: $aset.kib_bertingkat == 'Ya'}selected{/if}>Ya</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Konstruksi Beton?</label>
+                                    <select name="kib_beton_F" class="form-control">
+                                        <option value="Ya" {if: $aset.kib_beton == 'Ya'}selected{/if}>Ya</option>
+                                        <option value="Tidak" {if: $aset.kib_beton == 'Tidak'}selected{/if}>Tidak</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Rencana Luas Lantai (m²)</label>
+                                    <input type="number" step="any" name="kib_luas_F" class="form-control" value="{$aset.kib_luas}" placeholder="Contoh: 2500">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Tanggal Mulai</label>
+                                    <input type="date" name="kib_tgl_mulai" class="form-control" value="{$aset.kib_tgl_mulai}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Rencana Tanggal Selesai</label>
+                                    <input type="date" name="kib_tgl_rencana_selesai" class="form-control" value="{$aset.kib_tgl_rencana_selesai}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Progress Fisik (%)</label>
+                                    <div class="input-group">
+                                        <input type="number" min="0" max="100" name="kib_progress_persen" class="form-control" value="{$aset.kib_progress_persen}" placeholder="Contoh: 35">
+                                        <span class="input-group-addon">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Alamat / Lokasi Proyek</label>
+                                    <input type="text" name="kib_alamat_F" class="form-control" value="{$aset.kib_alamat}" placeholder="Contoh: Samping Gedung Farmasi">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times-circle"></i> Batal</button>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Simpan Data Aset</button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        
+        // Function to toggle KIB panels
+        function toggleKibPanel() {
+            var selectedKib = $('#form_kib_jenis').val();
+            $('.kib-panel').hide();
+            
+            if (selectedKib !== '' && selectedKib !== undefined) {
+                $('.kib-spec-wrapper').slideDown(300);
+                $('#panel-kib-' + selectedKib).slideDown(300);
+            } else {
+                $('.kib-spec-wrapper').slideUp(300);
+            }
+        }
+
+        // On change trigger
+        $('#form_kib_jenis').on('change', function() {
+            toggleKibPanel();
+        });
+
+        // Initialize KIB panel on load
+        toggleKibPanel();
+        
+        // Initial price masking format
+        var raw_harga = $('#form_harga_beli').val();
+        if(raw_harga && raw_harga > 0) {
+            $('#form_harga_beli').val(formatRupiah(raw_harga));
+        } else {
+            $('#form_harga_beli').val('');
+        }
+
+        // Initial residu masking format
+        var raw_residu = $('#form_nilai_residu').val();
+        if(raw_residu && raw_residu > 0) {
+            $('#form_nilai_residu').val(formatRupiah(raw_residu));
+        } else {
+            $('#form_nilai_residu').val('');
+        }
+
+        // Auto-Inherit Name from Master Barang when selected
+        $('#form_kode_item').on('change', function() {
+            var selectedOption = $(this).find('option:selected');
+            var barangName = selectedOption.attr('data-nama');
+            if(barangName && $('#form_nama_aset').val() === '') {
+                $('#form_nama_aset').val(barangName);
+            }
+        });
+
+        // Trigger Auto-Generate Code on Unit Selection (Only in Add Mode)
+        $('#form_kode_unit').on('change', function() {
+            var kode_unit = $(this).val();
+            var mode = '{$mode}';
+            
+            if(mode === 'add' && kode_unit !== '') {
+                $.ajax({
+                    url: '{?=url([ADMIN, "logistik_non_medis", "generatekodeaset"])?}',
+                    type: 'POST',
+                    data: { kode_unit: kode_unit },
+                    dataType: 'json',
+                    success: function(response) {
+                        if(response.status === 'success') {
+                            $('#form_kode_aset').val(response.kode_aset);
+                        } else {
+                            alert('Gagal generate kode aset: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Gagal terhubung ke server untuk generate kode aset.');
+                    }
+                });
+            } else if (mode === 'add') {
+                $('#form_kode_aset').val('');
+            }
+        });
+
+        // Live mask currency formatting for Price Input
+        $('#form_harga_beli').on('keyup', function() {
+            $(this).val(formatRupiah($(this).val()));
+        });
+
+        // Live mask currency formatting for Residu Input
+        $('#form_nilai_residu').on('keyup', function() {
+            $(this).val(formatRupiah($(this).val()));
+        });
+
+        // Submit Form via AJAX (FormData supporting uploads)
+        $('#form-save-aset').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Validation
+            if($('#form_kode_unit').val() === '') {
+                alert('Unit Penugasan wajib dipilih!');
+                return;
+            }
+            if($('#form_kode_item').val() === '') {
+                alert('Item Barang wajib dipilih!');
+                return;
+            }
+            
+            var formData = new FormData(this);
+            
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "saveasetregistrasi"])?}',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#form-save-aset button[type="submit"]').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan...');
+                },
+                success: function(response) {
+                    if(response.status === 'success') {
+                        alert('Data Registrasi Aset berhasil disimpan!');
+                        $('#modal-form-aset').modal('hide');
+                        loadAset(1);
+                    } else {
+                        alert('Gagal menyimpan: ' + response.message);
+                        $('#form-save-aset button[type="submit"]').prop('disabled', false).html('<i class="fa fa-save"></i> Simpan Data Aset');
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan sistem saat menyimpan data.');
+                    $('#form-save-aset button[type="submit"]').prop('disabled', false).html('<i class="fa fa-save"></i> Simpan Data Aset');
+                }
+            });
+        });
+    });
+
+    // Helper functions for Rupiah formatting mask
+    function formatRupiah(angka, prefix) {
+        var number_string = angka.toString().replace(/[^,\d]/g, ''),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+    }
+</script>

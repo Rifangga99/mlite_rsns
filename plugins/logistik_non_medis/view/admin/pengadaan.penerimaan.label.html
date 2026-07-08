@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Label Penerimaan</title>
+    <style>
+        @page {
+            size: 50mm 30mm;
+            margin: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 2mm;
+            width: 46mm;
+            height: 26mm;
+            font-size: 8pt;
+            line-height: 1.2;
+            overflow: hidden;
+        }
+        .header {
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            margin-bottom: 1mm;
+            font-size: 9pt;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .content {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info {
+            width: 70%;
+        }
+        .qr {
+            width: 25%;
+            text-align: right;
+        }
+        .qr img {
+            width: 10mm;
+            height: 10mm;
+        }
+        .footer {
+            margin-top: 1mm;
+            font-size: 7pt;
+            border-top: 0.5px dashed #ccc;
+            padding-top: 0.5px;
+        }
+        .bold { font-weight: bold; }
+    </style>
+</head>
+<body onload="window.print();">
+    <div class="header">{$item.nama_barang}</div>
+    <div class="content">
+        <div class="info">
+            <div>Code: <span class="bold">{$item.kode_item}</span></div>
+            <div>Batch: <span class="bold">{$item.batch_no}</span></div>
+            <div>Exp: <span class="bold">{$item.tgl_expired}</span></div>
+        </div>
+        <div class="qr">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={$item.kode_item}|{$item.batch_no}" />
+        </div>
+    </div>
+    <div class="footer">
+        Rec: {$item.tgl_penerimaan} | Loc: {$item.kode_lokasi}
+    </div>
+</body>
+</html>

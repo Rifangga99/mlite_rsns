@@ -1,0 +1,76 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-truck"></i> Purchase Order Menunggu Kedatangan</h3>
+            </div>
+            <div class="panel-body">
+                {if: !empty($pending_pos)}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>No. PO</th>
+                                <th>Tgl PO</th>
+                                <th>Vendor</th>
+                                <th>Status</th>
+                                <th width="120">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loop: $pending_pos}
+                            <tr>
+                                <td><strong>{$value.no_po}</strong></td>
+                                <td>{?=date('d/m/Y', strtotime($value.tgl_po))?}</td>
+                                <td>{$value.kode_vendor}</td>
+                                <td>
+                                    {if: $value.status == 'Terkirim'}
+                                    <span class="label label-warning">Menunggu</span>
+                                    {else}
+                                    <span class="label label-info">Parsial</span>
+                                    {/if}
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-block btn-sm" onclick="openGudangReceiptForm('{$value.no_po}')">
+                                        <i class="fa fa-download"></i> Terima Barang
+                                    </button>
+                                </td>
+                            </tr>
+                            {/loop}
+                        </tbody>
+                    </table>
+                </div>
+                {else}
+                <div class="alert alert-success text-center">
+                    <i class="fa fa-check-circle fa-2x"></i>
+                    <p>Tidak ada PO aktif yang menunggu kedatangan barang.</p>
+                </div>
+                {/if}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-history"></i> Penerimaan Terbaru</h3>
+            </div>
+            <div class="list-group">
+                {if: !empty($recent_receipts)}
+                {loop: $recent_receipts}
+                <a href="javascript:void(0)" class="list-group-item" onclick="openGudangReceiptForm('', '{$value.no_penerimaan}')">
+                    <h4 class="list-group-item-heading">{$value.no_penerimaan}</h4>
+                    <p class="list-group-item-text">
+                        <small class="text-muted">{$value.tgl_penerimaan} | PO: {$value.no_po}</small>
+                    </p>
+                </a>
+                {/loop}
+                {else}
+                <div class="list-group-item text-center">Belum ada data.</div>
+                {/if}
+            </div>
+            <div class="panel-footer text-center">
+                <button class="btn btn-default btn-sm btn-block" onclick="loadGudangHistory()">Lihat Semua</button>
+            </div>
+        </div>
+    </div>
+</div>

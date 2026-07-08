@@ -1,0 +1,70 @@
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>No. SPPB</th>
+                <th>Tanggal SPPB</th>
+                <th>Unit Peminta</th>
+                <th>Status</th>
+                <th>No. BAST</th>
+                <th>Tgl. Serah</th>
+                <th class="text-center">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($serahterima)}
+                {loop: $serahterima}
+                <tr>
+                    <td>{$value.no_sppb}</td>
+                    <td>{$value.tgl_sppb}</td>
+                    <td>{$value.nama_unit}</td>
+                    <td>
+                        {if: $value.status == 'Ready'}
+                            <span class="label label-warning">Siap Dikirim</span>
+                        {else}
+                            <span class="label label-success">Selesai (Diterima)</span>
+                        {/if}
+                    </td>
+                    <td>{if: !empty($value.no_serah_terima)}{$value.no_serah_terima}{else}-{/if}</td>
+                    <td>{if: !empty($value.tanggal_serah)}{$value.tanggal_serah}{else}-{/if}</td>
+                    <td class="text-center">
+                        {if: $value.status == 'Ready'}
+                            <button class="btn btn-xs btn-primary" onclick="prosesSerahTerima('{$value.no_sppb}')">
+                                <i class="fa fa-handshake-o"></i> Proses Serah Terima
+                            </button>
+                        {else}
+                            <button class="btn btn-xs btn-info" onclick="cetakBAST('{$value.no_sppb}')">
+                                <i class="fa fa-print"></i> Cetak BAST
+                            </button>
+                        {/if}
+                    </td>
+                </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="7" class="text-center">Data tidak ditemukan atau belum ada barang yang siap diserahterimakan.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <div class="col-md-12 text-center">
+        <nav>
+            <ul class="pagination pagination-sm">
+                {if: $halaman > 1}
+                    <li><a href="#" onclick="loadSerahTerima(1)">&laquo; First</a></li>
+                    <li><a href="#" onclick="loadSerahTerima({$halaman - 1})">&lsaquo; Prev</a></li>
+                {/if}
+                
+                <li class="active"><span>Halaman {$halaman} dari {$jml_halaman}</span></li>
+                
+                {if: $halaman < $jml_halaman}
+                    <li><a href="#" onclick="loadSerahTerima({$halaman + 1})">Next &rsaquo;</a></li>
+                    <li><a href="#" onclick="loadSerahTerima({$jml_halaman})">Last &raquo;</a></li>
+                {/if}
+            </ul>
+        </nav>
+    </div>
+</div>

@@ -1,0 +1,274 @@
+<div class="modal-header" style="background-color: #ffffff; border-bottom: 1px solid #eee; padding: 15px 20px;">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" style="color: #555; font-size: 18px;">{if: $view_only}Detail Rekanan Jasa{elseif: $mode == 'edit'}Edit Rekanan Jasa{else}Tambah Rekanan Baru{/if}</h4>
+</div>
+<form id="rekananForm" enctype="multipart/form-data">
+    <div class="modal-body" style="padding: 20px;">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 20px;">
+            <li role="presentation" class="active"><a href="#profil" aria-controls="profil" role="tab" data-toggle="tab">Profil Umum</a></li>
+            <li role="presentation"><a href="#layanan" aria-controls="layanan" role="tab" data-toggle="tab">Layanan & PIC</a></li>
+            <li role="presentation"><a href="#kontrak" aria-controls="kontrak" role="tab" data-toggle="tab">Kontrak & Jadwal</a></li>
+        </ul>
+
+        <!-- Tab Panes -->
+        <div class="tab-content" style="padding-top: 10px;">
+            <!-- Tab 1: Profil Umum -->
+            <div role="tabpanel" class="tab-pane active" id="profil">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Kode Rekanan</label>
+                            <input type="text" name="kode_rekanan" class="form-control" value="{$rekanan.kode_rekanan}" style="background-color: #f9f9f9; height: 40px;" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Nama Perusahaan / Rekanan <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_rekanan" class="form-control" value="{$rekanan.nama_rekanan}" style="height: 40px;" required {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Alamat Lengkap</label>
+                    <textarea name="alamat" class="form-control" rows="4" style="resize: vertical;" {if: $view_only}readonly{/if}>{$rekanan.alamat}</textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Telepon Kantor</label>
+                            <input type="text" name="no_telp" class="form-control" value="{$rekanan.no_telp}" style="height: 40px;" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Email</label>
+                            <input type="email" name="email" class="form-control" value="{$rekanan.email}" style="height: 40px;" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Website</label>
+                            <input type="text" name="website" class="form-control" value="{$rekanan.website}" style="height: 40px;" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Layanan & PIC -->
+            <div role="tabpanel" class="tab-pane" id="layanan">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Jenis Layanan Jasa</label>
+                            <input type="text" name="jenis_layanan" class="form-control" style="height: 40px;" placeholder="Contoh: Perawatan Lift" value="{$rekanan.jenis_layanan}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Frekuensi Servis</label>
+                            <input type="text" name="frekuensi" class="form-control" style="height: 40px;" placeholder="Contoh: 3 Bulan" value="{$rekanan.frekuensi}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border-top: 1px solid #eee;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Nama Kontak PIC</label>
+                            <input type="text" name="pic" class="form-control" style="height: 40px;" value="{$rekanan.pic}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Nomor Kontak PIC</label>
+                            <input type="text" name="pic_kontak" class="form-control" style="height: 40px;" value="{$rekanan.pic_kontak}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Kategori Rekanan</label>
+                            <select name="kategori" class="form-control" style="height: 40px;" {if: $view_only}disabled{/if}>
+                                <option value="Vendor Servis" {if: $rekanan.kategori == 'Vendor Servis'}selected{/if}>Vendor Servis / Perawatan</option>
+                                <option value="Kontraktor" {if: $rekanan.kategori == 'Kontraktor'}selected{/if}>Kontraktor Pemeliharaan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Status Kerjasama</label>
+                            <select name="status" class="form-control" style="height: 40px;" {if: $view_only}disabled{/if}>
+                                <option value="Aktif" {if: $rekanan.status == 'Aktif'}selected{/if}>Aktif</option>
+                                <option value="Non-Aktif" {if: $rekanan.status == 'Non-Aktif'}selected{/if}>Non-Aktif</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Kontrak & Jadwal -->
+            <div role="tabpanel" class="tab-pane" id="kontrak">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Nomor Kontrak Jasa</label>
+                            <input type="text" name="nomor_kontrak" class="form-control" style="height: 40px;" value="{$rekanan.nomor_kontrak}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Nilai Kontrak (Rp)</label>
+                            <input type="text" name="nilai_kontrak" id="nilai_kontrak" class="form-control" style="height: 40px;" value="{$rekanan.nilai_kontrak}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Tanggal Mulai Kontrak</label>
+                            <input type="text" name="tgl_mulai_kontrak" class="form-control datepicker" style="height: 40px;" value="{$rekanan.tgl_mulai_kontrak}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Tanggal Selesai Kontrak</label>
+                            <input type="text" name="tgl_selesai_kontrak" class="form-control datepicker" style="height: 40px;" value="{$rekanan.tgl_selesai_kontrak}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                </div>
+                <hr style="border-top: 1px solid #eee;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Jadwal Servis Terakhir</label>
+                            <input type="text" name="tgl_servis_terakhir" class="form-control datepicker" style="height: 40px;" value="{$rekanan.tgl_servis_terakhir}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Jadwal Servis Berikutnya</label>
+                            <input type="text" name="tgl_servis_berikutnya" class="form-control datepicker" style="height: 40px;" value="{$rekanan.tgl_servis_berikutnya}" {if: $view_only}readonly{/if}>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444; margin-bottom: 8px;">Lampiran File Kontrak (PDF/Image)</label>
+                    {if: !$view_only}
+                        <input type="file" name="file_kontrak" class="form-control" style="height: 40px;">
+                    {/if}
+                    {if: !empty($rekanan.file_kontrak)}
+                        <p class="help-block">File tersimpan: <a href="{?=url('uploads/logistik_non_medis/rekanan_jasa/'.$rekanan['file_kontrak'])?}" target="_blank">{$rekanan.file_kontrak}</a></p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="background-color: #ffffff; border-top: 1px solid #eee; padding: 15px 20px;">
+        <button type="button" class="btn btn-default" data-dismiss="modal" style="background-color: #f0f2f5; border: 1px solid #dcdfe6; color: #606266; padding: 10px 25px; border-radius: 4px;">{if: $view_only}Tutup{else}Batal{/if}</button>
+        {if: !$view_only}
+            <button type="submit" class="btn btn-primary" id="btnSimpan" style="background-color: #3e4855; border: none; padding: 10px 30px; font-weight: bold; border-radius: 4px;">Simpan Data</button>
+        {/if}
+    </div>
+</form>
+
+<style>
+.nav-tabs {
+    border-bottom: 1px solid #ddd !important;
+    display: flex;
+    width: 100%;
+}
+.nav-tabs > li {
+    margin-bottom: -1px !important;
+}
+.nav-tabs > li > a {
+    background-color: #fff;
+    color: #999;
+    border: 1px solid transparent !important;
+    border-bottom: 1px solid #ddd !important;
+    border-radius: 4px 4px 0 0;
+    margin-right: 2px;
+    padding: 10px 20px;
+    display: block;
+}
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
+    background-color: #f5f5f5 !important;
+    color: #333 !important;
+    border: 1px solid #ddd !important;
+    border-bottom-color: #f5f5f5 !important;
+    cursor: default;
+}
+.tab-content {
+    border-top: none;
+}
+.form-control {
+    border: 1px solid #ccc;
+    box-shadow: none;
+    border-radius: 4px;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+
+    // Rupiah Formatting
+    var nilaiKontrak = document.getElementById('nilai_kontrak');
+    nilaiKontrak.addEventListener('keyup', function(e) {
+        nilaiKontrak.value = formatRupiah(this.value, 'Rp. ');
+    });
+
+    function formatRupiah(angka, prefix) {
+        var number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+    }
+
+    // Auto format on load if has value
+    if($('#nilai_kontrak').val() != '') {
+        $('#nilai_kontrak').val(formatRupiah($('#nilai_kontrak').val(), 'Rp. '));
+    }
+
+    $('#rekananForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#btnSimpan').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan...');
+        
+        var formData = new FormData(this);
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "savemasterrekanan"])?}',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                var res = JSON.parse(response);
+                if(res.status == 'success') {
+                    $('#rekananModal').modal('hide');
+                    loadData();
+                } else {
+                    alert(res.message);
+                    $('#btnSimpan').prop('disabled', false).html('Simpan Data');
+                }
+            },
+            error: function() {
+                alert('Terjadi kesalahan koneksi ke server.');
+                $('#btnSimpan').prop('disabled', false).html('Simpan Data');
+            }
+        });
+    });
+});
+</script>

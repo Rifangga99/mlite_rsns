@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Berita Acara Hasil Sensus Aset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.4;
+            padding: 20px;
+            background: white;
+        }
+        .kop-surat {
+            border-bottom: 3px double #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .kop-logo {
+            width: 80px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .kop-text {
+            flex-grow: 1;
+        }
+        .kop-text h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .kop-text p {
+            margin: 3px 0 0 0;
+            font-size: 11px;
+            color: #555;
+        }
+        .doc-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            text-decoration: underline;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .doc-subtitle {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 25px;
+            color: #444;
+        }
+        .meta-table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        .meta-table td {
+            padding: 4px 0;
+            vertical-align: top;
+        }
+        .meta-table td.label {
+            width: 150px;
+            font-weight: bold;
+        }
+        .meta-table td.colon {
+            width: 15px;
+            text-align: center;
+        }
+        .table-data {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .table-data th, .table-data td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            text-align: left;
+        }
+        .table-data th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: center;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 12px;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000;
+            padding-bottom: 3px;
+        }
+        
+        /* Signature Area */
+        .signature-container {
+            width: 100%;
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-box {
+            width: 30%;
+            text-align: center;
+            font-size: 11px;
+        }
+        .signature-space {
+            height: 70px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .digital-sig-text {
+            border: 1px dashed #2ecc71;
+            padding: 4px 8px;
+            background-color: #e8f8f0;
+            color: #27ae60;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 10px;
+            border-radius: 4px;
+            transform: rotate(-3deg);
+        }
+        .signature-box .name {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Print Control Bar -->
+    <div class="no-print" style="background: #f0f2f5; padding: 15px; border-radius: 6px; margin-bottom: 20px; text-align: right;">
+        <button onclick="window.print()" style="padding: 8px 16px; background: #2a5298; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            <i class="fa fa-print"></i> Cetak / Simpan Ke PDF
+        </button>
+    </div>
+
+    <!-- Letterhead (Kop Surat) -->
+    <div class="kop-surat">
+        {if: !empty($logo)}
+        <img class="kop-logo" src="{$logo}" alt="Logo Rumah Sakit">
+        {else}
+        <div class="kop-logo" style="width: 80px; height: 60px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">LOGO</div>
+        {/if}
+        <div class="kop-text">
+            <h2>RS Nur Hidayah Bantul</h2>
+            <p>Jl. Imogiri Timur Km. 11.5, Trimulyo, Jetis, Bantul, D.I. Yogyakarta</p>
+            <p>Telp: (0274) 6460666 | Email: info@rsnurhidayah.com</p>
+        </div>
+    </div>
+
+    <!-- Title -->
+    <div class="doc-title">Berita Acara Hasil Sensus Fisik Aset</div>
+    <div class="doc-subtitle">Nomor Sertifikasi: {$meta.no_sertifikat ?: '-'}</div>
+
+    <!-- Sensus Meta -->
+    <table class="meta-table">
+        <tr>
+            <td class="label">Nama Sensus</td>
+            <td class="colon">:</td>
+            <td><strong>{$meta.nama_sensus}</strong></td>
+        </tr>
+        <tr>
+            <td class="label">Masa Pelaksanaan</td>
+            <td class="colon">:</td>
+            <td>{$meta.tanggal_mulai} s.d. {$meta.tanggal_selesai}</td>
+        </tr>
+        <tr>
+            <td class="label">Tanggal Terbit BAHS</td>
+            <td class="colon">:</td>
+            <td>{$meta.tanggal_sertifikat ?: date('Y-m-d')}</td>
+        </tr>
+        <tr>
+            <td class="label">Keterangan / Scope</td>
+            <td class="colon">:</td>
+            <td>{$meta.keterangan_sensus ?: 'Seluruh aset aktif logistik non-medis.'}</td>
+        </tr>
+    </table>
+
+    <!-- Aggregated Summary Table -->
+    <div class="section-title">Ringkasan Statistik Hasil Sensus</div>
+    <table class="table-data">
+        <thead>
+            <tr>
+                <th width="50">No</th>
+                <th>Kategori Status Sensus</th>
+                <th width="150" style="text-align: center;">Jumlah Item Aset</th>
+                <th width="150" style="text-align: center;">Persentase (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: center;">1</td>
+                <td>Sesuai / Cocok (Fisik = Sistem)</td>
+                <td style="text-align: center;">{$total_sesuai} Aset</td>
+                <td style="text-align: center;">{?= $total_terdaftar > 0 ? round(($total_sesuai/$total_terdaftar)*100, 1) : 0 ?}%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">2</td>
+                <td>Selisih Lokasi (Aset Pindah Unit Kerja)</td>
+                <td style="text-align: center;">{$total_selisih_lokasi} Aset</td>
+                <td style="text-align: center;">{?= $total_terdaftar > 0 ? round(($total_selisih_lokasi/$total_terdaftar)*100, 1) : 0 ?}%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">3</td>
+                <td>Selisih Kondisi Fisik</td>
+                <td style="text-align: center;">{$total_selisih_kondisi} Aset</td>
+                <td style="text-align: center;">{?= $total_terdaftar > 0 ? round(($total_selisih_kondisi/$total_terdaftar)*100, 1) : 0 ?}%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">4</td>
+                <td>Tidak Ditemukan (Aset Hilang / Missing)</td>
+                <td style="text-align: center; color: red; font-weight: bold;">{$total_tidak_ditemukan} Aset</td>
+                <td style="text-align: center; color: red;">{?= $total_terdaftar > 0 ? round(($total_tidak_ditemukan/$total_terdaftar)*100, 1) : 0 ?}%</td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">5</td>
+                <td>Aset Baru / Aset Liar Ditemukan</td>
+                <td style="text-align: center;">{$total_aset_baru} Aset</td>
+                <td style="text-align: center;">{?= $total_terdaftar > 0 ? round(($total_aset_baru/$total_terdaftar)*100, 1) : 0 ?}%</td>
+            </tr>
+            <tr style="background-color: #f2f2f2; font-weight: bold;">
+                <td colspan="2" style="text-align: right;">TOTAL ASET TERDAFTAR</td>
+                <td style="text-align: center;">{$total_terdaftar} Aset</td>
+                <td style="text-align: center;">100%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- Discrepancy Details List -->
+    <div class="section-title">Detail Aset Bermasalah & Selisih (Discrepancy Sheet)</div>
+    <table class="table-data">
+        <thead>
+            <tr>
+                <th width="100">Kode Aset</th>
+                <th>Nama Aset</th>
+                <th>Unit Asal</th>
+                <th>Unit Fisik</th>
+                <th>Kondisi Asal</th>
+                <th>Kondisi Fisik</th>
+                <th>Status Temuan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop: $items}
+            {if: $value.status_sensus_item != 'Sesuai' && $value.status_sensus_item != 'Belum Sensus'}
+            <tr>
+                <td><strong>{$value.kode_aset}</strong></td>
+                <td>{$value.nama_aset}</td>
+                <td>{$value.sistem_nama_unit}</td>
+                <td>{if: $value.status_sensus_item == 'Tidak Ditemukan'}<span style="color:red; font-weight:bold;">[HILANG]</span>{else}{$value.fisik_nama_unit}{/if}</td>
+                <td style="text-align: center;">{$value.sistem_status_kondisi}</td>
+                <td style="text-align: center;">{$value.fisik_status_kondisi ?: '-'}</td>
+                <td style="font-weight: bold; text-align: center;">
+                    {if: $value.status_sensus_item == 'Selisih Lokasi'}
+                    <span style="color:#d9534f;">Pindah Unit</span>
+                    {elseif: $value.status_sensus_item == 'Selisih Kondisi'}
+                    <span style="color:#f0ad4e;">Beda Kondisi</span>
+                    {elseif: $value.status_sensus_item == 'Tidak Ditemukan'}
+                    <span style="color:red;">HILANG</span>
+                    {elseif: $value.status_sensus_item == 'Aset Baru'}
+                    <span style="color:#337ab7;">Aset Liar</span>
+                    {/if}
+                </td>
+            </tr>
+            {/if}
+            {/loop}
+        </tbody>
+    </table>
+
+    <p style="font-size: 11px; margin-top: 15px; font-style: italic;">
+        * Berita Acara ini sah dan diterbitkan secara otomatis oleh sistem mLite setelah melalui proses verifikasi lapangan dan disahkan secara digital oleh pihak terkait.
+    </p>
+
+    <!-- Signatures -->
+    <div class="signature-container">
+        <div class="signature-box">
+            <p>Petugas Sensus Lapangan,</p>
+            <div class="signature-space">
+                {if: !empty($meta.ttd_petugas)}
+                <div class="digital-sig-text">SIGNED BY: {$meta.ttd_petugas}</div>
+                {else}
+                <div style="color:#aaa;">( Belum TTD )</div>
+                {/if}
+            </div>
+            <p class="name">{$meta.ttd_petugas ?: '...........................'}</p>
+            <p>NIP/NIK Lapangan</p>
+        </div>
+
+        <div class="signature-box">
+            <p>Mengetahui,<br>Kepala Unit Kerja Terkait</p>
+            <div class="signature-space">
+                {if: !empty($meta.ttd_ka_unit)}
+                <div class="digital-sig-text">APPROVED: {$meta.ttd_ka_unit}</div>
+                {else}
+                <div style="color:#aaa;">( Belum TTD )</div>
+                {/if}
+            </div>
+            <p class="name">{$meta.ttd_ka_unit ?: '...........................'}</p>
+            <p>NIP/NIK Kepala Unit</p>
+        </div>
+
+        <div class="signature-box">
+            <p>Menyetujui,<br>Manajer Bidang Logistik</p>
+            <div class="signature-space">
+                {if: !empty($meta.ttd_ka_logistik)}
+                <div class="digital-sig-text">CERTIFIED: {$meta.ttd_ka_logistik}</div>
+                {else}
+                <div style="color:#aaa;">( Belum TTD )</div>
+                {/if}
+            </div>
+            <p class="name">{$meta.ttd_ka_logistik ?: '...........................'}</p>
+            <p>NIP/NIK Kabid Logistik</p>
+        </div>
+    </div>
+
+</body>
+</html>

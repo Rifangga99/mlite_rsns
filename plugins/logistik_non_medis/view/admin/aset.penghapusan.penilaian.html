@@ -1,0 +1,116 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-gavel"></i> Cek Fisik & Penilaian Kondisi Aset</h4>
+</div>
+<form id="penilaianForm" onsubmit="event.preventDefault(); savePenilaian();">
+    <input type="hidden" name="id" value="{$pengajuan.id}">
+    <input type="hidden" name="nilai_buku_terakhir" value="{$pengajuan.nilai_buku}">
+    <div class="modal-body">
+        
+        <!-- Summary Informasi Aset & Finansial -->
+        <div class="panel panel-default" style="background-color: #fcfcfc;">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><strong>INFORMASI ASET</strong></h5>
+                        <table class="table table-condensed" style="margin-bottom: 0;">
+                            <tr>
+                                <td style="width: 140px; border-top: none;">Kode Aset</td>
+                                <td style="border-top: none;">: <code>{$pengajuan.kode_aset}</code></td>
+                            </tr>
+                            <tr>
+                                <td>Nama Aset</td>
+                                <td>: <strong>{$pengajuan.nama_aset}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Tanggal Perolehan</td>
+                                <td>: {?= date('d-m-Y', strtotime($pengajuan['tanggal_perolehan'])) ?}</td>
+                            </tr>
+                            <tr>
+                                <td>Alasan Pengusulan</td>
+                                <td>: <span class="text-danger">{$pengajuan.alasan_penghapusan}</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6" style="border-left: 1px solid #eee;">
+                        <h5><strong>NILAI FINANSIAL / BUKU</strong></h5>
+                        <table class="table table-condensed" style="margin-bottom: 0;">
+                            <tr>
+                                <td style="width: 140px; border-top: none;">Harga Perolehan</td>
+                                <td style="border-top: none;">: Rp. {?= number_format($pengajuan['harga_beli'], 0, ',', '.') ?}</td>
+                            </tr>
+                            <tr>
+                                <td>Akumulasi Depresiasi</td>
+                                <td>: Rp. {?= number_format($pengajuan['akumulasi_penyusutan'], 0, ',', '.') ?}</td>
+                            </tr>
+                            <tr>
+                                <td>Nilai Buku Terakhir</td>
+                                <td>: <strong class="text-primary">Rp. {?= number_format($pengajuan['nilai_buku'], 0, ',', '.') ?}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inputs Penilaian -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Kondisi Fisik Hasil Cek Lapangan <span class="text-danger">*</span></label>
+                    <select class="form-control" name="status_kondisi_terakhir" required>
+                        <option value="Rusak Berat" {if: $pengajuan.status_kondisi_terakhir == 'Rusak Berat'}selected{/if}>Rusak Berat (Disarankan Hapus)</option>
+                        <option value="Rusak Ringan" {if: $pengajuan.status_kondisi_terakhir == 'Rusak Ringan'}selected{/if}>Rusak Ringan (Bisa Digunakan Lagi)</option>
+                        <option value="Baik" {if: $pengajuan.status_kondisi_terakhir == 'Baik'}selected{/if}>Baik (Normal / Pembatalan Usulan)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Taksiran Nilai Sisa (Salvage Value) <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="nilai_taksiran" name="nilai_taksiran" value="{?= number_format($pengajuan['nilai_taksiran'], 0, ',', '.') ?}" placeholder="Taksiran sisa harga aset jika dilelang/dijual..." required>
+                    <small class="text-muted">Isi Rp 0 jika aset akan dimusnahkan total atau tidak memiliki nilai jual lagi.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Catatan Penilai / Rekomendasi Teknis</label>
+            <textarea class="form-control" name="catatan_penilaian" rows="3" placeholder="Masukkan hasil temuan cek lapangan (misal: Kompresor AC terbakar total, biaya servis melebihi harga baru, layak dimusnahkan)">{$pengajuan.catatan_penilaian}</textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Tanggal Penilaian</label>
+                    <input type="date" class="form-control" name="tanggal_penilaian" value="{$pengajuan.tanggal_penilaian}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Petugas Penilai / Assessor</label>
+                    <input type="text" class="form-control" name="petugas_penilai" value="{$pengajuan.petugas_penilai}" required>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
+        <button type="submit" class="btn btn-info"><i class="fa fa-save"></i> Simpan Penilaian</button>
+    </div>
+</form>
+
+<script>
+$(function() {
+    // Format input as currency on type
+    $('#nilai_taksiran').on('keyup', function() {
+        var val = $(this).val().replace(/[^0-9]/g, '');
+        if(val !== '') {
+            $(this).val(new Intl.NumberFormat('id-ID').format(val));
+        } else {
+            $(this).val('0');
+        }
+    });
+});
+</script>

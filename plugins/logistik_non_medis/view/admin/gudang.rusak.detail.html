@@ -1,0 +1,152 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">Detail Penanganan: {$rusak.no_transaksi}</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-condensed table-striped">
+                <tr><th>Barang</th><td>: {$rusak.nama_barang}</td></tr>
+                <tr><th>No. Batch</th><td>: {$rusak.batch}</td></tr>
+                <tr><th>Jumlah</th><td>: {$rusak.jumlah}</td></tr>
+                <tr><th>Kategori</th><td>: <span class="label label-warning">{$rusak.kategori_kerusakan}</span></td></tr>
+                <tr><th>Keterangan</th><td>: {$rusak.keterangan}</td></tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-condensed table-striped">
+                <tr><th>Status</th><td>: 
+                    {if: $rusak.status == 'Karantina'}
+                        <span class="label label-default">Karantina</span>
+                    {else}
+                        <span class="label label-success">Selesai</span>
+                    {/if}
+                </td></tr>
+                <tr><th>Petugas</th><td>: {$rusak.user_input}</td></tr>
+                <tr><th>Tgl Input</th><td>: {$rusak.tgl_input}</td></tr>
+                {if: $rusak.status == 'Selesai'}
+                    <tr><th>Tindak Lanjut</th><td>: <strong>{$rusak.tindak_lanjut}</strong></td></tr>
+                {/if}
+            </table>
+        </div>
+    </div>
+
+    {if: $rusak.status == 'Karantina'}
+    <hr>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#tab-retur" aria-controls="tab-retur" role="tab" data-toggle="tab"><i class="fa fa-truck"></i> Proses Retur Vendor</a></li>
+        <li role="presentation"><a href="#tab-pemusnahan" aria-controls="tab-pemusnahan" role="tab" data-toggle="tab"><i class="fa fa-trash"></i> Proses Pemusnahan</a></li>
+    </ul>
+
+    <div class="tab-content" style="padding-top:15px;">
+        <!-- TAB RETUR -->
+        <div role="tabpanel" class="tab-pane active" id="tab-retur">
+            <form id="form-tindak-retur">
+                <input type="hidden" name="no_transaksi" value="{$rusak.no_transaksi}">
+                <input type="hidden" name="tindak_lanjut" value="Retur">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Vendor Tujuan</label>
+                            <select name="kode_vendor" class="form-control" required style="width:100%;">
+                                <option value="">-- Pilih Vendor --</option>
+                                {loop: $vendor}
+                                <option value="{$value.kode_vendor}">{$value.nama_vendor}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Tanggal Retur</label>
+                            <input type="text" name="tgl_retur" class="form-control datepicker-modal" value="{?=date('Y-m-d')?}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Catatan Retur</label>
+                            <textarea name="catatan" class="form-control" rows="2" placeholder="Detail pengiriman / No. Resi..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-info btn-block"><i class="fa fa-check"></i> Finalisasi Proses Retur</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB PEMUSNAHAN -->
+        <div role="tabpanel" class="tab-pane" id="tab-pemusnahan">
+            <form id="form-tindak-pemusnahan">
+                <input type="hidden" name="no_transaksi" value="{$rusak.no_transaksi}">
+                <input type="hidden" name="tindak_lanjut" value="Pemusnahan">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Metode Pemusnahan</label>
+                            <input type="text" name="metode_pemusnahan" class="form-control" placeholder="Bakar / Kubur / Incinerator" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal Eksekusi</label>
+                            <input type="text" name="tgl_pemusnahan" class="form-control datepicker-modal" value="{?=date('Y-m-d')?}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Saksi 1</label>
+                            <input type="text" name="saksi_1" class="form-control" required placeholder="Nama Saksi Internal">
+                        </div>
+                        <div class="form-group">
+                            <label>Saksi 2</label>
+                            <input type="text" name="saksi_2" class="form-control" required placeholder="Nama Saksi Eksternal/Petugas Lain">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Catatan Pemusnahan (BAP)</label>
+                            <textarea name="catatan" class="form-control" rows="2" placeholder="Catatan tambahan untuk Berita Acara..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger btn-block"><i class="fa fa-check"></i> Finalisasi & Buat Berita Acara</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {else}
+    <hr>
+    <div class="well">
+        <h4>Informasi Penyelesaian:</h4>
+        {if: $rusak.tindak_lanjut == 'Retur'}
+            <p>Barang telah di-<strong>Retur</strong> ke vendor <strong>{$rusak.nama_vendor}</strong> pada tanggal {$rusak.tgl_retur}.</p>
+            <p>Catatan: {$rusak.catatan_logistik}</p>
+            <a href="{?=url([ADMIN, 'logistik_non_medis', 'printsuratretur', '?no_transaksi='.$rusak.no_transaksi])?}" target="_blank" class="btn btn-info btn-sm"><i class="fa fa-print"></i> Cetak Surat Retur</a>
+        {else}
+            <p>Barang telah di-<strong>Musnahkan</strong> pada tanggal {$rusak.tgl_pemusnahan} dengan metode {$rusak.metode_pemusnahan}.</p>
+            <p>Saksi: {$rusak.saksi_1} dan {$rusak.saksi_2}</p>
+            <p>Catatan: {$rusak.catatan_logistik}</p>
+            <a href="{?=url([ADMIN, 'logistik_non_medis', 'printbap', '?no_transaksi='.$rusak.no_transaksi])?}" target="_blank" class="btn btn-danger btn-sm"><i class="fa fa-print"></i> Cetak Berita Acara (BAP)</a>
+        {/if}
+    </div>
+    {/if}
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+</div>
+
+<script>
+(function() {
+    $('#form-tindak-retur, #form-tindak-pemusnahan').off('submit').on('submit', function(e) {
+        e.preventDefault();
+        if(!confirm('Apakah Anda yakin ingin melakukan finalisasi tindakan ini? Status stok akan diperbarui secara permanen.')) return;
+        
+        $.post('{?=url([ADMIN, "logistik_non_medis", "updatetindaklanjut"])?}', $(this).serialize(), function(data) {
+            let res = JSON.parse(data);
+            if(res.status == 'success') {
+                alert('Tindakan berhasil difinalisasi!');
+                $('#modal-detail').modal('hide');
+                loadData();
+            } else {
+                alert('Error: ' + res.message);
+            }
+        });
+    });
+})();
+</script>

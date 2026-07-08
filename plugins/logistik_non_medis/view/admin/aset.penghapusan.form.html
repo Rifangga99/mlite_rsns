@@ -1,0 +1,71 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">{if: $mode == 'add'}<i class="fa fa-plus-circle"></i> Ajukan Penghapusan Aset baru{else}<i class="fa fa-edit"></i> Ubah Usulan Penghapusan{/if}</h4>
+</div>
+<form id="pengajuanForm" onsubmit="event.preventDefault(); savePengajuan();">
+    <input type="hidden" name="id" value="{$data.id}">
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>No. Pengajuan</label>
+                    <input type="text" class="form-control" name="no_pengajuan" value="{$data.no_pengajuan}" readonly>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Tanggal Pengajuan <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" name="tanggal_pengajuan" value="{$data.tanggal_pengajuan}" required>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Cari & Pilih Aset Aktif <span class="text-danger">*</span></label>
+            <input type="hidden" id="kode_aset" name="kode_aset" value="{$data.kode_aset}">
+            <input type="text" id="nama_aset" class="form-control" value="{$data.nama_aset}" placeholder="Ketik kode aset atau nama barang..." required {if: $mode == 'edit'}readonly{/if}>
+            <small class="text-muted">Masukkan pencarian minimal 2 karakter. Pencarian hanya mengambil aset dengan status <strong>Aktif</strong>.</small>
+        </div>
+
+        <div class="form-group">
+            <label>Alasan Penghapusan Aset <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="alasan_penghapusan" rows="3" placeholder="Jelaskan alasan detail pembuangan (misal: Rusak berat total disambar petir, tidak efisien dibanding sewa, dll)" required>{$data.alasan_penghapusan}</textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>PIC Pengusul</label>
+                    <input type="text" class="form-control" name="pic_pengusul" value="{$data.pic_pengusul}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Status Pengusulan</label>
+                    <select class="form-control" name="status">
+                        <option value="Draft" {if: $data.status == 'Draft'}selected{/if}>Draft (Simpan Sementara)</option>
+                        <option value="Pengajuan" {if: $data.status == 'Pengajuan'}selected{/if}>Pengajuan (Langsung Kirim ke Logistik)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Simpan Pengajuan</button>
+    </div>
+</form>
+
+<script>
+$(function() {
+    $('#nama_aset').autocomplete({
+        source: '{?=url(ADMIN."/logistik_non_medis/searchasetautocomplete")?}',
+        minLength: 2,
+        select: function(event, ui) {
+            $('#kode_aset').val(ui.item.kode_aset);
+            $('#nama_aset').val(ui.item.value);
+            return false;
+        }
+    });
+});
+</script>

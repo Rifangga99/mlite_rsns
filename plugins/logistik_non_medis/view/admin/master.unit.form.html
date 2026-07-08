@@ -1,0 +1,89 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">{if: $mode == 'edit'}Edit Unit & Departemen{else}Tambah Unit Baru{/if}</h4>
+</div>
+<form id="form-master-unit" method="POST">
+    <div class="modal-body">
+        <input type="hidden" name="id" value="{$unit.id}">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Kode Unit</label>
+                    <input type="text" name="kode_unit" class="form-control" value="{$unit.kode_unit}" readonly>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label>Nama Unit / Departemen <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_unit" class="form-control" value="{$unit.nama_unit}" required>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Struktur Induk (Parent)</label>
+                    <select name="parent_id" class="form-control select2">
+                        <option value="0">-- Tingkat Utama (Root) --</option>
+                        {loop: $units}
+                            {if: $value.id != $unit.id}
+                                <option value="{$value.id}" {if: $unit.parent_id == $value.id}selected{/if}>{$value.nama_unit} ({$value.kode_unit})</option>
+                            {/if}
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Penanggung Jawab (PJ)</label>
+                    <input type="text" name="pj_unit" class="form-control" value="{$unit.pj_unit}" placeholder="Nama Pejabat/PJ Unit">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Gedung</label>
+                    <input type="text" name="gedung" class="form-control" value="{$unit.gedung}" placeholder="Contoh: Gedung A">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Lantai</label>
+                    <input type="text" name="lantai" class="form-control" value="{$unit.lantai}" placeholder="Contoh: 2">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Kode Cost Center</label>
+                    <input type="text" name="kode_cost_center" class="form-control" value="{$unit.kode_cost_center}" placeholder="Kode Akun/CC">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label>Detail Lokasi</label>
+                    <textarea name="lokasi_detail" class="form-control" rows="2" placeholder="Detail lokasi spesifik...">{$unit.lokasi_detail}</textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Kuota Pemakaian (Periode)</label>
+                    <input type="number" name="kuota_periode" class="form-control" value="{$unit.kuota_periode}">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <select name="status" class="form-control">
+                <option value="Aktif" {if: $unit.status == 'Aktif'}selected{/if}>Aktif</option>
+                <option value="Tidak Aktif" {if: $unit.status == 'Tidak Aktif'}selected{/if}>Tidak Aktif</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-unit">Simpan</button>
+    </div>
+</form>

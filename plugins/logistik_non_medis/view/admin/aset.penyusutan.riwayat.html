@@ -1,0 +1,52 @@
+{if: empty($riwayat)}
+<div class="alert alert-info text-center" style="padding: 40px; margin-top: 20px;">
+    <i class="fa fa-info-circle fa-2x"></i><br><br>
+    Belum ada riwayat proses kalkulasi penyusutan yang tercatat di sistem. Silakan lakukan proses kalkulasi di Tab <strong>Kalkulasi Periodik</strong>.
+</div>
+{else}
+<div class="alert alert-warning" style="margin-top: 10px; margin-bottom: 20px; font-size: 13px;">
+    <i class="fa fa-exclamation-triangle"></i> <strong>Pemberitahuan Reversibilitas:</strong> Anda dapat membatalkan kalkulasi periode tertentu menggunakan tombol <strong>Rollback</strong>. Proses rollback akan secara otomatis mengembalikan nilai buku aset ke posisi semula dan menghapus postingan jurnal penyesuaian yang terkirim ke Keuangan.
+</div>
+
+<div class="panel panel-default" style="box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 5px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table table-hover table-striped table-bordered align-middle no-margin" style="font-size: 13px;">
+            <thead>
+                <tr style="background-color: #fafafa; border-bottom: 2px solid #ddd;">
+                    <th width="4%" class="text-center">No</th>
+                    <th width="12%" class="text-center">Periode</th>
+                    <th width="18%">Waktu Proses</th>
+                    <th width="15%">Nomor Jurnal</th>
+                    <th width="10%" class="text-center">Jumlah Aset</th>
+                    <th width="16%" class="text-right">Total Penyusutan</th>
+                    <th width="12%">Operator</th>
+                    <th width="13%" class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loop: $riwayat}
+                <tr>
+                    <td class="text-center" style="vertical-align: middle;">{?=($key + 1)?}</td>
+                    <td class="text-center" style="vertical-align: middle;">
+                        <span class="label label-primary" style="font-size: 11px; font-weight: bold; padding: 3px 8px;">{$value.periode}</span>
+                    </td>
+                    <td style="vertical-align: middle;">{?=date('d-m-Y H:i:s', strtotime($value.tanggal_proses))?} WIB</td>
+                    <td style="vertical-align: middle; font-family: monospace; font-size: 12px; font-weight: bold; color: #2980b9;">
+                        {$value.no_jurnal}
+                    </td>
+                    <td class="text-center" style="vertical-align: middle;"><strong>{$value.total_aset}</strong> Aset</td>
+                    <td class="text-right" style="vertical-align: middle; font-weight: 600; color: #c0392b;">
+                        Rp. {?=number_format($value.total_penyusutan, 0, ',', '.')?}
+                    </td>
+                    <td style="vertical-align: middle;">{$value.user_proses}</td>
+                    <td class="text-center" style="vertical-align: middle;">
+                        <button type="button" class="btn btn-xs btn-info btn-detail-riwayat" data-periode="{$value.periode}" title="Lihat Rincian Aset"><i class="fa fa-list"></i> Detail</button>
+                        <button type="button" class="btn btn-xs btn-danger btn-rollback-depr" data-periode="{$value.periode}" title="Batalkan Kalkulasi & Hapus Jurnal"><i class="fa fa-undo"></i> Rollback</button>
+                    </td>
+                </tr>
+                {/loop}
+            </tbody>
+        </table>
+    </div>
+</div>
+{/if}

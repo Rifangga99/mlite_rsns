@@ -1,0 +1,1072 @@
+<div class="row">
+    <div class="col-md-12">
+        
+        <!-- Dashboard KPI Summary Header -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="panel panel-info panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-money"></i> Total Belanja Pengadaan
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-info" id="kpi-total-belanja">Rp. 0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-primary panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-file-text-o"></i> PO Diterbitkan
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-primary" id="kpi-total-po">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-warning panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-clock-o"></i> Rata-rata Lead Time
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-warning" id="kpi-avg-lead-time">0 Hari</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-danger panel-kpi">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-exclamation-triangle"></i> Rata-rata Reject Rate
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" class="text-danger" id="kpi-reject-rate">0%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Period Analysis Filter Cockpit -->
+        <div class="well global-cockpit" style="padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.03);">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 style="margin: 5px 0 2px 0; font-weight: bold; font-family: 'Outfit', sans-serif;" class="text-primary"><i class="fa fa-sliders"></i> Cockpit Analisis Pengadaan</h4>
+                    <p class="text-muted" style="margin-bottom: 0; font-size: 12px;">Sesuaikan rentang tanggal untuk sinkronisasi KPI dan metrik ringkasan secara global.</p>
+                </div>
+                <div class="col-md-4" style="padding-top: 5px;">
+                    <div class="input-group">
+                        <input type="date" id="global-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                        <span class="input-group-addon">s/d</span>
+                        <input type="date" id="global-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                    </div>
+                </div>
+                <div class="col-md-2" style="padding-top: 5px;">
+                    <button id="btn-update-global" class="btn btn-primary btn-block" style="font-weight: bold; border-radius: 4px;"><i class="fa fa-refresh"></i> Terapkan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Panel using Native Bootstrap Styles -->
+        <div class="panel panel-default" style="border-radius: 8px; overflow: hidden;">
+            <div class="panel-heading" style="padding: 15px;">
+                <h3 class="panel-title text-primary" style="font-weight: bold; font-size: 16px;"><i class="fa fa-line-chart"></i> Laporan Pengadaan Logistik Non-Medis</h3>
+            </div>
+            <div class="panel-body" style="padding: 20px;">
+                
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs custom-tabs" role="tablist" style="margin-bottom: 25px; border-bottom: 2px solid #eaecf4;">
+                    <li role="presentation" class="active">
+                        <a href="#realisasi-rencana-tab" aria-controls="realisasi-rencana-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-balance-scale"></i> Realisasi vs Rencana
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#nilai-volume-vendor-tab" aria-controls="nilai-volume-vendor-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-truck"></i> Nilai & Volume Vendor
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#lead-time-tab" aria-controls="lead-time-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-hourglass-half"></i> Lead Time Pengadaan
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#po-periode-tab" aria-controls="po-periode-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-file-text-o"></i> PO per Periode
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#realisasi-anggaran-tab" aria-controls="realisasi-anggaran-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-pie-chart"></i> Realisasi Anggaran
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#kinerja-vendor-tab" aria-controls="kinerja-vendor-tab" role="tab" data-toggle="tab" style="font-weight: bold;">
+                            <i class="fa fa-star"></i> Kinerja Vendor
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: REALISASI VS RENCANA -->
+                    <div role="tabpanel" class="tab-pane active" id="realisasi-rencana-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-realisasi-rencana" class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Tahun Anggaran</label>
+                                        <select id="rencana-tahun" class="form-control select2" style="width: 100%;">
+                                            <option value="{?=date('Y')?}">{?=date('Y')?}</option>
+                                            <option value="{?=date('Y', strtotime('-1 year'))?}">{?=date('Y', strtotime('-1 year'))?}</option>
+                                            <option value="{?=date('Y', strtotime('-2 years'))?}">{?=date('Y', strtotime('-2 years'))?}</option>
+                                            <option value="{?=date('Y', strtotime('+1 year'))?}">{?=date('Y', strtotime('+1 year'))?}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Cari Data</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-realisasi-rencana" data-filename="Realisasi_vs_Rencana_Pengadaan"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-realisasi-rencana"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-realisasi-rencana" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN REALISASI VS RENCANA PENGADAAN</h3>
+                                <p id="print-rencana-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-realisasi-rencana">
+                                <thead>
+                                    <tr class="info">
+                                        <th rowspan="2" class="text-center" style="vertical-align: middle;">Kode Item</th>
+                                        <th rowspan="2" class="text-center" style="vertical-align: middle;">Nama Barang</th>
+                                        <th colspan="2" class="text-center">Perencanaan (RKBU)</th>
+                                        <th colspan="2" class="text-center">Realisasi Penerimaan</th>
+                                        <th colspan="2" class="text-center">Deviasi Selisih</th>
+                                        <th rowspan="2" class="text-center" style="vertical-align: middle;">Penyerapan</th>
+                                    </tr>
+                                    <tr class="info">
+                                        <th class="text-center">Volume</th>
+                                        <th class="text-center">Nominal (Pagu)</th>
+                                        <th class="text-center">Volume</th>
+                                        <th class="text-center">Nominal (Riil)</th>
+                                        <th class="text-center">Volume</th>
+                                        <th class="text-center">Nominal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-realisasi-rencana">
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">Silakan tentukan tahun anggaran dan klik Cari Data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: NILAI & VOLUME VENDOR -->
+                    <div role="tabpanel" class="tab-pane" id="nilai-volume-vendor-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-nilai-vendor" class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Periode Penerimaan</label>
+                                        <div class="input-group">
+                                            <input type="date" id="vendor-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="vendor-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Cari Data</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="action-bar text-right" style="margin-bottom: 15px;">
+                                    <button class="btn btn-success btn-export" data-target="table-nilai-vendor" data-filename="Nilai_Volume_Vendor"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                                    <button class="btn btn-info btn-print" data-target="print-nilai-vendor"><i class="fa fa-print"></i> Cetak Laporan</button>
+                                </div>
+                                <div id="print-nilai-vendor" class="table-responsive printable-area">
+                                    <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                        <h3>LAPORAN NILAI & VOLUME BELANJA PER VENDOR</h3>
+                                        <p id="print-vendor-detail"></p>
+                                        <hr style="border-top: 2px solid #000;">
+                                    </div>
+                                    <table class="table table-striped table-hover table-bordered table-report" id="table-nilai-vendor">
+                                        <thead>
+                                            <tr class="info">
+                                                <th class="text-center" style="width: 50px;">No</th>
+                                                <th>Kode Vendor</th>
+                                                <th>Nama Vendor</th>
+                                                <th class="text-center">Total Transaksi</th>
+                                                <th class="text-center">Volume (Unit)</th>
+                                                <th class="text-right">Total Belanja (Rupiah)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-nilai-vendor">
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Data belanja vendor belum dimuat.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="panel panel-default" style="border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow:hidden;">
+                                    <div class="panel-heading" style="background-color: #f8f9fc; font-weight: bold; color: #4e73df;">
+                                        <i class="fa fa-bar-chart"></i> Visualisasi Nominal Belanja per Vendor
+                                    </div>
+                                    <div class="panel-body text-center">
+                                        <div style="height: 350px; position: relative;">
+                                            <canvas id="chart-vendor-belanja"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: LEAD TIME PENGADAAN -->
+                    <div role="tabpanel" class="tab-pane" id="lead-time-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-lead-time" class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Periode PO</label>
+                                        <div class="input-group">
+                                            <input type="date" id="lead-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="lead-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Cari Data</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-lead-time" data-filename="Lead_Time_Pengadaan"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-lead-time"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-lead-time" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN LEAD TIME (WAKTU TUNGGU) PENGADAAN</h3>
+                                <p id="print-lead-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-lead-time">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>Purchase Order (PO)</th>
+                                        <th>Vendor Pengirim</th>
+                                        <th>Penerimaan Gudang</th>
+                                        <th class="text-center">Lead Time (Hari)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-lead-time">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Data lead time belum dimuat.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: LAPORAN PO PER PERIODE -->
+                    <div role="tabpanel" class="tab-pane" id="po-periode-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-po-periode" class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Periode Tanggal PO</label>
+                                        <div class="input-group">
+                                            <input type="date" id="po-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="po-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Status Purchase Order</label>
+                                        <select id="po-status" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Status</option>
+                                            <option value="Draft">Draft</option>
+                                            <option value="Terkirim">Terkirim</option>
+                                            <option value="Sebagian Diterima">Sebagian Diterima</option>
+                                            <option value="Selesai">Selesai</option>
+                                            <option value="Diamandemen">Diamandemen</option>
+                                            <option value="Dibatalkan">Dibatalkan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Cari Data</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-po-periode" data-filename="Laporan_PO_Periode"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-po-periode"><i class="fa fa-print"></i> Cetak Laporan</button>
+                        </div>
+                        <div id="print-po-periode" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>DAFTAR RINCIAN PURCHASE ORDER (PO) LOGISTIK</h3>
+                                <p id="print-po-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-po-periode">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>No PO</th>
+                                        <th class="text-center">Tanggal PO</th>
+                                        <th>Nama Vendor / Rekanan</th>
+                                        <th class="text-right">Total Nilai</th>
+                                        <th class="text-right">PPN</th>
+                                        <th class="text-right">Grand Total</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-periode">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Tentukan kriteria pencarian PO lalu klik Cari Data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: REALISASI ANGGARAN PENGADAAN -->
+                    <div role="tabpanel" class="tab-pane" id="realisasi-anggaran-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-anggaran" class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Pilih Tahun Anggaran</label>
+                                        <select id="anggaran-tahun" class="form-control select2" style="width: 100%;">
+                                            <option value="{?=date('Y')?}">{?=date('Y')?}</option>
+                                            <option value="{?=date('Y', strtotime('-1 year'))?}">{?=date('Y', strtotime('-1 year'))?}</option>
+                                            <option value="{?=date('Y', strtotime('-2 years'))?}">{?=date('Y', strtotime('-2 years'))?}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Cari Data</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="action-bar text-right" style="margin-bottom: 15px;">
+                                    <button class="btn btn-success btn-export" data-target="table-realisasi-anggaran" data-filename="Realisasi_Anggaran_Pengadaan"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                                    <button class="btn btn-info btn-print" data-target="print-realisasi-anggaran"><i class="fa fa-print"></i> Cetak Laporan</button>
+                                </div>
+                                <div id="print-realisasi-anggaran" class="table-responsive printable-area">
+                                    <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                        <h3>LAPORAN PENYERAPAN REALISASI ANGGARAN PENGADAAN</h3>
+                                        <p id="print-anggaran-detail"></p>
+                                        <hr style="border-top: 2px solid #000;">
+                                    </div>
+                                    <table class="table table-striped table-hover table-bordered table-report" id="table-realisasi-anggaran">
+                                        <thead>
+                                            <tr class="info">
+                                                <th class="text-center" style="width: 50px;">No</th>
+                                                <th>Kategori Barang</th>
+                                                <th class="text-right">Anggaran Rencana (Pagu)</th>
+                                                <th class="text-right">Anggaran Realisasi (Riil)</th>
+                                                <th class="text-right">Sisa Anggaran</th>
+                                                <th class="text-center">Penyerapan (%)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-realisasi-anggaran">
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Data anggaran belum dimuat.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="panel panel-default" style="border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow:hidden;">
+                                    <div class="panel-heading" style="background-color: #f8f9fc; font-weight: bold; color: #4e73df;">
+                                        <i class="fa fa-pie-chart"></i> Rasio Penyerapan Anggaran per Kategori
+                                    </div>
+                                    <div class="panel-body text-center">
+                                        <div style="height: 350px; position: relative;">
+                                            <canvas id="chart-anggaran-perbandingan"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 6: KINERJA VENDOR -->
+                    <div role="tabpanel" class="tab-pane" id="kinerja-vendor-tab">
+                        <div class="well filter-well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-kinerja" class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label" style="font-weight: bold; color: #4e73df;">Periode Evaluasi Kinerja</label>
+                                        <div class="input-group">
+                                            <input type="date" id="kinerja-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="kinerja-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Evaluasi</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="row" style="margin-bottom: 25px;">
+                            <div class="col-md-12">
+                                <div class="panel panel-default" style="border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow:hidden;">
+                                    <div class="panel-heading" style="background-color: #f8f9fc; font-weight: bold; color: #e74a3b;">
+                                        <i class="fa fa-bar-chart"></i> Grafik Evaluasi Keterlambatan vs Reject Rate per Vendor
+                                    </div>
+                                    <div class="panel-body">
+                                        <div style="height: 250px; position: relative;">
+                                            <canvas id="chart-vendor-kinerja"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-success btn-export" data-target="table-kinerja-vendor" data-filename="Evaluasi_Kinerja_Vendor"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                            <button class="btn btn-info btn-print" data-target="print-kinerja-vendor"><i class="fa fa-print"></i> Cetak Evaluasi</button>
+                        </div>
+                        <div id="print-kinerja-vendor" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN EVALUASI & MATRIKS KINERJA VENDOR</h3>
+                                <p id="print-kinerja-detail"></p>
+                                <hr style="border-top: 2px solid #000;">
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-kinerja-vendor">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="text-center" style="width: 50px;">No</th>
+                                        <th>Nama Vendor / Rekanan</th>
+                                        <th class="text-center">Total PO</th>
+                                        <th class="text-center">Rerata Lead Time</th>
+                                        <th class="text-center">Diterima Baik</th>
+                                        <th class="text-center">Ditolak (Reject)</th>
+                                        <th class="text-center">Reject Rate (%)</th>
+                                        <th class="text-center">Skor Kinerja (KPI)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-kinerja-vendor">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Data evaluasi kinerja vendor belum dijalankan.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic ChartJS Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* Dashboard Styling and Premium Micro-Animations */
+.mb-4 { margin-bottom: 20px; }
+.panel-kpi {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+    border-left: 4px solid;
+}
+.panel-kpi:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+}
+
+.panel-kpi .panel-heading {
+    background: transparent !important;
+    border: none !important;
+    padding: 12px 15px 0 15px;
+}
+.panel-kpi .panel-body {
+    padding: 5px 15px 15px 15px;
+}
+
+.filter-well {
+    border-radius: 6px !important;
+}
+
+.custom-tabs > li > a {
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.tab-pane {
+    animation: fadeIn 0.4s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.table-report th {
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+}
+
+/* Print Settings Styling */
+@media print {
+    body * { visibility: hidden; }
+    .printable-area, .printable-area * { visibility: visible; }
+    .printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+    .show-on-print { display: block !important; }
+    .table-report th { background: #f1f1f1 !important; color: #000 !important; }
+    .global-cockpit, .filter-well, .action-bar, .panel-kpi, .nav-tabs, .panel-default > .panel-heading { display: none !important; }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // 0. Dynamic System Theme Color Extraction & Adaptation
+    function getThemeColors() {
+        var tempBtnPrimary = $('<button class="btn btn-primary" style="display:none;"></button>').appendTo('body');
+        var tempBtnInfo = $('<button class="btn btn-info" style="display:none;"></button>').appendTo('body');
+        var tempBtnSuccess = $('<button class="btn btn-success" style="display:none;"></button>').appendTo('body');
+        var tempBtnWarning = $('<button class="btn btn-warning" style="display:none;"></button>').appendTo('body');
+        var tempBtnDanger = $('<button class="btn btn-danger" style="display:none;"></button>').appendTo('body');
+        var tempMuted = $('<span class="text-muted" style="display:none;"></span>').appendTo('body');
+        var tempPanel = $('<div class="panel panel-default" style="display:none;"></div>').appendTo('body');
+        var tempWell = $('<div class="well" style="display:none;"></div>').appendTo('body');
+        
+        var colors = {
+            primary: tempBtnPrimary.css('background-color') || '#4e73df',
+            info: tempBtnInfo.css('background-color') || '#36b9cc',
+            success: tempBtnSuccess.css('background-color') || '#1cc88a',
+            warning: tempBtnWarning.css('background-color') || '#f6c23e',
+            danger: tempBtnDanger.css('background-color') || '#e74a3b',
+            muted: tempMuted.css('color') || '#858796',
+            panelBg: tempPanel.css('background-color') || '#ffffff',
+            panelBorder: tempPanel.css('border-color') || '#e3e6f0',
+            wellBg: tempWell.css('background-color') || '#f8f9fc',
+            wellBorder: tempWell.css('border-color') || '#eaecf4'
+        };
+        
+        tempBtnPrimary.remove();
+        tempBtnInfo.remove();
+        tempBtnSuccess.remove();
+        tempBtnWarning.remove();
+        tempBtnDanger.remove();
+        tempMuted.remove();
+        tempPanel.remove();
+        tempWell.remove();
+        
+        return colors;
+    }
+
+    function isDarkTheme() {
+        var bodyBg = $('body').css('background-color');
+        if (!bodyBg) return false;
+        var rgb = bodyBg.match(/\d+/g);
+        if (!rgb || rgb.length < 3) return false;
+        var r = parseInt(rgb[0]);
+        var g = parseInt(rgb[1]);
+        var b = parseInt(rgb[2]);
+        var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+
+    var themeColors = getThemeColors();
+    var isDark = isDarkTheme();
+    
+    // Inject dynamic CSS overrides using theme colors
+    $('<style>')
+        .prop('type', 'text/css')
+        .html(
+            '.panel { border-radius: 8px !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important; border: 1px solid ' + themeColors.panelBorder + ' !important; overflow: hidden !important; margin-bottom: 20px !important; }' +
+            '.panel-heading { border-top-left-radius: 8px !important; border-top-right-radius: 8px !important; padding: 12px 15px !important; font-weight: bold !important; }' +
+            '.btn { border-radius: 6px !important; font-weight: bold !important; padding: 6px 14px !important; transition: all 0.2s ease-in-out !important; }' +
+            '.btn-sm { border-radius: 4px !important; padding: 4px 10px !important; }' +
+            '.btn:hover { transform: translateY(-1px) !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important; }' +
+            '.btn:active { transform: translateY(0px) !important; box-shadow: none !important; }' +
+            '.panel-default { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+            '.panel-default > .panel-heading { background-color: ' + themeColors.wellBg + ' !important; border-bottom: 1px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.primary + ' !important; }' +
+            '.form-control { background-color: ' + (isDark ? themeColors.wellBg : '#ffffff') + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + (isDark ? '#eaecf4' : '#495057') + ' !important; }' +
+            '.input-group-addon { background-color: ' + themeColors.wellBg + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+            '.table > thead > tr { background-color: ' + themeColors.wellBg + ' !important; }' +
+            '.table > thead > tr > th { border-bottom: 2px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+            '.table > tbody > tr > td { border-top: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+            '.table-striped > tbody > tr:nth-of-type(odd) { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)') + ' !important; }' +
+            '.table-hover > tbody > tr:hover { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)') + ' !important; }' +
+            '.custom-tabs > li > a { color: ' + themeColors.muted + ' !important; }' +
+            '.custom-tabs > li.active > a, .custom-tabs > li.active > a:hover, .custom-tabs > li.active > a:focus {' +
+            '    color: ' + themeColors.primary + ' !important;' +
+            '    border-bottom: 3px solid ' + themeColors.primary + ' !important;' +
+            '    background: transparent !important;' +
+            '}' +
+            '.custom-tabs > li > a:hover {' +
+            '    color: ' + themeColors.primary + ' !important;' +
+            '    border-bottom: 3px solid ' + themeColors.panelBorder + ' !important;' +
+            '    background: transparent !important;' +
+            '}' +
+            '.panel-kpi { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+            '.panel-info.panel-kpi { border-left: 4px solid ' + themeColors.info + ' !important; }' +
+            '.panel-primary.panel-kpi { border-left: 4px solid ' + themeColors.primary + ' !important; }' +
+            '.panel-warning.panel-kpi { border-left: 4px solid ' + themeColors.warning + ' !important; }' +
+            '.panel-danger.panel-kpi { border-left: 4px solid ' + themeColors.danger + ' !important; }' +
+            '.global-cockpit { background-color: ' + themeColors.wellBg + ' !important; border: 1px solid ' + themeColors.wellBorder + ' !important; border-left: 5px solid ' + themeColors.primary + ' !important; }' +
+            '.filter-well { background-color: ' + themeColors.wellBg + ' !important; border: 1px solid ' + themeColors.wellBorder + ' !important; }'
+        )
+        .appendTo('head');
+
+    // ChartJS dark mode defaults
+    if (typeof Chart !== 'undefined') {
+        var chartTextColor = isDark ? '#eaecf4' : '#5a5c69';
+        var chartGridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+        Chart.defaults.color = chartTextColor;
+        Chart.defaults.borderColor = chartGridColor;
+    }
+
+    // 1. Reset selectator if active to prevent overlapping mLite widgets
+    try { $('.select2').selectator('destroy'); } catch(e) {}
+
+    $('.select2').select2({
+        width: '100%'
+    });
+
+    // 2. Global state for Chart.js instances to properly re-render on query changes
+    var chartVendorBelanja = null;
+    var chartAnggaran = null;
+    var chartKinerjaVendor = null;
+
+    // 3. Autoload default reports on load
+    updateGlobalKPIs();
+    loadRealisasiRencana();
+    
+    // Autoload active tabs dynamically
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href");
+        if (target === "#realisasi-rencana-tab") {
+            loadRealisasiRencana();
+        } else if (target === "#nilai-volume-vendor-tab") {
+            loadNilaiVolumeVendor();
+        } else if (target === "#lead-time-tab") {
+            loadLeadTime();
+        } else if (target === "#po-periode-tab") {
+            loadPOPeriode();
+        } else if (target === "#realisasi-anggaran-tab") {
+            loadRealisasiAnggaran();
+        } else if (target === "#kinerja-vendor-tab") {
+            loadKinerjaVendor();
+        }
+    });
+
+    // 4. Global cockpit filter submissions
+    $('#btn-update-global').click(function(e) {
+        e.preventDefault();
+        updateGlobalKPIs();
+        
+        // Sync dates to other tab inputs
+        var start = $('#global-tgl-awal').val();
+        var end = $('#global-tgl-akhir').val();
+        
+        $('#vendor-tgl-awal, #lead-tgl-awal, #po-tgl-awal, #kinerja-tgl-awal').val(start);
+        $('#vendor-tgl-akhir, #lead-tgl-akhir, #po-tgl-akhir, #kinerja-tgl-akhir').val(end);
+        
+        // Auto-refresh the currently active tab
+        var activeTab = $('.nav-tabs.custom-tabs li.active a').attr('href');
+        if (activeTab === "#nilai-volume-vendor-tab") loadNilaiVolumeVendor();
+        else if (activeTab === "#lead-time-tab") loadLeadTime();
+        else if (activeTab === "#po-periode-tab") loadPOPeriode();
+        else if (activeTab === "#kinerja-vendor-tab") loadKinerjaVendor();
+    });
+
+    function updateGlobalKPIs() {
+        var start_date = $('#global-tgl-awal').val();
+        var end_date = $('#global-tgl-akhir').val();
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/getlaporanpengadaankpi")?}', {
+            start_date: start_date,
+            end_date: end_date
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#kpi-total-belanja').text(data.total_belanja);
+            $('#kpi-total-po').text(data.total_po);
+            $('#kpi-avg-lead-time').text(data.avg_lead_time);
+            $('#kpi-reject-rate').text(data.reject_rate);
+        });
+    }
+
+    // 5. TAB 1: Realisasi vs Rencana Handlers
+    $('#form-realisasi-rencana').submit(function(e) {
+        e.preventDefault();
+        loadRealisasiRencana();
+    });
+
+    function loadRealisasiRencana() {
+        var tahun = $('#rencana-tahun').val();
+        $('#tbody-realisasi-rencana').html('<tr><td colspan="9" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        $('#print-rencana-detail').text('Tahun Anggaran: ' + tahun);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporanrealisasirencana")?}', {
+            tahun: tahun
+        }, function(html) {
+            $('#tbody-realisasi-rencana').html(html);
+        });
+    }
+
+    // 6. TAB 2: Nilai & Volume Vendor Handlers
+    $('#form-nilai-vendor').submit(function(e) {
+        e.preventDefault();
+        loadNilaiVolumeVendor();
+    });
+
+    function loadNilaiVolumeVendor() {
+        var start = $('#vendor-tgl-awal').val();
+        var end = $('#vendor-tgl-akhir').val();
+
+        $('#tbody-nilai-vendor').html('<tr><td colspan="6" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        $('#print-vendor-detail').text('Periode Penerimaan: ' + start + ' s/d ' + end);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporannilaivolumevendor")?}', {
+            start_date: start,
+            end_date: end
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-nilai-vendor').html(data.html);
+            renderVendorChart(data.chart_labels, data.chart_values);
+        });
+    }
+
+    function renderVendorChart(labels, values) {
+        var ctx = document.getElementById('chart-vendor-belanja').getContext('2d');
+        
+        if (chartVendorBelanja !== null) {
+            chartVendorBelanja.destroy();
+        }
+
+        if(labels.length === 0) {
+            labels = ['Tidak ada data'];
+            values = [0];
+        }
+
+        chartVendorBelanja = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Belanja (Rupiah)',
+                    data: values,
+                    backgroundColor: themeColors.info,
+                    borderColor: themeColors.info,
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp. ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 7. TAB 3: Lead Time Handlers
+    $('#form-lead-time').submit(function(e) {
+        e.preventDefault();
+        loadLeadTime();
+    });
+
+    function loadLeadTime() {
+        var start = $('#lead-tgl-awal').val();
+        var end = $('#lead-tgl-akhir').val();
+
+        $('#tbody-lead-time').html('<tr><td colspan="5" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        $('#print-lead-detail').text('Periode PO Diterbitkan: ' + start + ' s/d ' + end);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporanleadtime")?}', {
+            start_date: start,
+            end_date: end
+        }, function(html) {
+            $('#tbody-lead-time').html(html);
+        });
+    }
+
+    // 8. TAB 4: Laporan PO per Periode Handlers
+    $('#form-po-periode').submit(function(e) {
+        e.preventDefault();
+        loadPOPeriode();
+    });
+
+    function loadPOPeriode() {
+        var start = $('#po-tgl-awal').val();
+        var end = $('#po-tgl-akhir').val();
+        var status = $('#po-status').val();
+
+        $('#tbody-po-periode').html('<tr><td colspan="8" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        $('#print-po-detail').text('Periode PO: ' + start + ' s/d ' + end + ' | Status: ' + (status || 'Semua'));
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporanpoperiode")?}', {
+            start_date: start,
+            end_date: end,
+            status: status
+        }, function(html) {
+            $('#tbody-po-periode').html(html);
+        });
+    }
+
+    // 9. TAB 5: Realisasi Anggaran Handlers
+    $('#form-anggaran').submit(function(e) {
+        e.preventDefault();
+        loadRealisasiAnggaran();
+    });
+
+    function loadRealisasiAnggaran() {
+        var tahun = $('#anggaran-tahun').val();
+
+        $('#tbody-realisasi-anggaran').html('<tr><td colspan="6" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        $('#print-anggaran-detail').text('Tahun Anggaran: ' + tahun);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporanrealisasianggaran")?}', {
+            tahun: tahun
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-realisasi-anggaran').html(data.html);
+            renderAnggaranChart(data.chart_labels, data.chart_rencana, data.chart_realisasi);
+        });
+    }
+
+    function renderAnggaranChart(labels, rencana, realisasi) {
+        var ctx = document.getElementById('chart-anggaran-perbandingan').getContext('2d');
+        
+        if (chartAnggaran !== null) {
+            chartAnggaran.destroy();
+        }
+
+        if(labels.length === 0) {
+            labels = ['Tidak ada data'];
+            rencana = [0];
+            realisasi = [0];
+        }
+
+        chartAnggaran = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Anggaran (Pagu)',
+                        data: rencana,
+                        backgroundColor: themeColors.primary,
+                        borderColor: themeColors.primary,
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Realisasi (Belanja)',
+                        data: realisasi,
+                        backgroundColor: themeColors.success,
+                        borderColor: themeColors.success,
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp. ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 10. TAB 6: Kinerja Vendor Handlers
+    $('#form-kinerja').submit(function(e) {
+        e.preventDefault();
+        loadKinerjaVendor();
+    });
+
+    function loadKinerjaVendor() {
+        var start = $('#kinerja-tgl-awal').val();
+        var end = $('#kinerja-tgl-akhir').val();
+
+        $('#tbody-kinerja-vendor').html('<tr><td colspan="8" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        $('#print-kinerja-detail').text('Periode Penilaian: ' + start + ' s/d ' + end);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporankinerjavendor")?}', {
+            start_date: start,
+            end_date: end
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-kinerja-vendor').html(data.html);
+            renderKinerjaChart(data.chart_labels, data.chart_reject_rates, data.chart_lead_times);
+        });
+    }
+
+    function renderKinerjaChart(labels, rejectRates, leadTimes) {
+        var ctx = document.getElementById('chart-vendor-kinerja').getContext('2d');
+        
+        if (chartKinerjaVendor !== null) {
+            chartKinerjaVendor.destroy();
+        }
+
+        if(labels.length === 0) {
+            labels = ['Tidak ada data'];
+            rejectRates = [0];
+            leadTimes = [0];
+        }
+
+        chartKinerjaVendor = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Reject Rate (%)',
+                        data: rejectRates,
+                        backgroundColor: themeColors.danger,
+                        borderColor: themeColors.danger,
+                        yAxisID: 'y',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Rerata Lead Time (Hari)',
+                        data: leadTimes,
+                        backgroundColor: themeColors.warning,
+                        borderColor: themeColors.warning,
+                        yAxisID: 'y1',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Reject Rate (%)'
+                        },
+                        ticks: {
+                            callback: function(value) { return value + '%'; }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Waktu Tunggu (Hari)'
+                        },
+                        grid: {
+                            drawOnChartArea: false // prevent grid line overlapping
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 11. EXCEL AND PRINT PLUGINS (Matching reference arsitektur)
+    $('.btn-export').click(function() {
+        var target_id = $(this).data('target');
+        var filename = $(this).data('filename');
+        var table = document.getElementById(target_id);
+        if (!table) {
+            alert('Data tidak tersedia untuk diexport.');
+            return;
+        }
+        var html = table.outerHTML;
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{?=url([ADMIN, "logistik_non_medis", "ExportExcelHtml"])?}';
+        form.target = '_blank';
+
+        var inputFilename = document.createElement('input');
+        inputFilename.type = 'hidden';
+        inputFilename.name = 'filename';
+        inputFilename.value = filename;
+        form.appendChild(inputFilename);
+
+        var inputHtml = document.createElement('input');
+        inputHtml.type = 'hidden';
+        inputHtml.name = 'html';
+        inputHtml.value = html;
+        form.appendChild(inputHtml);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    });
+
+    $('.btn-print').click(function() {
+        var target_id = $(this).data('target');
+        var printContents = document.getElementById(target_id).innerHTML;
+        var originalContents = document.body.innerHTML;
+        
+        document.body.innerHTML = printContents;
+        window.print();
+        
+        document.body.innerHTML = originalContents;
+        window.location.reload();
+    });
+});
+</script>

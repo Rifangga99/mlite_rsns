@@ -1,0 +1,109 @@
+<div class="table-responsive" style="border-radius: 6px; overflow: hidden; border: 1px solid #ddd; background: #fff;">
+    <table class="table table-hover table-striped" style="margin-bottom: 0;">
+        <thead style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+            <tr>
+                <th width="150" style="font-weight: 600; padding: 12px 15px;">No. Mutasi</th>
+                <th style="font-weight: 600; padding: 12px 15px;">Nama Aset</th>
+                <th style="font-weight: 600; padding: 12px 15px;">Asal (Unit & Ruang)</th>
+                <th style="font-weight: 600; padding: 12px 15px;">Tujuan (Unit & Ruang)</th>
+                <th width="120" style="font-weight: 600; padding: 12px 15px;">PIC Penerima</th>
+                <th width="120" style="font-weight: 600; padding: 12px 15px;">Tgl Rencana</th>
+                <th width="120" style="font-weight: 600; padding: 12px 15px; text-align: center;">Status</th>
+                <th width="180" style="font-weight: 600; padding: 12px 15px; text-align: right;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: empty($mutasi)}
+            <tr>
+                <td colspan="8" class="text-center" style="padding: 40px; color: #999;">
+                    <i class="fa fa-info-circle fa-2x" style="margin-bottom: 10px; display: block; color: #ccc;"></i>
+                    Tidak ada data mutasi yang ditemukan untuk kategori ini.
+                </td>
+            </tr>
+            {else}
+            {loop: $mutasi}
+            <tr style="transition: background 0.15s ease;">
+                <td style="padding: 12px 15px; font-weight: 600; color: #3c763d;">{$value.no_mutasi}</td>
+                <td style="padding: 12px 15px;">
+                    <strong>{$value.nama_aset}</strong><br>
+                    <span class="text-muted" style="font-size: 11px;">Kode: <code>{$value.kode_aset}</code> {if: !empty($value.serial_number)}| S/N: {$value.serial_number}{/if}</span>
+                </td>
+                <td style="padding: 12px 15px;">
+                    <strong>{$value.nama_unit_asal}</strong><br>
+                    <span class="text-muted" style="font-size: 11px;"><i class="fa fa-map-marker"></i> {$value.nama_lokasi_asal}</span>
+                </td>
+                <td style="padding: 12px 15px;">
+                    <strong>{$value.nama_unit_tujuan}</strong><br>
+                    <span class="text-muted" style="font-size: 11px;"><i class="fa fa-map-marker"></i> {$value.nama_lokasi_tujuan}</span>
+                </td>
+                <td style="padding: 12px 15px;">{$value.pic_tujuan}</td>
+                <td style="padding: 12px 15px;">{?=date('d-m-Y', strtotime($value.tanggal_mutasi))?}</td>
+                <td style="padding: 12px 15px; text-align: center;">
+                    {if: $value.status == 'Draft'}
+                        <span class="label label-default" style="padding: 4px 8px; border-radius: 4px; font-weight: 500;"><i class="fa fa-pencil"></i> Draft</span>
+                    {elseif: $value.status == 'Diajukan'}
+                        <span class="label label-primary" style="padding: 4px 8px; border-radius: 4px; font-weight: 500;"><i class="fa fa-paper-plane"></i> Diajukan</span>
+                    {elseif: $value.status == 'Disetujui Asal'}
+                        <span class="label label-warning" style="padding: 4px 8px; border-radius: 4px; font-weight: 500;"><i class="fa fa-check-circle-o"></i> Disetujui Asal</span>
+                    {elseif: $value.status == 'Selesai'}
+                        <span class="label label-success" style="padding: 4px 8px; border-radius: 4px; font-weight: 500;"><i class="fa fa-check-circle"></i> Selesai</span>
+                    {elseif: $value.status == 'Ditolak'}
+                        <span class="label label-danger" style="padding: 4px 8px; border-radius: 4px; font-weight: 500;" title="Alasan: {$value.alasan_penolakan}"><i class="fa fa-times-circle"></i> Ditolak</span>
+                    {/if}
+                </td>
+                <td style="padding: 12px 15px; text-align: right;">
+                    <div class="btn-group">
+                        <button class="btn btn-default btn-sm" onclick="detailMutasi('{$value.no_mutasi}')" title="Rincian & Timeline"><i class="fa fa-search"></i> Detail</button>
+                        
+                        <!-- Actions based on status -->
+                        {if: $value.status == 'Draft' || $value.status == 'Diajukan'}
+                            <button class="btn btn-primary btn-sm" onclick="editMutasi('{$value.no_mutasi}')" title="Ubah Pengajuan"><i class="fa fa-edit"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="hapusMutasi('{$value.no_mutasi}')" title="Hapus"><i class="fa fa-trash"></i></button>
+                        {/if}
+                        
+                        {if: $value.status == 'Diajukan'}
+                            <button class="btn btn-warning btn-sm" onclick="approveMutasi('{$value.no_mutasi}', 'asal')" title="Setujui Ka. Unit Asal"><i class="fa fa-check-square-o"></i> Setuju Asal</button>
+                        {/if}
+
+                        {if: $value.status == 'Disetujui Asal'}
+                            <button class="btn btn-success btn-sm" onclick="approveMutasi('{$value.no_mutasi}', 'tujuan')" title="Setujui Ka. Unit Tujuan"><i class="fa fa-check"></i> Setuju Tujuan</button>
+                        {/if}
+                        
+                        {if: $value.status == 'Diajukan' || $value.status == 'Disetujui Asal'}
+                            <button class="btn btn-danger btn-sm" onclick="rejectMutasi('{$value.no_mutasi}')" title="Tolak Pengajuan"><i class="fa fa-times"></i></button>
+                        {/if}
+                        
+                        {if: $value.status == 'Selesai'}
+                            <a class="btn btn-info btn-sm" href="{?=url([ADMIN,'logistik_non_medis','printasetmutasi'])?}&no_mutasi={$value.no_mutasi}" target="_blank" title="Cetak Berita Acara (BAST)"><i class="fa fa-print"></i> Cetak BAP</a>
+                        {/if}
+                    </div>
+                </td>
+            </tr>
+            {/loop}
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{if: $jml_halaman > 1}
+<nav class="text-center" style="margin-top: 20px;">
+    <ul class="pagination" style="margin: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <li class="{if: $halaman <= 1}disabled{/if}">
+            <a href="javascript:void(0)" onclick="{if: $halaman > 1}loadMutasiList({$halaman - 1}){else}void(0){/if}" aria-label="Sebelumnya">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {loop: range(1, $jml_halaman)}
+        <li class="{if: $value == $halaman}active{/if}">
+            <a href="javascript:void(0)" onclick="loadMutasiList({$value})">{$value}</a>
+        </li>
+        {/loop}
+        <li class="{if: $halaman >= $jml_halaman}disabled{/if}">
+            <a href="javascript:void(0)" onclick="{if: $halaman < $jml_halaman}loadMutasiList({$halaman + 1}){else}void(0){/if}" aria-label="Selanjutnya">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+{/if}

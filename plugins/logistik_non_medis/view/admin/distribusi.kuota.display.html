@@ -1,0 +1,71 @@
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Unit</th>
+                <th>Barang</th>
+                <th>Periode</th>
+                <th>Waktu</th>
+                <th>Jumlah</th>
+                <th>Jenis</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop: $kuota}
+            <tr>
+                <td>{$value.nama_unit}</td>
+                <td>{$value.nama_barang}</td>
+                <td>{$value.periode_tipe}</td>
+                <td>
+                    {if: $value.periode_tipe == 'Bulanan'}
+                        Bulan {$value.bulan} / {$value.tahun}
+                    {else}
+                        Triwulan {$value.triwulan} / {$value.tahun}
+                    {/if}
+                </td>
+                <td class="text-right"><strong>{?=number_format($value.jumlah, 0, ',', '.')?}</strong></td>
+                <td>
+                    {if: $value.jenis == 'Utama'}
+                        <span class="label label-primary">Utama</span>
+                    {else}
+                        <span class="label label-warning">Tambahan</span>
+                    {/if}
+                </td>
+                <td>
+                    {if: $value.status == 'Disetujui'}
+                        <span class="label label-success">Disetujui</span>
+                    {elseif: $value.status == 'Ditolak'}
+                        <span class="label label-danger">Ditolak</span>
+                    {else}
+                        <span class="label label-info">{$value.status}</span>
+                    {/if}
+                </td>
+                <td>
+                    <button class="btn btn-xs btn-warning" onclick="formKuota('{$value.id}')"><i class="fa fa-edit"></i></button>
+                    <button class="btn btn-xs btn-danger" onclick="hapusKuota('{$value.id}')"><i class="fa fa-trash"></i></button>
+                </td>
+            </tr>
+            {/loop}
+            {if: empty($kuota)}
+            <tr>
+                <td colspan="8" class="text-center">Data tidak ditemukan</td>
+            </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        Total: {$jumlah_data} data
+    </div>
+    <div class="col-md-6 text-right">
+        <ul class="pagination pagination-sm" style="margin:0;">
+            {loop: $pages}
+            <li class="{if: $value == $halaman}active{/if}"><a href="javascript:void(0)" onclick="displayKuota('{$value}')">{$value}</a></li>
+            {/loop}
+        </ul>
+    </div>
+</div>

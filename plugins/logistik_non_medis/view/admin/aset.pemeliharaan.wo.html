@@ -1,0 +1,103 @@
+<div class="panel panel-default" style="border-radius: 8px;">
+    <div class="panel-heading" style="background-color: #f7f7f7; font-weight: bold; color: #444;">
+        <i class="fa fa-clipboard"></i> Surat Perintah Kerja & Pencatatan Perbaikan Aset
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr style="background-color: #f5f5f5;">
+                        <th style="width: 50px;" class="text-center">No</th>
+                        <th style="width: 140px;">No Work Order</th>
+                        <th>Aset</th>
+                        <th>Jenis WO</th>
+                        <th>Keluhan / Pekerjaan</th>
+                        <th>Teknisi / Rekanan</th>
+                        <th style="width: 100px;" class="text-center">Prioritas</th>
+                        <th style="width: 100px;" class="text-center">Status</th>
+                        <th style="width: 150px;" class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {if: !empty($wos)}
+                        {loop: $wos}
+                        <tr>
+                            <td class="text-center" style="vertical-align: middle;">{$key+1}</td>
+                            <td style="vertical-align: middle;">
+                                <code>{$value.kode_pemeliharaan}</code><br>
+                                <small class="text-muted"><i class="fa fa-clock-o"></i> {?=date('d-m-Y', strtotime($value['tgl_input']))?}</small>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <strong>{$value.nama_aset}</strong><br>
+                                <small class="text-muted">{$value.kode_aset}</small>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                {if: $value.jenis_pemeliharaan == 'Preventive'}
+                                    <span class="label label-success" style="font-size: 10px;">Preventive</span>
+                                {else}
+                                    <span class="label label-danger" style="font-size: 10px;">Corrective (Spontan)</span>
+                                {/if}
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <strong>{$value.nama_kegiatan}</strong><br>
+                                <small class="text-muted">{$value.deskripsi}</small>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                {if: !empty($value.nama_teknisi)}
+                                    <strong>{$value.nama_teknisi}</strong>
+                                {else}
+                                    <span class="text-muted">Belum Ditugaskan</span>
+                                {/if}
+                                {if: !empty($value.kode_rekanan)}
+                                    <br><small class="text-info"><i class="fa fa-truck"></i> Vendor: {$value.kode_rekanan}</small>
+                                {/if}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                {if: $value.prioritas == 'Darurat'}
+                                    <span class="label label-danger" style="font-size: 11px; padding: 4px 8px; font-weight: bold;"><i class="fa fa-bolt"></i> Darurat</span>
+                                {elseif: $value.prioritas == 'Tinggi'}
+                                    <span class="label label-warning" style="font-size: 11px; padding: 4px 8px;">Tinggi</span>
+                                {elseif: $value.prioritas == 'Sedang'}
+                                    <span class="label label-info" style="font-size: 11px; padding: 4px 8px;">Sedang</span>
+                                {else}
+                                    <span class="label label-default" style="font-size: 11px; padding: 4px 8px;">Rendah</span>
+                                {/if}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                {if: $value.status == 'Selesai'}
+                                    <span class="label label-success" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-check-circle"></i> Selesai</span>
+                                {elseif: $value.status == 'Diproses'}
+                                    <span class="label label-primary" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-cog fa-spin"></i> Diproses</span>
+                                {elseif: $value.status == 'Menunggu'}
+                                    <span class="label label-default" style="font-size: 11px; padding: 4px 8px;">Menunggu</span>
+                                {else}
+                                    <span class="label label-danger" style="font-size: 11px; padding: 4px 8px;">Batal</span>
+                                {/if}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">
+                                {if: $value.status == 'Menunggu' || $value.status == 'Diproses'}
+                                    <div class="btn-group">
+                                        <button class="btn btn-warning btn-xs" onclick="formWO('{$value.id}')" title="Edit WO"><i class="fa fa-edit"></i> Edit</button>
+                                        <button class="btn btn-danger btn-xs" onclick="hapusWO('{$value.id}')" title="Hapus WO"><i class="fa fa-trash"></i></button>
+                                        <button class="btn btn-primary btn-xs" onclick="formSelesaikanWO('{$value.id}')" title="Selesaikan Pekerjaan"><i class="fa fa-check"></i> Selesai</button>
+                                    </div>
+                                {else}
+                                    {if: $value.status == 'Selesai'}
+                                        <small class="text-success" style="font-weight: bold;"><i class="fa fa-check-circle"></i> Selesai pada:<br>{?=date('d-m-Y H:i', strtotime($value['tanggal_pelaksanaan']))?}</small>
+                                    {else}
+                                        <span class="text-danger" style="font-weight: bold;">Dibatalkan</span>
+                                    {/if}
+                                {/if}
+                            </td>
+                        </tr>
+                        {/loop}
+                    {else}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted" style="padding: 20px;">Tidak ada Surat Perintah Kerja (WO) yang sesuai filter saat ini.</td>
+                        </tr>
+                    {/if}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

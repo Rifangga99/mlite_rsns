@@ -1,0 +1,181 @@
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#tab-profil" aria-controls="tab-profil" role="tab" data-toggle="tab">Profil Umum</a></li>
+    <li role="presentation"><a href="#tab-legalitas" aria-controls="tab-legalitas" role="tab" data-toggle="tab">Legalitas</a></li>
+    <li role="presentation"><a href="#tab-bank" aria-controls="tab-bank" role="tab" data-toggle="tab">Rekening & PIC</a></li>
+    <li role="presentation"><a href="#tab-evaluasi" aria-controls="tab-evaluasi" role="tab" data-toggle="tab">Kategori & Kinerja</a></li>
+</ul>
+
+<div class="tab-content" style="padding-top: 20px;">
+    <!-- Tab Profil -->
+    <div role="tabpanel" class="tab-pane active" id="tab-profil">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Kode Vendor</label>
+                    <input type="text" name="kode_vendor" class="form-control" value="{$vendor.kode_vendor}" readonly>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label>Nama Perusahaan / Vendor <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_vendor" class="form-control" value="{$vendor.nama_vendor}" required>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Alamat Lengkap</label>
+            <textarea name="alamat" class="form-control" rows="3">{$vendor.alamat}</textarea>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Telepon Kantor</label>
+                    <input type="text" name="no_telp" class="form-control" value="{$vendor.no_telp}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control" value="{$vendor.email}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Website</label>
+                    <input type="text" name="website" class="form-control" value="{$vendor.website}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Legalitas -->
+    <div role="tabpanel" class="tab-pane" id="tab-legalitas">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Nomor NPWP</label>
+                    <input type="text" name="npwp" class="form-control" value="{$vendor.npwp}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Nomor SIUP / NIB</label>
+                    <input type="text" name="siup" class="form-control" value="{$vendor.siup}">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Status PKP</label>
+            <select name="status_pkp" class="form-control">
+                <option value="Non PKP" {if: $vendor.status_pkp == 'Non PKP'}selected{/if}>Non PKP</option>
+                <option value="PKP" {if: $vendor.status_pkp == 'PKP'}selected{/if}>PKP</option>
+            </select>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Scan NPWP (PDF/JPG)</label>
+                    <input type="file" name="file_npwp" class="form-control">
+                    {if: !empty($vendor.file_npwp)}
+                        <small class="text-success"><i class="fa fa-check"></i> File terunggah: {$vendor.file_npwp}</small>
+                    {/if}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Scan SIUP/NIB (PDF/JPG)</label>
+                    <input type="file" name="file_siup" class="form-control">
+                    {if: !empty($vendor.file_siup)}
+                        <small class="text-success"><i class="fa fa-check"></i> File terunggah: {$vendor.file_siup}</small>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Bank -->
+    <div role="tabpanel" class="tab-pane" id="tab-bank">
+        <div class="well">
+            <h4 style="margin-top:0">Informasi Perbankan</h4>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Nama Bank</label>
+                        <input type="text" name="nama_bank" class="form-control" value="{$vendor.nama_bank}" placeholder="Contoh: BCA / Mandiri">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Nomor Rekening</label>
+                        <input type="text" name="no_rekening" class="form-control" value="{$vendor.no_rekening}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Atas Nama (Rekening)</label>
+                        <input type="text" name="nama_rekening" class="form-control" value="{$vendor.nama_rekening}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="well">
+            <h4 style="margin-top:0">Person In Charge (PIC)</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Nama PIC</label>
+                        <input type="text" name="pic_nama" class="form-control" value="{$vendor.pic_nama}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Kontak PIC (WA/Telp)</label>
+                        <input type="text" name="pic_kontak" class="form-control" value="{$vendor.pic_kontak}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Evaluasi -->
+    <div role="tabpanel" class="tab-pane" id="tab-evaluasi">
+        <div class="form-group">
+            <label>Kategori Barang/Jasa <small>(Pilih yang relevan)</small></label>
+            <select name="kategori_vendor" class="form-control select2" style="width: 100%;">
+                <option value=""></option>
+                {loop: $kategori as $kat}
+                    <option value="{$kat.nama_kategori}" {if: $vendor.kategori_vendor == $kat.nama_kategori}selected{/if}>{$kat.nama_kategori}</option>
+                {/loop}
+            </select>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Rating Performa (1-5)</label>
+                    <select name="rating" class="form-control">
+                        <option value="0" {if: $vendor.rating == 0}selected{/if}>Belum Dirating</option>
+                        <option value="1" {if: $vendor.rating == 1}selected{/if}>1 - Sangat Buruk</option>
+                        <option value="2" {if: $vendor.rating == 2}selected{/if}>2 - Buruk</option>
+                        <option value="3" {if: $vendor.rating == 3}selected{/if}>3 - Cukup</option>
+                        <option value="4" {if: $vendor.rating == 4}selected{/if}>4 - Baik</option>
+                        <option value="5" {if: $vendor.rating == 5}selected{/if}>5 - Sangat Memuaskan</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Status Kerja Sama</label>
+                    <select name="status" class="form-control">
+                        <option value="Whitelist" {if: $vendor.status == 'Whitelist'}selected{/if}>Whitelist (Aktif)</option>
+                        <option value="Blacklist" {if: $vendor.status == 'Blacklist'}selected{/if}>Blacklist (Ditangguhkan)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Catatan Evaluasi / Kinerja</label>
+            <textarea name="evaluasi" class="form-control" rows="4" placeholder="Tuliskan feedback atau catatan mengenai kinerja vendor ini...">{$vendor.evaluasi}</textarea>
+        </div>
+    </div>
+</div>

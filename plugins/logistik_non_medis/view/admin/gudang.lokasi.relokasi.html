@@ -1,0 +1,121 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">Relokasi Antar Bin</h4>
+</div>
+<div class="modal-body">
+    <form id="formRelokasi" class="form-horizontal">
+        <input type="hidden" name="action" value="save">
+        <div class="form-group">
+            <label class="col-md-3 control-label">Lokasi Asal</label>
+            <div class="col-md-9">
+                <select name="kode_lokasi_asal" id="kode_lokasi_asal" class="form-control select2" style="width: 100%;">
+                    <option value="">-- Pilih Lokasi Asal --</option>
+                    {loop: $lokasi}
+                    <option value="{$value.kode_lokasi}">{$value.rak} / {$value.bin} / {$value.slot} ({$value.kode_lokasi})</option>
+                    {/loop}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">Pilih Barang & Batch</label>
+            <div class="col-md-9">
+                <select name="batch_selector" id="batch_selector" class="form-control select2" style="width: 100%;" disabled>
+                    <option value="">-- Pilih Lokasi Asal Terlebih Dahulu --</option>
+                </select>
+                <input type="hidden" name="kode_item" id="kode_item">
+                <input type="hidden" name="batch_no" id="batch_no">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">Jumlah Pindah</label>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="number" name="qty" id="qty" class="form-control" min="1" step="any">
+                    <span class="input-group-addon" id="label_satuan">Unit</span>
+                </div>
+                <small class="text-info" id="label_stok_tersedia">Stok tersedia: 0</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">Lokasi Tujuan</label>
+            <div class="col-md-9">
+                <select name="kode_lokasi_tujuan" id="kode_lokasi_tujuan" class="form-control select2" style="width: 100%;">
+                    <option value="">-- Pilih Lokasi Tujuan --</option>
+                    {loop: $lokasi}
+                    <option value="{$value.kode_lokasi}">{$value.rak} / {$value.bin} / {$value.slot} ({$value.kode_lokasi}) - Kap: {$value.kapasitas}</option>
+                    {/loop}
+                </select>
+                <small class="text-muted">Pastikan tipe penyimpanan sesuai (Normal/B3/Suhu Dingin).</small>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+    <button type="button" class="btn btn-primary" id="btnSimpanRelokasi">Simpan Relokasi</button>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.select2').select2({
+        dropdownParent: $('#modalRelokasi')
+    });
+
+    $('#kode_lokasi_asal').on('change', function() {
+        var lok = $(this).val();
+        if(lok) {
+            $('#batch_selector').prop('disabled', true).html('<option>Memuat data...</option>');
+            $.post('{?=url([ADMIN, "logistik_non_medis", "loadstoklokasi"])?}', {kode_lokasi: lok, t: '{?=$token?}'}, function(res) {
+                var items = JSON.parse(res);
+                var html = '<option value="">-- Pilih Barang --</option>';
+                items.forEach(function(item) {
+                    html += '<option value="'+item.kode_item+'|'+item.batch_no+'" data-stok="'+item.stok+'" data-satuan="'+item.satuan_dasar+'">'+item.nama_barang+' ('+item.batch_no+') - Stok: '+item.stok+' '+item.satuan_dasar+'</option>';
+                });
+                $('#batch_selector').prop('disabled', false).html(html);
+            });
+        }
+    });
+
+    $('#batch_selector').on('change', function() {
+        var val = $(this).val();
+        if(val) {
+            var parts = val.split('|');
+            $('#kode_item').val(parts[0]);
+            $('#batch_no').val(parts[1]);
+            var opt = $(this).find('option:selected');
+            $('#label_stok_tersedia').text('Stok tersedia: ' + opt.data('stok') + ' ' + opt.data('satuan'));
+            $('#label_satuan').text(opt.data('satuan'));
+            $('#qty').attr('max', opt.data('stok')).val(opt.data('stok'));
+        }
+    });
+
+    $('#btnSimpanRelokasi').on('click', function() {
+        var btn = $(this);
+        var asal = $('#kode_lokasi_asal').val();
+        var tujuan = $('#kode_lokasi_tujuan').val();
+        
+        if(asal == tujuan) {
+            alert('Lokasi asal dan tujuan tidak boleh sama!');
+            return;
+        }
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Memproses...');
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "relokasibin"])?}',
+            type: 'POST',
+            data: $('#formRelokasi').serialize() + '&t={?=$token?}',
+            success: function(res) {
+                var data = JSON.parse(res);
+                if(data.status == 'success') {
+                    $('#modalRelokasi').modal('hide');
+                    alert('Relokasi berhasil disimpan!');
+                    location.reload();
+                } else {
+                    alert(data.message);
+                    btn.prop('disabled', false).html('Simpan Relokasi');
+                }
+            }
+        });
+    });
+});
+</script>

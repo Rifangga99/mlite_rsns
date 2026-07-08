@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pick List - {$sppb.no_sppb}</title>
+    <style>
+        body { font-family: sans-serif; font-size: 12px; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .title { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        th { bg-color: #eee; }
+        .footer { margin-top: 30px; }
+        .barcode { text-align: right; }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <div class="title">DAFTAR PENGAMBILAN BARANG (PICK LIST)</div>
+        <div>{$nama_rs}</div>
+        <div>No. SPPB: <strong>{$sppb.no_sppb}</strong> | Unit: {$sppb.nama_unit}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="30">No</th>
+                <th width="100">Lokasi/Bin</th>
+                <th>Nama Barang</th>
+                <th width="80">Jumlah</th>
+                <th width="100">Batch/Exp</th>
+                <th width="50">Cek</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop: $items}
+            <tr>
+                <td>{?=$key+1?}</td>
+                <td><strong>{$value.default_kode_lokasi}</strong></td>
+                <td>{$value.nama_barang} ({$value.kode_item})</td>
+                <td align="center">{$value.jumlah_disetujui} {$value.satuan}</td>
+                <td></td>
+                <td>[ ]</td>
+            </tr>
+            {/loop}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <table style="border: none;">
+            <tr style="border: none;">
+                <td style="border: none;" width="50%">
+                    Dicetak pada: {?=date('d/m/Y H:i:s')?}
+                </td>
+                <td style="border: none;" align="right">
+                    Petugas Gudang,<br><br><br><br>
+                    ( ____________________ )
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

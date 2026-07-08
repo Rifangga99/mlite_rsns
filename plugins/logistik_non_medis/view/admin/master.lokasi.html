@@ -1,0 +1,105 @@
+<style>
+    #table-master-lokasi th, #table-master-lokasi td {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+    .panel-body {
+        padding: 20px;
+    }
+    .action-row {
+        margin-bottom: 25px;
+    }
+    .label-status {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+</style>
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Data Lokasi Gudang <small>(Total: <span id="total-lokasi">0</span>)</small></h3>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="{?=url([ADMIN, 'logistik_non_medis', 'masterlokasi'])?}">Data Lokasi</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                <div class="row clearfix action-row">
+                    <div class="col col-md-6">
+                        <button type="button" class="btn btn-primary" id="btn-tambah-lokasi"><i class="fa fa-plus"></i> Tambah Lokasi Baru</button>
+                    </div>
+                    <div class="col col-md-6">
+                        <form action="" class="searchbox-masterlokasi">
+                            <div class="input-group">
+                                <input type="text" name="cari" class="form-control" placeholder="Cari Kode/Nama/Zona..." value="">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="submit"><i class="fa fa-search"></i> Cari</button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="table-responsive no-margin">
+                    <table class="table table-striped no-margin dataTable" id="table-master-lokasi">
+                        <thead>
+                            <tr>
+                                <th>Kode</th>
+                                <th>Nama Lokasi</th>
+                                <th>Zona / Rak / Bin / Slot</th>
+                                <th>Kapasitas</th>
+                                <th>Tipe Penyimpanan</th>
+                                <th>Suhu / Berat Max</th>
+                                <th>Status</th>
+                                <th class="text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="master-lokasi-list">
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                    <p>Memuat data...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="row clearfix" style="margin-top: 15px;">
+                    <div class="col-md-12 text-right">
+                        <ul class="pagination pagination-sm pagination-master-lokasi" style="margin:0;">
+                            <!-- Pagination goes here -->
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Form -->
+<div class="modal fade" id="modal-form-lokasi" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="form-lokasi-content">
+            <!-- Form loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal Preview Denah -->
+<div class="modal fade" id="modal-preview-lokasi" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Pratinjau Denah Digital</h4>
+            </div>
+            <div class="modal-body" id="preview-content-lokasi">
+                <!-- Preview loaded here -->
+            </div>
+        </div>
+    </div>
+</div>

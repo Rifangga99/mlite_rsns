@@ -1,0 +1,84 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Data Rekanan Jasa & Kontrak</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row" style="margin-bottom: 20px;">
+                    <div class="col-md-6">
+                        <button class="btn btn-dark" style="background-color: #4c5561; color: white; border-radius: 0; padding: 10px 20px;" onclick="openForm()">
+                            <i class="fa fa-plus"></i> Tambah Rekanan Baru
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" id="cari" class="form-control" style="height: 42px;" placeholder="Pencarian Nama Rekanan/Kode/Kontrak...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" style="height: 42px; background-color: #f1f4f9;" onclick="loadData(1, $('#cari').val())">
+                                    <i class="fa fa-search"></i> Cari
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="display">
+                    <div class="text-center">
+                        <br><br><br>
+                        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+                        <p>Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal -->
+<div class="modal fade" id="rekananModal" tabindex="-1" role="dialog" aria-labelledby="rekananModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width: 80%;">
+        <div class="modal-content" style="border-radius: 0;">
+            <div id="form"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-dark:hover {
+    background-color: #3d4550 !important;
+    color: white;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    loadData();
+
+    $('#cari').on('keyup', function(e) {
+        if (e.keyCode === 13) {
+            loadData(1, $(this).val());
+        }
+    });
+});
+
+function loadData(halaman = 1, cari = '') {
+    $.post('{?=url([ADMIN, "logistik_non_medis", "displaymasterrekanan"])?}', {halaman: halaman, cari: cari}, function(data) {
+        $('#display').html(data);
+    });
+}
+
+function openForm(kode_rekanan = '', viewOnly = false) {
+    $.post('{?=url([ADMIN, "logistik_non_medis", "formmasterrekanan"])?}', {kode_rekanan: kode_rekanan, view_only: viewOnly}, function(data) {
+        $('#form').html(data);
+        $('#rekananModal').modal('show');
+    });
+}
+
+function deleteData(kode_rekanan) {
+    if(confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+        $.post('{?=url([ADMIN, "logistik_non_medis", "hapusmasterrekanan"])?}', {kode_rekanan: kode_rekanan}, function() {
+            loadData();
+        });
+    }
+}
+</script>

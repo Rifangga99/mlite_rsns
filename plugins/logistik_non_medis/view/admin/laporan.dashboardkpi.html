@@ -1,0 +1,623 @@
+<div class="row">
+    <div class="col-md-12">
+        <!-- Dashboard Cockpit / Filter Header -->
+        <div class="panel panel-default global-cockpit mb-4" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 25px;">
+            <div class="panel-body" style="padding: 15px 20px;">
+                <form id="form-dashboard-filter" class="row">
+                    <div class="col-md-3">
+                        <h4 class="theme-primary-text" style="margin: 0; padding-top: 8px; font-weight: bold;"><i class="fa fa-dashboard"></i> Dashboard & KPI Logistik</h4>
+                        <span class="text-muted" style="font-size: 11px;">Analisis & Kinerja Persediaan Non-Medis</span>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <div class="form-group style-inline" style="margin-bottom: 0; display: inline-block; vertical-align: middle;">
+                            <label class="control-label text-muted" style="font-weight: bold; font-size: 11px; margin-right: 5px;">Periode Evaluasi</label>
+                            <div class="input-group" style="width: 280px; display: inline-table; vertical-align: middle;">
+                                <input type="date" id="dash-tgl-awal" class="form-control input-sm" value="{?=date('Y-m-01')?}">
+                                <span class="input-group-addon input-sm">s/d</span>
+                                <input type="date" id="dash-tgl-akhir" class="form-control input-sm" value="{?=date('Y-m-d')?}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <button type="submit" class="btn btn-primary btn-sm" style="border-radius: 4px; font-weight: bold; width: 120px;"><i class="fa fa-refresh"></i> Tampilkan</button>
+                    </div>
+                </form>
+        </div>
+
+        <div class="printable-area">
+            <!-- Kop Laporan khusus cetak (Hidden on screen) -->
+            <div class="show-on-print print-header" style="display: none; margin-bottom: 25px; text-align: center; border-bottom: 3px double #333; padding-bottom: 12px;">
+                <h3 style="margin: 0 0 5px 0; font-weight: bold; text-transform: uppercase; color: #000;">LAPORAN DASHBOARD & KPI LOGISTIK NON-MEDIS</h3>
+                <h4 style="margin: 0 0 5px 0; font-weight: normal; color: #444;" id="print-periode-evaluasi">Periode: - s/d -</h4>
+                <small style="color: #666; font-size: 11px;">Dicetak melalui SIMRS Logistik Non-Medis pada tanggal: <span class="print-timestamp"></span></small>
+            </div>
+
+            <!-- KPI SUMMARY WIDGET CARDS -->
+            <div class="row mb-4" id="printable-widgets">
+            <!-- 1. TURNOVER RATE -->
+            <div class="col-md-3">
+                <div class="panel panel-info panel-kpi panel-kpi-info" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.3s;">
+                    <div class="panel-body" style="padding: 20px;">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <div class="text-muted" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Turn-over Rate (ITOR)</div>
+                                <div class="h2 theme-primary-text" id="kpi-turnover-val" style="margin: 10px 0 5px 0; font-weight: bold;">0.00x</div>
+                                <span class="text-muted" style="font-size: 11px;"><i class="fa fa-refresh text-info"></i> Perputaran Persediaan</span>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <i class="fa fa-retweet fa-3x text-muted" style="opacity: 0.25; padding-top: 10px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. REQUEST FULFILLMENT RATE -->
+            <div class="col-md-3">
+                <div class="panel panel-success panel-kpi panel-kpi-success" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.3s;">
+                    <div class="panel-body" style="padding: 20px;">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <div class="text-muted" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Pemenuhan Permintaan</div>
+                                <div class="h2 theme-success-text" id="kpi-fulfillment-val" style="margin: 10px 0 5px 0; font-weight: bold;">0.0%</div>
+                                <span class="text-muted" style="font-size: 11px;"><i class="fa fa-check text-success"></i> Rasio SPPB Terlayani</span>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <i class="fa fa-shopping-cart fa-3x text-muted" style="opacity: 0.25; padding-top: 10px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. AVERAGE PROCUREMENT LEAD TIME -->
+            <div class="col-md-3">
+                <div class="panel panel-warning panel-kpi panel-kpi-warning" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.3s;">
+                    <div class="panel-body" style="padding: 20px;">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <div class="text-muted" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Lead Time Pengadaan</div>
+                                <div class="h2 theme-warning-text" id="kpi-leadtime-val" style="margin: 10px 0 5px 0; font-weight: bold;">0.0 Hari</div>
+                                <span class="text-muted" style="font-size: 11px;"><i class="fa fa-clock-o text-warning"></i> Rerata PO Diterima</span>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <i class="fa fa-truck fa-3x text-muted" style="opacity: 0.25; padding-top: 10px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. WAREHOUSE UTILIZATION -->
+            <div class="col-md-3">
+                <div class="panel panel-danger panel-kpi panel-kpi-danger" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.3s;">
+                    <div class="panel-body" style="padding: 20px;">
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <div class="text-muted" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Utilisasi Gudang (%)</div>
+                                <div class="h2 theme-danger-text" id="kpi-utilization-val" style="margin: 10px 0 5px 0; font-weight: bold;">0.0%</div>
+                                <div class="progress progress-sm" style="margin: 5px 0 0 0; height: 6px; border-radius: 4px; box-shadow: none;">
+                                    <div class="progress-bar progress-bar-danger" id="kpi-utilization-bar" role="progressbar" style="width: 0%; border-radius: 4px; box-shadow: none;"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <i class="fa fa-cubes fa-3x text-muted" style="opacity: 0.25; padding-top: 10px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MIDDLE CONTENT ROW: BUDGET VS VALUE & ALERTS -->
+        <div class="row mb-4">
+            <!-- INVENTORY VALUE VS BUDGET -->
+            <div class="col-md-6">
+                <div class="panel panel-default" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); overflow: hidden; border: none; height: 260px;">
+                    <div class="panel-heading" style="font-weight: bold; padding: 15px 20px;">
+                        <i class="fa fa-money"></i> Nilai Persediaan vs Anggaran Rencana (RKBU)
+                    </div>
+                    <div class="panel-body" style="padding: 20px;">
+                        <div class="row">
+                            <div class="col-xs-6 text-center budget-divider">
+                                <span class="text-muted" style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Total Nilai Persediaan</span>
+                                <h3 id="inv-value-label" class="theme-success-text" style="font-weight: bold; margin: 15px 0 5px 0;">Rp. 0</h3>
+                                <small class="text-muted">Berdasarkan Harga Beli Terakhir</small>
+                            </div>
+                            <div class="col-xs-6 text-center">
+                                <span class="text-muted" style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Anggaran RKBU Aktif</span>
+                                <h3 id="budget-value-label" class="theme-primary-text" style="font-weight: bold; margin: 15px 0 5px 0;">Rp. 0</h3>
+                                <small class="text-muted">Total Alokasi Rencana Kerja</small>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-xs-12">
+                                <span class="text-muted" style="font-size: 11px; font-weight: bold;">Rasio Penyerapan / Batas Finansial Persediaan:</span>
+                                <div class="progress" style="margin: 8px 0 0 0; height: 16px; border-radius: 8px; box-shadow: none; overflow: hidden;">
+                                    <div class="progress-bar progress-bar-success" id="budget-progress-bar" role="progressbar" style="width: 0%; font-size: 10px; line-height: 16px; font-weight: bold; box-shadow: none; border-radius: 8px;">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI & SYSTEM ALERTS PANEL -->
+            <div class="col-md-6">
+                <div class="panel panel-default" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); overflow: hidden; border: none; height: 260px;">
+                    <div class="panel-heading alert-header" style="font-weight: bold; padding: 15px 20px;">
+                        <i class="fa fa-bell"></i> Alert Target KPI & Operasional
+                    </div>
+                    <div class="panel-body" style="padding: 15px 20px; overflow-y: auto; height: 200px;" id="kpi-alerts-container">
+                        <div class="text-center text-muted" style="padding-top: 40px;" id="no-alerts-placeholder">
+                            <i class="fa fa-check-circle fa-3x text-success" style="opacity: 0.6;"></i>
+                            <p style="margin-top: 10px; font-weight: bold;">Seluruh Indikator Kinerja (KPI) Berada Dalam Target Ideal</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM ROW: STOCKS GRAPH & UNDERSTOCK WARNING -->
+        <div class="row">
+            <!-- REAL-TIME STOCK CHART -->
+            <div class="col-md-7">
+                <div class="panel panel-default" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); overflow: hidden; border: none;">
+                    <div class="panel-heading" style="font-weight: bold; padding: 15px 20px;">
+                        <i class="fa fa-bar-chart"></i> Grafik Stok Real-Time per Kategori Barang
+                    </div>
+                    <div class="panel-body" style="padding: 20px;">
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="chart-realtime-stock"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNDERSTOCK / MINIMUM STOCK ALERT LIST -->
+            <div class="col-md-5">
+                <div class="panel panel-default" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); overflow: hidden; border: none;">
+                    <div class="panel-heading warning-header" style="font-weight: bold; padding: 15px 20px;">
+                        <i class="fa fa-warning"></i> Stok di Bawah Minimum / Kritis (<small class="text-muted">Butuh Pengadaan</small>)
+                    </div>
+                    <div class="panel-body" style="padding: 10px 15px; height: 320px; overflow-y: auto;">
+                        <table class="table table-striped table-hover table-condensed" style="font-size: 12px; margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th class="text-center" style="width: 80px;">Min</th>
+                                    <th class="text-center" style="width: 80px;">Sisa</th>
+                                    <th class="text-center" style="width: 80px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-stock-alerts">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted" style="padding-top: 100px;">Memuat data alert stok kritis...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div><!-- printable-area -->
+    </div>
+</div>
+
+<!-- Dynamic ChartJS Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* Smooth Widget & Cards Micro-Animations */
+.panel-kpi {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+}
+.panel-kpi:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.08) !important;
+}
+.global-cockpit {
+    background-color: #f8f9fc !important;
+    border: 1px solid #eaecf4 !important;
+}
+
+/* Custom alerts decoration */
+.alert-kpi {
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    border-left: 4px solid;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+}
+.alert-kpi-warning {
+    background-color: #fdfaf2;
+    border-color: #f6c23e;
+    color: #856404;
+}
+.alert-kpi-danger {
+    background-color: #fdf3f2;
+    border-color: #e74a3b;
+    color: #721c24;
+}
+.alert-kpi-info {
+    background-color: #f2f7fd;
+    border-color: #36b9cc;
+    color: #0c5460;
+}
+
+/* Printing Media Configuration */
+@media print {
+    body * { visibility: hidden; }
+    .printable-area, .printable-area * { visibility: visible; }
+    .printable-area { 
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+        width: 100%; 
+        color: #000 !important; 
+        background: #fff !important; 
+        font-family: sans-serif;
+    }
+    .show-on-print { display: block !important; }
+    
+    /* Force Grid columns layout side-by-side during print */
+    .printable-area .col-md-3 {
+        width: 25% !important;
+        float: left !important;
+        padding: 5px !important;
+    }
+    .printable-area .col-md-6, 
+    .printable-area .col-md-7, 
+    .printable-area .col-md-5 {
+        width: 50% !important;
+        float: left !important;
+        padding: 10px !important;
+    }
+    
+    .panel {
+        border: 1px solid #ccc !important;
+        margin-bottom: 15px !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        page-break-inside: avoid !important;
+    }
+    .panel-heading {
+        background-color: #f1f1f1 !important;
+        border-bottom: 1px solid #ccc !important;
+        color: #000 !important;
+        font-weight: bold !important;
+        font-size: 12px !important;
+    }
+    .panel-kpi {
+        border: 1px solid #ccc !important;
+        border-left: 5px solid #bbb !important;
+    }
+    .panel-kpi-info { border-left-color: #36b9cc !important; }
+    .panel-kpi-success { border-left-color: #1cc88a !important; }
+    .panel-kpi-warning { border-left-color: #f6c23e !important; }
+    .panel-kpi-danger { border-left-color: #e74a3b !important; }
+
+    /* Force Color adjustments on print */
+    .progress {
+        border: 1px solid #bbb !important;
+        background-color: #eeeeee !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .progress-bar {
+        background-color: #4e73df !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .progress-bar-success { background-color: #1cc88a !important; }
+    .progress-bar-warning { background-color: #f6c23e !important; }
+    .progress-bar-danger { background-color: #e74a3b !important; }
+
+    .alert-kpi {
+        border: 1px solid #ccc !important;
+        border-left: 4px solid !important;
+        background-color: #fcfcfc !important;
+        page-break-inside: avoid !important;
+    }
+    
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    var chartStockRealtime = null;
+
+    // Get mLite Adaptable Theme Colors
+    function getThemeColors() {
+        var tempBtnPrimary = $('<button class="btn btn-primary" style="display:none;"></button>').appendTo('body');
+        var tempBtnInfo = $('<button class="btn btn-info" style="display:none;"></button>').appendTo('body');
+        var tempBtnSuccess = $('<button class="btn btn-success" style="display:none;"></button>').appendTo('body');
+        var tempBtnWarning = $('<button class="btn btn-warning" style="display:none;"></button>').appendTo('body');
+        var tempBtnDanger = $('<button class="btn btn-danger" style="display:none;"></button>').appendTo('body');
+        var tempMuted = $('<span class="text-muted" style="display:none;"></span>').appendTo('body');
+        var tempPanel = $('<div class="panel panel-default" style="display:none;"></div>').appendTo('body');
+        var tempWell = $('<div class="well" style="display:none;"></div>').appendTo('body');
+        
+        var colors = {
+            primary: tempBtnPrimary.css('background-color') || '#4e73df',
+            info: tempBtnInfo.css('background-color') || '#36b9cc',
+            success: tempBtnSuccess.css('background-color') || '#1cc88a',
+            warning: tempBtnWarning.css('background-color') || '#f6c23e',
+            danger: tempBtnDanger.css('background-color') || '#e74a3b',
+            muted: tempMuted.css('color') || '#858796',
+            panelBg: tempPanel.css('background-color') || '#ffffff',
+            panelBorder: tempPanel.css('border-color') || '#e3e6f0',
+            wellBg: tempWell.css('background-color') || '#f8f9fc',
+            wellBorder: tempWell.css('border-color') || '#eaecf4'
+        };
+        
+        tempBtnPrimary.remove();
+        tempBtnInfo.remove();
+        tempBtnSuccess.remove();
+        tempBtnWarning.remove();
+        tempBtnDanger.remove();
+        tempMuted.remove();
+        tempPanel.remove();
+        tempWell.remove();
+        
+        return colors;
+    }
+
+    function isDarkTheme() {
+        var bodyBg = $('body').css('background-color');
+        if (!bodyBg) return false;
+        var rgb = bodyBg.match(/\d+/g);
+        if (!rgb || rgb.length < 3) return false;
+        var r = parseInt(rgb[0]);
+        var g = parseInt(rgb[1]);
+        var b = parseInt(rgb[2]);
+        var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+
+    var themeColors = getThemeColors();
+    var isDark = isDarkTheme();
+
+    var dynamicStyles = 
+        '.panel { border-radius: 8px !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important; border: 1px solid ' + themeColors.panelBorder + ' !important; overflow: hidden !important; margin-bottom: 20px !important; }' +
+        '.panel-heading { border-top-left-radius: 8px !important; border-top-right-radius: 8px !important; padding: 12px 15px !important; font-weight: bold !important; }' +
+        '.btn { border-radius: 6px !important; font-weight: bold !important; padding: 6px 14px !important; transition: all 0.2s ease-in-out !important; }' +
+        '.btn-sm { border-radius: 4px !important; padding: 4px 10px !important; }' +
+        '.btn:hover { transform: translateY(-1px) !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important; }' +
+        '.btn:active { transform: translateY(0px) !important; box-shadow: none !important; }' +
+        '.panel-default { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+        '.panel-default > .panel-heading { background-color: ' + themeColors.wellBg + ' !important; border-bottom: 1px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.primary + ' !important; }' +
+        '.global-cockpit { background-color: ' + themeColors.wellBg + ' !important; border: 1px solid ' + themeColors.wellBorder + ' !important; border-left: 5px solid ' + themeColors.primary + ' !important; }' +
+        '.panel-kpi { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+        '.panel-kpi-info { border-left: 4px solid ' + themeColors.info + ' !important; }' +
+        '.panel-kpi-success { border-left: 4px solid ' + themeColors.success + ' !important; }' +
+        '.panel-kpi-warning { border-left: 4px solid ' + themeColors.warning + ' !important; }' +
+        '.panel-kpi-danger { border-left: 4px solid ' + themeColors.danger + ' !important; }' +
+        '.panel-heading.alert-header { color: ' + themeColors.danger + ' !important; }' +
+        '.panel-heading.warning-header { color: ' + themeColors.warning + ' !important; }' +
+        '.budget-divider { border-right: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+        '.table > thead > tr { background-color: ' + themeColors.wellBg + ' !important; }' +
+        '.table > thead > tr > th { border-bottom: 2px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+        '.table > tbody > tr > td { border-top: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+        '.table-striped > tbody > tr:nth-of-type(odd) { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)') + ' !important; }' +
+        '.table-hover > tbody > tr:hover { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)') + ' !important; }' +
+        '.progress { background-color: ' + themeColors.wellBorder + ' !important; }' +
+        '.form-control { background-color: ' + (isDark ? themeColors.wellBg : '#ffffff') + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + (isDark ? '#eaecf4' : '#495057') + ' !important; }' +
+        '.input-group-addon { background-color: ' + themeColors.wellBg + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+        '.theme-primary-text { color: ' + themeColors.primary + ' !important; }' +
+        '.theme-success-text { color: ' + themeColors.success + ' !important; }' +
+        '.theme-warning-text { color: ' + themeColors.warning + ' !important; }' +
+        '.theme-danger-text { color: ' + themeColors.danger + ' !important; }' +
+        '.theme-info-text { color: ' + themeColors.info + ' !important; }';
+
+    if (isDark) {
+        dynamicStyles += 
+            '.alert-kpi-warning { background-color: rgba(246, 194, 62, 0.12) !important; border-color: ' + themeColors.warning + ' !important; color: #ffe8a1 !important; }' +
+            '.alert-kpi-danger { background-color: rgba(231, 74, 59, 0.12) !important; border-color: ' + themeColors.danger + ' !important; color: #ffb8b1 !important; }' +
+            '.alert-kpi-info { background-color: rgba(54, 185, 204, 0.12) !important; border-color: ' + themeColors.info + ' !important; color: #b1f0ff !important; }' +
+            '.label-warning { background-color: rgba(246, 194, 62, 0.2) !important; border: 1px solid ' + themeColors.warning + ' !important; color: #ffe8a1 !important; }' +
+            '.label-danger { background-color: rgba(231, 74, 59, 0.2) !important; border: 1px solid ' + themeColors.danger + ' !important; color: #ffb8b1 !important; }' +
+            'h4, h5, td, th { color: #eaecf4 !important; }' +
+            '.panel-kpi .text-muted { color: #a0a2ad !important; }' +
+            '#no-alerts-placeholder p { color: #a0a2ad !important; }';
+    }
+
+    $('<style>').prop('type', 'text/css').html(dynamicStyles).appendTo('head');
+
+    // ChartJS dark/theme defaults
+    if (typeof Chart !== 'undefined') {
+        var chartTextColor = isDark ? '#eaecf4' : '#5a5c69';
+        var chartGridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+        Chart.defaults.color = chartTextColor;
+        Chart.defaults.borderColor = chartGridColor;
+    }
+
+    // Load initial data
+    loadDashboardKPI();
+
+    $('#form-dashboard-filter').submit(function(e) {
+        e.preventDefault();
+        loadDashboardKPI();
+    });
+
+
+
+    function loadDashboardKPI() {
+        var start_date = $('#dash-tgl-awal').val();
+        var end_date = $('#dash-tgl-akhir').val();
+
+        // Format dates dynamically to DD-MM-YYYY for Indonesian printing standards
+        var formatted_start = start_date.split('-').reverse().join('-');
+        var formatted_end = end_date.split('-').reverse().join('-');
+        $('#print-periode-evaluasi').text('Periode: ' + formatted_start + ' s/d ' + formatted_end);
+
+        // Show spinner placeholder in tables
+        $('#tbody-stock-alerts').html('<tr><td colspan="4" class="text-center text-muted" style="padding-top: 100px;"><i class="fa fa-spinner fa-spin"></i> Memuat data alert...</td></tr>');
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/getdashboardkpidata")?}', {
+            start_date: start_date,
+            end_date: end_date
+        }, function(response) {
+            var data = JSON.parse(response);
+
+            // Update KPI Cards
+            $('#kpi-turnover-val').text(data.turnover_rate.toFixed(2) + 'x');
+            $('#kpi-fulfillment-val').text(data.fulfillment_rate.toFixed(1) + '%');
+            $('#kpi-leadtime-val').text(data.avg_lead_time.toFixed(1) + ' Hari');
+            $('#kpi-utilization-val').text(data.utilization_rate.toFixed(1) + '%');
+            
+            // Utilization Progress Bar Styling
+            $('#kpi-utilization-bar').css('width', data.utilization_rate + '%');
+            if (data.utilization_rate > 85) {
+                $('#kpi-utilization-bar').removeClass('progress-bar-success progress-bar-warning').addClass('progress-bar-danger');
+                $('#kpi-utilization-val').css('color', themeColors.danger);
+            } else if (data.utilization_rate > 50) {
+                $('#kpi-utilization-bar').removeClass('progress-bar-success progress-bar-danger').addClass('progress-bar-warning');
+                $('#kpi-utilization-val').css('color', themeColors.warning);
+            } else {
+                $('#kpi-utilization-bar').removeClass('progress-bar-warning progress-bar-danger').addClass('progress-bar-success');
+                $('#kpi-utilization-val').css('color', themeColors.success);
+            }
+
+            // Update Budget Comparison Card
+            $('#inv-value-label').text(data.total_inv_val);
+            $('#budget-value-label').text(data.total_budget);
+            var budget_pct = 0;
+            if (data.total_budget_num > 0) {
+                budget_pct = (data.total_inv_val_num / data.total_budget_num) * 100;
+            }
+            $('#budget-progress-bar').css('width', Math.min(budget_pct, 100) + '%').text(budget_pct.toFixed(1) + '%');
+            
+            if (budget_pct > 100) {
+                $('#budget-progress-bar').removeClass('progress-bar-success progress-bar-warning').addClass('progress-bar-danger');
+            } else if (budget_pct > 80) {
+                $('#budget-progress-bar').removeClass('progress-bar-success progress-bar-danger').addClass('progress-bar-warning');
+            } else {
+                $('#budget-progress-bar').removeClass('progress-bar-warning progress-bar-danger').addClass('progress-bar-success');
+            }
+
+            // Update KPI Alerts Panel
+            var alerts_html = '';
+            if (data.kpi_alerts.length > 0) {
+                data.kpi_alerts.forEach(function(alert) {
+                    alerts_html += '<div class="alert-kpi alert-kpi-' + alert.level + '">' +
+                                   '<strong><i class="fa fa-exclamation-triangle"></i> ' + alert.title + ':</strong> ' + alert.desc +
+                                   '</div>';
+                });
+                $('#kpi-alerts-container').html(alerts_html);
+            } else {
+                $('#kpi-alerts-container').html('<div class="text-center text-muted" style="padding-top: 40px;">' +
+                                                 '<i class="fa fa-check-circle fa-3x text-success" style="opacity: 0.6;"></i>' +
+                                                 '<p style="margin-top: 10px; font-weight: bold;">Seluruh Indikator Kinerja (KPI) Berada Dalam Target Ideal</p>' +
+                                                 '</div>');
+            }
+
+            // Update Stock alerts Table
+            var stock_alerts_html = '';
+            if (data.stock_alerts.length > 0) {
+                data.stock_alerts.forEach(function(item) {
+                    var is_safety = (parseFloat(item.stok_sekarang) <= parseFloat(item.safety_stock)) && (parseFloat(item.stok_sekarang) > parseFloat(item.stok_min));
+                    var label = is_safety ? '<span class="label label-warning">Safety Stock</span>' : '<span class="label label-danger">Under Stock</span>';
+                    
+                    stock_alerts_html += '<tr>' +
+                                         '<td><strong>' + item.nama_barang + '</strong><br><small class="text-muted">Kode: ' + item.kode_item + '</small></td>' +
+                                         '<td class="text-center" style="font-weight: bold; color: #858796;">' + parseFloat(item.stok_min) + ' ' + item.satuan_dasar + '</td>' +
+                                         '<td class="text-center" style="font-weight: bold; color: ' + (is_safety ? themeColors.warning : themeColors.danger) + ';">' + parseFloat(item.stok_sekarang) + ' ' + item.satuan_dasar + '</td>' +
+                                         '<td class="text-center">' + label + '</td>' +
+                                         '</tr>';
+                });
+                $('#tbody-stock-alerts').html(stock_alerts_html);
+            } else {
+                $('#tbody-stock-alerts').html('<tr><td colspan="4" class="text-center text-muted" style="padding-top: 100px;"><i class="fa fa-check-circle text-success"></i> Semua stok barang di atas batas minimum.</td></tr>');
+            }
+
+            // Update Stock categories Chart
+            var labels = [];
+            var qty = [];
+            var values = [];
+
+            data.stock_categories.forEach(function(cat) {
+                labels.push(cat.kategori || 'Tanpa Kategori');
+                qty.push(parseFloat(cat.total_stok));
+                values.push(parseFloat(cat.total_nilai));
+            });
+
+            renderStockChart(labels, qty, values);
+        });
+    }
+
+    function renderStockChart(labels, qty, values) {
+        var ctx = document.getElementById('chart-realtime-stock').getContext('2d');
+
+        if (chartStockRealtime !== null) {
+            chartStockRealtime.destroy();
+        }
+
+        if (labels.length === 0) {
+            labels = ['Tidak ada data'];
+            qty = [0];
+            values = [0];
+        }
+
+        chartStockRealtime = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Volume Fisik (Qty)',
+                        data: qty,
+                        backgroundColor: themeColors.primary + 'd0',
+                        borderColor: themeColors.primary,
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Nilai Finansial (Rp)',
+                        data: values,
+                        backgroundColor: themeColors.success + 'd0',
+                        borderColor: themeColors.success,
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Kuantitas (Qty)' },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Nilai Stok (Rupiah)' },
+                        beginAtZero: true,
+                        grid: { drawOnChartArea: false },
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp. ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>

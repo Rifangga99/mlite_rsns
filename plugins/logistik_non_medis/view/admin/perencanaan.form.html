@@ -1,0 +1,235 @@
+<div class="modal-header bg-primary">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Usulan Perencanaan Kebutuhan (RKBU)</h4>
+</div>
+<form id="formPerencanaan" method="post" action="#">
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label>Unit/Departemen</label>
+                    <select name="kode_unit" id="form_kode_unit" class="form-control select2-main" required style="width: 100%;">
+                        <option value="">-- Pilih Unit --</option>
+                        {loop: $units as $u}
+                        <option value="{$u.kode_unit}" {if: $u.kode_unit == $perencanaan.kode_unit}selected{/if}>{$u.nama_unit}</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Tahun Perencanaan</label>
+                    <input type="number" name="tahun" id="form_tahun" class="form-control" value="{$perencanaan.tahun}" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Status Usulan</label>
+                    <select name="status" class="form-control">
+                        <option value="Draft" {if: $perencanaan.status == 'Draft'}selected{/if}>Draft</option>
+                        <option value="Diajukan" {if: $perencanaan.status == 'Diajukan'}selected{/if}>Diajukan</option>
+                        <option value="Disetujui" {if: $perencanaan.status == 'Disetujui'}selected{/if}>Disetujui</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive" style="margin-top: 15px;">
+            <table class="table table-bordered table-condensed" id="table_perencanaan">
+                <thead>
+                    <tr class="info">
+                        <th width="35%">Barang / Katalog</th>
+                        <th width="20%">Harga Ref (Rp)</th>
+                        <th width="15%">Prioritas</th>
+                        <th width="20%">Qty (1 Thn)</th>
+                        <th width="10%">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="item_rows">
+                    <!-- Rows injected here -->
+                </tbody>
+            </table>
+        </div>
+        <button type="button" class="btn btn-info btn-sm" onclick="addTableRow()"><i class="fa fa-plus"></i> Tambah Barang</button>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-primary" id="btnSimpanRKBU">Simpan Seluruh Usulan</button>
+    </div>
+</form>
+
+<!-- Sub-Modal for Monthly Detail -->
+<div class="modal fade" id="modalMonthly" tabindex="-1" role="dialog" style="z-index: 1060;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h4 class="modal-title">Detail Kebutuhan Bulanan</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="monthly_inputs_container">
+                    <!-- Monthly inputs generated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeMonthly()">Selesai</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var rowCount = 0;
+var activeRowIndex = -1;
+
+// Set form action using mlite global
+$('#formPerencanaan').attr('action', mlite.url + '/' + mlite.admin + '/logistik_non_medis/formperencanaan?t=' + mlite.token);
+
+// Initialize select2
+$('.select2-main').select2({ dropdownParent: $('#modalForm') });
+
+// Add first row if new
+{if: $mode == 'add'}
+    addTableRow();
+{/if}
+
+// Populate rows if edit
+{if: $mode == 'edit'}
+    {loop: $perencanaan_list as $p}
+        addTableRow({?=json_encode($p)?});
+    {/loop}
+{/if}
+
+function addTableRow(data = null) {
+    var index = rowCount++;
+    var kode_item = data ? data.kode_item : '';
+    var harga = data ? data.harga_referensi : '';
+    var prioritas = data ? data.prioritas : 'Desirable';
+    var total_qty = data ? data.total_qty : 0;
+    
+    var html = `
+        <tr id="row_${index}">
+            <td>
+                <select name="items[${index}][kode_item]" class="form-control select2-row item-select" data-index="${index}" required style="width: 100%;">
+                    <option value="">-- Cari Barang --</option>
+                    {loop: $items as $item}
+                    <option value="{$item.kode_item}" data-harga="{$item.harga_referensi}" ${kode_item == '{$item.kode_item}' ? 'selected' : ''}>{$item.nama_barang} ({$item.kode_item})</option>
+                    {/loop}
+                </select>
+            </td>
+            <td>
+                <input type="text" name="items[${index}][harga_referensi]" class="form-control rupiah-input" id="harga_${index}" value="${harga ? formatRupiah(harga, 'Rp. ') : ''}" placeholder="Rp. 0">
+            </td>
+            <td>
+                <select name="items[${index}][prioritas]" class="form-control">
+                    <option value="Desirable" ${prioritas == 'Desirable' ? 'selected' : ''}>D</option>
+                    <option value="Essential" ${prioritas == 'Essential' ? 'selected' : ''}>E</option>
+                    <option value="Vital" ${prioritas == 'Vital' ? 'selected' : ''}>V</option>
+                </select>
+            </td>
+            <td>
+                <div class="input-group">
+                    <input type="text" name="items[${index}][total_qty]" class="form-control" id="total_qty_${index}" readonly value="${total_qty}">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" onclick="openMonthly(${index})"><i class="fa fa-calendar"></i></button>
+                    </span>
+                </div>
+                <div id="monthly_store_${index}">
+                    <input type="hidden" name="items[${index}][jan]" value="${data ? data.jan : 0}" class="m-jan">
+                    <input type="hidden" name="items[${index}][feb]" value="${data ? data.feb : 0}" class="m-feb">
+                    <input type="hidden" name="items[${index}][mar]" value="${data ? data.mar : 0}" class="m-mar">
+                    <input type="hidden" name="items[${index}][apr]" value="${data ? data.apr : 0}" class="m-apr">
+                    <input type="hidden" name="items[${index}][mei]" value="${data ? data.mei : 0}" class="m-mei">
+                    <input type="hidden" name="items[${index}][jun]" value="${data ? data.jun : 0}" class="m-jun">
+                    <input type="hidden" name="items[${index}][jul]" value="${data ? data.jul : 0}" class="m-jul">
+                    <input type="hidden" name="items[${index}][agu]" value="${data ? data.agu : 0}" class="m-agu">
+                    <input type="hidden" name="items[${index}][sep]" value="${data ? data.sep : 0}" class="m-sep">
+                    <input type="hidden" name="items[${index}][okt]" value="${data ? data.okt : 0}" class="m-okt">
+                    <input type="hidden" name="items[${index}][nov]" value="${data ? data.nov : 0}" class="m-nov">
+                    <input type="hidden" name="items[${index}][des]" value="${data ? data.des : 0}" class="m-des">
+                </div>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-danger btn-xs" onclick="removeRow(${index})"><i class="fa fa-times"></i></button>
+            </td>
+        </tr>
+    `;
+    $('#item_rows').append(html);
+    
+    // Init Select2 for new row
+    var $newSelect = $(`#row_${index} .item-select`);
+    $newSelect.select2({ dropdownParent: $('#modalForm') });
+    
+    // Listen for change on the specific select2
+    $newSelect.on('select2:select', function(e) {
+        var data = e.params.data;
+        var harga = $(this).find(':selected').data('harga') || 0;
+        $(`#harga_${index}`).val(formatRupiah(harga.toString(), 'Rp. '));
+    });
+}
+
+// Global Rupiah Listener
+$(document).on('keyup', '.rupiah-input', function() {
+    $(this).val(formatRupiah($(this).val(), 'Rp. '));
+});
+
+function removeRow(index) {
+    if($('#item_rows tr').length > 1) {
+        $(`#row_${index}`).remove();
+    }
+}
+
+function openMonthly(index) {
+    activeRowIndex = index;
+    var container = $('#monthly_inputs_container');
+    container.empty();
+    
+    var months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    var monthKeys = ['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'];
+    
+    months.forEach(function(m, i) {
+        var key = monthKeys[i];
+        var val = $(`#monthly_store_${index} .m-${key}`).val();
+        var html = `
+            <div class="col-md-3" style="margin-bottom: 10px;">
+                <label>${m}</label>
+                <input type="number" step="any" class="form-control input-sm temp-month" data-key="${key}" value="${val}">
+            </div>
+        `;
+        container.append(html);
+    });
+    
+    $('#modalMonthly').modal('show');
+}
+
+function closeMonthly() {
+    if(activeRowIndex == -1) return;
+    
+    var total = 0;
+    $('.temp-month').each(function() {
+        var key = $(this).data('key');
+        var val = parseFloat($(this).val()) || 0;
+        $(`#monthly_store_${activeRowIndex} .m-${key}`).val(val);
+        total += val;
+    });
+    
+    $(`#total_qty_${activeRowIndex}`).val(total);
+    $('#modalMonthly').modal('hide');
+}
+
+function formatRupiah(angka, prefix) {
+    if (angka == null || angka === "") return "Rp. 0";
+    var number_string = angka.toString().replace(/[^,\d]/g, "").toString(),
+        split = number_string.split(','),
+        sisa = split[0].length % 3,
+        rupiah = split[0].substr(0, sisa),
+        ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+    if (ribuan) {
+        separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+    }
+
+    rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+    return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+}
+</script>

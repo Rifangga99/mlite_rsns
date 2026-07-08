@@ -1,0 +1,844 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="panel panel-info panel-kpi panel-kpi-info">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-money"></i> Total Nilai Aset
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" id="kpi-total-nilai">Rp. 0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-warning panel-kpi panel-kpi-warning">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-warning"></i> Barang Kritis
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" id="kpi-barang-kritis">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-danger panel-kpi panel-kpi-danger">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-exclamation-triangle"></i> Barang Minus
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" id="kpi-barang-minus">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-primary panel-kpi panel-kpi-primary">
+                    <div class="panel-heading">
+                        <h5 class="panel-title" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa fa-building"></i> Lokasi Gudang
+                        </h5>
+                    </div>
+                    <div class="panel-body text-center">
+                        <h2 style="margin: 5px 0; font-weight: bold;" id="kpi-total-gudang">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Panel using Native Bootstrap Styles -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-line-chart"></i> Laporan Stok & Mutasi Logistik</h3>
+            </div>
+            <div class="panel-body">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs custom-tabs" role="tablist" style="margin-bottom: 20px;">
+                    <li role="presentation" class="active">
+                        <a href="#kartu-stok-tab" aria-controls="kartu-stok-tab" role="tab" data-toggle="tab">
+                            <i class="fa fa-file-text-o"></i> Kartu Stok Item
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#mutasi-saldo-tab" aria-controls="mutasi-saldo-tab" role="tab" data-toggle="tab">
+                            <i class="fa fa-exchange"></i> Mutasi & Saldo
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#stok-kritis-tab" aria-controls="stok-kritis-tab" role="tab" data-toggle="tab">
+                            <i class="fa fa-warning"></i> Stok Kritis & Minus
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#nilai-persediaan-tab" aria-controls="nilai-persediaan-tab" role="tab" data-toggle="tab">
+                            <i class="fa fa-calculator"></i> Nilai Persediaan
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#perbandingan-tab" aria-controls="perbandingan-tab" role="tab" data-toggle="tab">
+                            <i class="fa fa-bar-chart"></i> Perbandingan Periode
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: KARTU STOK ITEM -->
+                    <div role="tabpanel" class="tab-pane active" id="kartu-stok-tab">
+                        <div class="well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-kartu-stok" class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Pilih Barang</label>
+                                        <select id="kartu-barang" class="form-control select2-ajax" style="width: 100%;"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Lokasi Gudang</label>
+                                        <select id="kartu-lokasi" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Lokasi</option>
+                                            {loop: $lokasi}
+                                            <option value="{$value.kode_lokasi}">{$value.nama_lokasi}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Periode</label>
+                                        <div class="input-group">
+                                            <input type="date" id="kartu-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="kartu-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-search"></i> Cari</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-default btn-export" data-target="table-kartu-stok" data-filename="Kartu_Stok"><i class="fa fa-file-excel-o"></i> Excel</button>
+                            <button class="btn btn-default btn-print" data-target="print-kartu-stok"><i class="fa fa-print"></i> Cetak</button>
+                        </div>
+                        <div id="print-kartu-stok" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>KARTU STOK LOGISTIK NON-MEDIS</h3>
+                                <p id="print-kartu-detail"></p>
+                                <hr>
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-kartu-stok">
+                                <thead>
+                                    <tr>
+                                        <th>Waktu</th>
+                                        <th>No. Referensi</th>
+                                        <th>Lokasi</th>
+                                        <th>Tipe Mutasi</th>
+                                        <th class="text-center">Masuk (+)</th>
+                                        <th class="text-center">Keluar (-)</th>
+                                        <th class="text-center">Stok Akhir</th>
+                                        <th>User</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-kartu-stok">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Silakan pilih barang dan klik Cari untuk menampilkan data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: MUTASI & SALDO -->
+                    <div role="tabpanel" class="tab-pane" id="mutasi-saldo-tab">
+                        <div class="well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-mutasi-saldo" class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Lokasi Gudang</label>
+                                        <select id="mutasi-lokasi" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Lokasi</option>
+                                            {loop: $lokasi}
+                                            <option value="{$value.kode_lokasi}">{$value.nama_lokasi}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Kategori</label>
+                                        <select id="mutasi-kategori" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Kategori</option>
+                                            {loop: $kategori}
+                                            <option value="{$value.nama}">{$value.nama}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Cari Nama/Kode</label>
+                                        <input type="text" id="mutasi-cari" class="form-control" placeholder="Cari barang...">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Periode</label>
+                                        <div class="input-group">
+                                            <input type="date" id="mutasi-tgl-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="mutasi-tgl-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-default btn-export" data-target="table-mutasi-saldo" data-filename="Rekap_Mutasi"><i class="fa fa-file-excel-o"></i> Excel</button>
+                            <button class="btn btn-default btn-print" data-target="print-mutasi-saldo"><i class="fa fa-print"></i> Cetak</button>
+                        </div>
+                        <div id="print-mutasi-saldo" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN MUTASI & SALDO STOK LOGISTIK NON-MEDIS</h3>
+                                <p id="print-mutasi-detail"></p>
+                                <hr>
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-mutasi-saldo">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th class="text-center">Saldo Awal</th>
+                                        <th class="text-center">Total Masuk</th>
+                                        <th class="text-center">Total Keluar</th>
+                                        <th class="text-center">Saldo Akhir</th>
+                                        <th class="text-center">Satuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-mutasi-saldo">
+                                    <tr>
+                                        <td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: STOK KRITIS & MINUS -->
+                    <div role="tabpanel" class="tab-pane" id="stok-kritis-tab">
+                        <div class="well" style="padding: 15px; margin-bottom: 20px;">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Filter Lokasi</label>
+                                        <select id="kritis-lokasi" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Lokasi</option>
+                                            {loop: $lokasi}
+                                            <option value="{$value.kode_lokasi}">{$value.nama_lokasi}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 text-right" style="padding-top: 25px;">
+                                    <button class="btn btn-danger" id="btn-refresh-kritis"><i class="fa fa-refresh"></i> Muat Ulang</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-default btn-export" data-target="table-stok-kritis" data-filename="Stok_Kritis_Minus"><i class="fa fa-file-excel-o"></i> Excel</button>
+                            <button class="btn btn-default btn-print" data-target="print-stok-kritis"><i class="fa fa-print"></i> Cetak</button>
+                        </div>
+                        <div id="print-stok-kritis" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN STOK KRITIS & MINUS LOGISTIK NON-MEDIS</h3>
+                                <hr>
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-stok-kritis">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th>Lokasi</th>
+                                        <th class="text-center">Stok Sekarang</th>
+                                        <th class="text-center">Stok Min</th>
+                                        <th class="text-center">Safety Stock</th>
+                                        <th class="text-center">Satuan</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-stok-kritis">
+                                    <tr>
+                                        <td colspan="8" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: NILAI PERSEDIAAN -->
+                    <div role="tabpanel" class="tab-pane" id="nilai-persediaan-tab">
+                        <div class="well" style="padding: 15px; margin-bottom: 20px;">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Lokasi Gudang</label>
+                                        <select id="nilai-lokasi" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Lokasi</option>
+                                            {loop: $lokasi}
+                                            <option value="{$value.kode_lokasi}">{$value.nama_lokasi}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Kategori</label>
+                                        <select id="nilai-kategori" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Kategori</option>
+                                            {loop: $kategori}
+                                            <option value="{$value.nama}">{$value.nama}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Valuation Visualizations Section -->
+                        <div class="row mb-4">
+                            <div class="col-md-7">
+                                <div class="action-bar text-right" style="margin-bottom: 15px; margin-top:0;">
+                                    <button class="btn btn-default btn-export" data-target="table-nilai-persediaan" data-filename="Valuasi_Persediaan"><i class="fa fa-file-excel-o"></i> Excel</button>
+                                    <button class="btn btn-default btn-print" data-target="print-nilai-persediaan"><i class="fa fa-print"></i> Cetak</button>
+                                </div>
+                                <div id="print-nilai-persediaan" class="table-responsive printable-area">
+                                    <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                        <h3>LAPORAN VALUASI NILAI PERSEDIAAN</h3>
+                                        <hr>
+                                    </div>
+                                    <table class="table table-striped table-hover table-bordered table-report" id="table-nilai-persediaan">
+                                        <thead>
+                                            <tr>
+                                                <th>Kode Barang</th>
+                                                <th>Nama Barang</th>
+                                                <th>Kategori</th>
+                                                <th>Lokasi</th>
+                                                <th class="text-center">Qty</th>
+                                                <th class="text-right">Harga Beli Avg</th>
+                                                <th class="text-right">Total Nilai</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody-nilai-persediaan">
+                                            <tr>
+                                                <td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title" style="font-weight:bold;"><i class="fa fa-pie-chart"></i> Distribusi Aset per Kategori</h4>
+                                    </div>
+                                    <div class="panel-body text-center">
+                                        <div style="max-height: 320px; position: relative; margin: auto;">
+                                            <canvas id="chart-nilai-distribusi"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: PERBANDINGAN PERIODE -->
+                    <div role="tabpanel" class="tab-pane" id="perbandingan-tab">
+                        <div class="well" style="padding: 15px; margin-bottom: 20px;">
+                            <form id="form-perbandingan" class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Kategori Barang</label>
+                                        <select id="compare-kategori" class="form-control select2" style="width: 100%;">
+                                            <option value="">Semua Kategori</option>
+                                            {loop: $kategori}
+                                            <option value="{$value.nama}">{$value.nama}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Periode Utama (Periode 1)</label>
+                                        <div class="input-group">
+                                            <input type="date" id="compare-p1-awal" class="form-control" value="{?=date('Y-m-01')?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="compare-p1-akhir" class="form-control" value="{?=date('Y-m-d')?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="control-label">Periode Pembanding (Periode 2)</label>
+                                        <div class="input-group">
+                                            <input type="date" id="compare-p2-awal" class="form-control" value="{?=date('Y-m-01', strtotime('-1 month'))?}">
+                                            <span class="input-group-addon">s/d</span>
+                                            <input type="date" id="compare-p2-akhir" class="form-control" value="{?=date('Y-m-d', strtotime('-1 month'))?}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-right" style="margin-top: 15px;">
+                                    <button type="submit" class="btn btn-info"><i class="fa fa-balance-scale"></i> Bandingkan</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="action-bar text-right" style="margin-bottom: 15px;">
+                            <button class="btn btn-default btn-export" data-target="table-perbandingan" data-filename="Perbandingan_Periode"><i class="fa fa-file-excel-o"></i> Excel</button>
+                            <button class="btn btn-default btn-print" data-target="print-perbandingan"><i class="fa fa-print"></i> Cetak</button>
+                        </div>
+                        <div id="print-perbandingan" class="table-responsive printable-area">
+                            <div class="print-header text-center show-on-print" style="display:none; margin-bottom: 20px;">
+                                <h3>LAPORAN PERBANDINGAN KONSUMSI LOGISTIK</h3>
+                                <p id="print-compare-detail"></p>
+                                <hr>
+                            </div>
+                            <table class="table table-striped table-hover table-bordered table-report" id="table-perbandingan">
+                                <thead>
+                                    <tr>
+                                        <th>Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th class="text-center" id="th-compare-p2">Periode 2 (Keluar)</th>
+                                        <th class="text-center" id="th-compare-p1">Periode 1 (Keluar)</th>
+                                        <th class="text-center">Selisih</th>
+                                        <th class="text-center">Perubahan (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-perbandingan">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Klik tombol Bandingkan untuk memproses data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic ChartJS Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* Spacing adjustments to seamlessly fit mLite framework */
+.mb-4 { margin-bottom: 20px; }
+.table-report th { text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+
+/* Print Settings Styling */
+@media print {
+    body * { visibility: hidden; }
+    .printable-area, .printable-area * { visibility: visible; }
+    .printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+    .show-on-print { display: block !important; }
+    .table-report th { background: #f1f1f1 !important; color: #000 !important; }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // 1. Initialize UI Elements (destroy selectator first to prevent duplicate dropdowns)
+    try { $('.select2').selectator('destroy'); } catch(e) {}
+    try { $('#kartu-barang').selectator('destroy'); } catch(e) {}
+
+    $('.select2').select2({
+        width: '100%'
+    });
+    
+    // Dynamic Select2 Auto-complete for Choosing Items in Tab 1
+    $('#kartu-barang').select2({
+        width: '100%',
+        placeholder: 'Ketik Kode / Nama Barang...',
+        minimumInputLength: 1,
+        ajax: {
+            url: '{?=url(ADMIN."/logistik_non_medis/getbarangautocomplete")?}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return { q: params.term };
+            },
+            processResults: function (data) {
+                return { results: data.results };
+            },
+            cache: true
+        }
+    });
+
+    // 0. Dynamic System Theme Color Extraction & Adaptation
+    function getThemeColors() {
+        var tempBtnPrimary = $('<button class="btn btn-primary" style="display:none;"></button>').appendTo('body');
+        var tempBtnInfo = $('<button class="btn btn-info" style="display:none;"></button>').appendTo('body');
+        var tempBtnSuccess = $('<button class="btn btn-success" style="display:none;"></button>').appendTo('body');
+        var tempBtnWarning = $('<button class="btn btn-warning" style="display:none;"></button>').appendTo('body');
+        var tempBtnDanger = $('<button class="btn btn-danger" style="display:none;"></button>').appendTo('body');
+        var tempMuted = $('<span class="text-muted" style="display:none;"></span>').appendTo('body');
+        var tempPanel = $('<div class="panel panel-default" style="display:none;"></div>').appendTo('body');
+        var tempWell = $('<div class="well" style="display:none;"></div>').appendTo('body');
+        
+        var colors = {
+            primary: tempBtnPrimary.css('background-color') || '#4e73df',
+            info: tempBtnInfo.css('background-color') || '#36b9cc',
+            success: tempBtnSuccess.css('background-color') || '#1cc88a',
+            warning: tempBtnWarning.css('background-color') || '#f6c23e',
+            danger: tempBtnDanger.css('background-color') || '#e74a3b',
+            muted: tempMuted.css('color') || '#858796',
+            panelBg: tempPanel.css('background-color') || '#ffffff',
+            panelBorder: tempPanel.css('border-color') || '#e3e6f0',
+            wellBg: tempWell.css('background-color') || '#f8f9fc',
+            wellBorder: tempWell.css('border-color') || '#eaecf4'
+        };
+        
+        tempBtnPrimary.remove();
+        tempBtnInfo.remove();
+        tempBtnSuccess.remove();
+        tempBtnWarning.remove();
+        tempBtnDanger.remove();
+        tempMuted.remove();
+        tempPanel.remove();
+        tempWell.remove();
+        
+        return colors;
+    }
+
+    function isDarkTheme() {
+        var bodyBg = $('body').css('background-color');
+        if (!bodyBg) return false;
+        var rgb = bodyBg.match(/\d+/g);
+        if (!rgb || rgb.length < 3) return false;
+        var r = parseInt(rgb[0]);
+        var g = parseInt(rgb[1]);
+        var b = parseInt(rgb[2]);
+        var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+
+    var themeColors = getThemeColors();
+    var isDark = isDarkTheme();
+    
+    // Inject dynamic CSS overrides using theme colors
+    var dynamicStyles = 
+        '.panel { border-radius: 8px !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important; border: 1px solid ' + themeColors.panelBorder + ' !important; overflow: hidden !important; margin-bottom: 20px !important; }' +
+        '.panel-heading { border-top-left-radius: 8px !important; border-top-right-radius: 8px !important; padding: 12px 15px !important; font-weight: bold !important; }' +
+        '.btn { border-radius: 6px !important; font-weight: bold !important; padding: 6px 14px !important; transition: all 0.2s ease-in-out !important; }' +
+        '.btn-sm { border-radius: 4px !important; padding: 4px 10px !important; }' +
+        '.btn:hover { transform: translateY(-1px) !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important; }' +
+        '.btn:active { transform: translateY(0px) !important; box-shadow: none !important; }' +
+        '.custom-tabs > li > a { color: ' + themeColors.muted + ' !important; }' +
+        '.custom-tabs > li.active > a, .custom-tabs > li.active > a:hover, .custom-tabs > li.active > a:focus {' +
+        '    color: ' + themeColors.primary + ' !important;' +
+        '    border-bottom: 3px solid ' + themeColors.primary + ' !important;' +
+        '    background: transparent !important;' +
+        '}' +
+        '.custom-tabs > li > a:hover {' +
+        '    color: ' + themeColors.primary + ' !important;' +
+        '    border-bottom: 3px solid ' + themeColors.panelBorder + ' !important;' +
+        '    background: transparent !important;' +
+        '}' +
+        '.panel-default { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+        '.panel-default > .panel-heading { background-color: ' + themeColors.wellBg + ' !important; border-bottom: 1px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.primary + ' !important; }' +
+        '.panel-kpi { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+        '.panel-kpi-info { border-left: 4px solid ' + themeColors.info + ' !important; }' +
+        '.panel-kpi-primary { border-left: 4px solid ' + themeColors.primary + ' !important; }' +
+        '.panel-kpi-warning { border-left: 4px solid ' + themeColors.warning + ' !important; }' +
+        '.panel-kpi-danger { border-left: 4px solid ' + themeColors.danger + ' !important; }' +
+        '.form-control { background-color: ' + (isDark ? themeColors.wellBg : '#ffffff') + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + (isDark ? '#eaecf4' : '#495057') + ' !important; }' +
+        '.input-group-addon { background-color: ' + themeColors.wellBg + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+        '.table > thead > tr { background-color: ' + themeColors.wellBg + ' !important; }' +
+        '.table > thead > tr > th { border-bottom: 2px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+        '.table > tbody > tr > td { border-top: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+        '.table-striped > tbody > tr:nth-of-type(odd) { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)') + ' !important; }' +
+        '.table-hover > tbody > tr:hover { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)') + ' !important; }';
+
+    if (isDark) {
+        dynamicStyles += 
+            'h4, h5, h2, td, th { color: #eaecf4 !important; }' +
+            '.panel-kpi .text-muted { color: #a0a2ad !important; }';
+    }
+
+    $('<style>').prop('type', 'text/css').html(dynamicStyles).appendTo('head');
+
+    // 2. Global State Variable for ChartJS
+    var distributionChart = null;
+
+    // 3. Tab Autoload Initializer
+    loadMutasiSaldo();
+    loadStokKritis();
+    loadNilaiPersediaan();
+
+    // Trigger updates when tab is active
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href");
+        if (target === "#stok-kritis-tab") {
+            loadStokKritis();
+        } else if (target === "#nilai-persediaan-tab") {
+            loadNilaiPersediaan();
+        } else if (target === "#mutasi-saldo-tab") {
+            loadMutasiSaldo();
+        }
+    });
+
+    // 4. TAB 1: KARTU STOK SUBMISSION HANDLER
+    $('#form-kartu-stok').submit(function(e) {
+        e.preventDefault();
+        var kode_item = $('#kartu-barang').val();
+        var kode_lokasi = $('#kartu-lokasi').val();
+        var tgl_awal = $('#kartu-tgl-awal').val();
+        var tgl_akhir = $('#kartu-tgl-akhir').val();
+        var label_barang = $('#kartu-barang').text() || 'Semua';
+
+        if(!kode_item) {
+            alert('Pilih barang terlebih dahulu!');
+            return;
+        }
+
+        $('#tbody-kartu-stok').html('<tr><td colspan="8" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        
+        // Update print meta info
+        $('#print-kartu-detail').text('Barang: ' + label_barang + ' | Lokasi: ' + ($('#kartu-lokasi option:selected').text()) + ' | Periode: ' + tgl_awal + ' s/d ' + tgl_akhir);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporankartustok")?}', {
+            kode_item: kode_item,
+            kode_lokasi: kode_lokasi,
+            tgl_awal: tgl_awal,
+            tgl_akhir: tgl_akhir
+        }, function(data) {
+            $('#tbody-kartu-stok').html(data);
+        });
+    });
+
+    // 5. TAB 2: MUTASI & SALDO DISPLAYER
+    $('#mutasi-lokasi, #mutasi-kategori, #mutasi-tgl-awal, #mutasi-tgl-akhir').change(function() {
+        loadMutasiSaldo();
+    });
+    $('#mutasi-cari').keyup(function() {
+        loadMutasiSaldo();
+    });
+
+    function loadMutasiSaldo() {
+        var kode_lokasi = $('#mutasi-lokasi').val();
+        var kategori = $('#mutasi-kategori').val();
+        var tgl_awal = $('#mutasi-tgl-awal').val();
+        var tgl_akhir = $('#mutasi-tgl-akhir').val();
+        var cari = $('#mutasi-cari').val();
+
+        $('#tbody-mutasi-saldo').html('<tr><td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        
+        // Update print meta info
+        $('#print-mutasi-detail').text('Lokasi: ' + ($('#mutasi-lokasi option:selected').text()) + ' | Kategori: ' + (kategori || 'Semua') + ' | Periode: ' + tgl_awal + ' s/d ' + tgl_akhir);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporanmutasisaldo")?}', {
+            kode_lokasi: kode_lokasi,
+            kategori: kategori,
+            tgl_awal: tgl_awal,
+            tgl_akhir: tgl_akhir,
+            cari: cari
+        }, function(data) {
+            $('#tbody-mutasi-saldo').html(data);
+        });
+    }
+
+    // 6. TAB 3: STOK KRITIS & MINUS HANDLER
+    $('#kritis-lokasi').change(function() {
+        loadStokKritis();
+    });
+    $('#btn-refresh-kritis').click(function() {
+        loadStokKritis();
+    });
+
+    function loadStokKritis() {
+        var kode_lokasi = $('#kritis-lokasi').val();
+        $('#tbody-stok-kritis').html('<tr><td colspan="8" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporanstokkritis")?}', {
+            kode_lokasi: kode_lokasi
+        }, function(data) {
+            $('#tbody-stok-kritis').html(data);
+            
+            // Extract the quantity of critical & negative items for KPI
+            var k_rows = $('#tbody-stok-kritis tr.danger, #tbody-stok-kritis tr.warning');
+            var minus_count = $('#tbody-stok-kritis tr td span:contains("STOK MINUS")').length;
+            var kritis_count = k_rows.length - minus_count;
+
+            $('#kpi-barang-kritis').text(kritis_count);
+            $('#kpi-barang-minus').text(minus_count);
+        });
+    }
+
+    // 7. TAB 4: VALUASI PERSEDIAAN & CHART PLOTTING
+    $('#nilai-lokasi, #nilai-kategori').change(function() {
+        loadNilaiPersediaan();
+    });
+
+    function loadNilaiPersediaan() {
+        var kode_lokasi = $('#nilai-lokasi').val();
+        var kategori = $('#nilai-kategori').val();
+
+        $('#tbody-nilai-persediaan').html('<tr><td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+        
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporannilaipersediaan")?}', {
+            kode_lokasi: kode_lokasi,
+            kategori: kategori
+        }, function(response) {
+            var data = JSON.parse(response);
+            $('#tbody-nilai-persediaan').html(data.html);
+            $('#kpi-total-nilai').text(data.total_nilai);
+            
+            // Build / Update ChartJS Plot
+            renderChart(data.chart_data);
+            
+            // Update total location count based on select dropdown options length
+            var total_locs = $('#nilai-lokasi option').length - 1; // Subtract "Semua"
+            $('#kpi-total-gudang').text(total_locs);
+        });
+    }
+
+    function renderChart(chartData) {
+        var ctx = document.getElementById('chart-nilai-distribusi').getContext('2d');
+        var labels = Object.keys(chartData);
+        var values = Object.values(chartData);
+
+        if (distributionChart !== null) {
+            distributionChart.destroy();
+        }
+
+        if(labels.length === 0) {
+            labels = ['Kosong'];
+            values = [0];
+        }
+
+        distributionChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: [
+                        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', 
+                        '#858796', '#5a5c69', '#2c9faf', '#3b5998', '#17a2b8'
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 10 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                var val = context.raw || 0;
+                                return label + ': Rp. ' + val.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 8. TAB 5: COMPARE PERIOD HANDLER
+    $('#form-perbandingan').submit(function(e) {
+        e.preventDefault();
+        var p1_awal = $('#compare-p1-awal').val();
+        var p1_akhir = $('#compare-p1-akhir').val();
+        var p2_awal = $('#compare-p2-awal').val();
+        var p2_akhir = $('#compare-p2-akhir').val();
+        var kategori = $('#compare-kategori').val();
+
+        // Update headers to dynamic dates
+        $('#th-compare-p1').text('P1 (' + p1_awal + ' s/d ' + p1_akhir + ')');
+        $('#th-compare-p2').text('P2 (' + p2_awal + ' s/d ' + p2_akhir + ')');
+
+        $('#tbody-perbandingan').html('<tr><td colspan="6" class="text-center"><i class="fa fa-spinner fa-spin"></i> Membandingkan data...</td></tr>');
+        
+        // Update print meta info
+        $('#print-compare-detail').text('Kategori: ' + (kategori || 'Semua') + ' | P1: ' + p1_awal + ' s/d ' + p1_akhir + ' | P2: ' + p2_awal + ' s/d ' + p2_akhir);
+
+        $.post('{?=url(ADMIN."/logistik_non_medis/displaylaporanperbandingan")?}', {
+            p1_awal: p1_awal,
+            p1_akhir: p1_akhir,
+            p2_awal: p2_awal,
+            p2_akhir: p2_akhir,
+            kategori: kategori
+        }, function(data) {
+            $('#tbody-perbandingan').html(data);
+        });
+    });
+
+    // 9. CLIENT-SIDE EXCEL EXPORTER
+    $('.btn-export').click(function() {
+        var target_id = $(this).data('target');
+        var filename = $(this).data('filename');
+        var table = document.getElementById(target_id);
+        if (!table) {
+            alert('Data tidak tersedia untuk di-export.');
+            return;
+        }
+        var html = table.outerHTML;
+
+        // Create a temporary hidden form to post the HTML data to our new backend PhpSpreadsheet writer
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{?=url([ADMIN, "logistik_non_medis", "ExportExcelHtml"])?}';
+        form.target = '_blank';
+
+        var inputFilename = document.createElement('input');
+        inputFilename.type = 'hidden';
+        inputFilename.name = 'filename';
+        inputFilename.value = filename;
+        form.appendChild(inputFilename);
+
+        var inputHtml = document.createElement('input');
+        inputHtml.type = 'hidden';
+        inputHtml.name = 'html';
+        inputHtml.value = html;
+        form.appendChild(inputHtml);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    });
+
+    // 10. CLIENT-SIDE PRINT ACTION
+    $('.btn-print').click(function() {
+        var target_id = $(this).data('target');
+        var printContents = document.getElementById(target_id).innerHTML;
+        var originalContents = document.body.innerHTML;
+        
+        document.body.innerHTML = printContents;
+        window.print();
+        
+        // Restore page state
+        document.body.innerHTML = originalContents;
+        
+        // Re-execute bindings by reloading page
+        window.location.reload();
+    });
+});
+</script>

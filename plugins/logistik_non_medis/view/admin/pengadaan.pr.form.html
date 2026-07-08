@@ -1,0 +1,244 @@
+<div class="modal-header bg-primary">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-edit"></i> {if: $mode == 'edit'}Edit{else}Tambah{/if} Pengajuan PR</h4>
+</div>
+<form id="formPR" action="{url: [ADMIN, 'logistik_non_medis', 'savepr']}" method="POST" enctype="multipart/form-data">
+    <div class="modal-body">
+        <input type="hidden" name="no_pr" value="{$pr.no_pr}">
+        <input type="hidden" name="old_file_justifikasi" value="{$pr.file_justifikasi}">
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Unit / Departemen Peminta</label>
+                    <select name="kode_unit" class="form-control select2" style="width: 100%;" required>
+                        <option value="">-- Pilih Unit --</option>
+                        {loop: $units as $u}
+                        <option value="{$u.kode_unit}" {if: $u.kode_unit == $pr.kode_unit}selected{/if}>{$u.nama_unit}</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Tanggal Pengajuan</label>
+                    <input type="text" name="tgl_pr" class="form-control datepicker" value="{$pr.tgl_pr}" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-control">
+                        <option value="Draft" {if: $pr.status == 'Draft'}selected{/if}>Draft</option>
+                        <option value="Diajukan" {if: $pr.status == 'Diajukan'}selected{/if}>Diajukan</option>
+                        <option value="Disetujui" {if: $pr.status == 'Disetujui'}selected{/if}>Disetujui</option>
+                        <option value="Ditolak" {if: $pr.status == 'Ditolak'}selected{/if}>Ditolak</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label>Alasan / Justifikasi Permintaan</label>
+                    <textarea name="justifikasi" class="form-control" rows="2" placeholder="Sebutkan alasan permintaan barang ini...">{$pr.justifikasi}</textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Lampiran Justifikasi (Optional)</label>
+                    <input type="file" name="file_justifikasi" class="form-control">
+                    {if: !empty($pr.file_justifikasi)}
+                    <p class="help-block"><i class="fa fa-paperclip"></i> File saat ini: <a href="{url: ['uploads', 'logistik_non_medis', 'pr', $pr.file_justifikasi]}" target="_blank">{$pr.file_justifikasi}</a></p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 15px; margin-bottom: 5px;">
+            <div class="col-md-6">
+                <h5 style="margin: 5px 0;"><b><i class="fa fa-list"></i> Daftar Barang yang Diminta</b></h5>
+            </div>
+            <div class="col-md-6 text-right">
+                <button type="button" class="btn btn-info btn-sm" onclick="ambilDariRKBU()"><i class="fa fa-search"></i> Ambil dari RKBU</button>
+                <button type="button" class="btn btn-success btn-sm" onclick="tambahBarisPR()"><i class="fa fa-plus"></i> Tambah Baris</button>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-condensed table-striped" id="tabelItemPR">
+            <thead>
+                <tr class="bg-info">
+                    <th width="40%">Nama Barang</th>
+                    <th width="15%">Jumlah</th>
+                    <th width="20%">Satuan</th>
+                    <th width="5%" class="text-center">#</th>
+                </tr>
+            </thead>
+            <tbody>
+                {if: $mode == 'edit'}
+                    {loop: $pr_items as $i => $item}
+                    <tr>
+                        <td>
+                            <select name="items[{$i}][kode_item]" class="form-control select2-barang" style="width: 100%;" required>
+                                <option value="">-- Cari Barang --</option>
+                                {loop: $items as $it}
+                                <option value="{$it.kode_item}" data-satuan="{$it.satuan_dasar}" {if: $it.kode_item == $item.kode_item}selected{/if}>{$it.nama_barang}</option>
+                                {/loop}
+                            </select>
+                        </td>
+                        <td><input type="number" name="items[{$i}][jumlah]" class="form-control input-sm" value="{$item.jumlah}" step="any" min="0.01" required></td>
+                        <td>
+                            <select name="items[{$i}][satuan]" class="form-control input-sm">
+                                <option value="">-- Satuan --</option>
+                                {loop: $satuans as $s}
+                                <option value="{$s.nama_satuan}" {if: $s.nama_satuan == $item.satuan}selected{/if}>{$s.nama_satuan}</option>
+                                {/loop}
+                            </select>
+                        </td>
+                        <td class="text-center"><button type="button" class="btn btn-danger btn-xs" onclick="hapusBarisPR(this)"><i class="fa fa-times"></i></button></td>
+                    </tr>
+                    {/loop}
+                {else}
+                    <tr>
+                        <td>
+                            {if: !empty($prefill) && empty($matched_item)}
+                            <div class="alert alert-warning" style="padding: 5px; margin-bottom: 5px; font-size: 11px;">
+                                <i class="fa fa-exclamation-triangle"></i> Barang E-Katalog "{$prefill.nama_produk}" tidak ditemukan di database lokal. Silakan pilih barang manual.
+                            </div>
+                            {/if}
+                            <select name="items[0][kode_item]" class="form-control select2-barang" style="width: 100%;" required>
+                                <option value="">-- Cari Barang --</option>
+                                {loop: $items as $it}
+                                <option value="{$it.kode_item}" data-satuan="{$it.satuan_dasar}" {if: !empty($matched_item) && ($it.kode_item == $matched_item.kode_item)}selected{/if}>{$it.nama_barang}</option>
+                                {/loop}
+                            </select>
+                        </td>
+                        <td><input type="number" name="items[0][jumlah]" class="form-control input-sm" value="1" step="any" min="0.01" required></td>
+                        <td>
+                            <select name="items[0][satuan]" class="form-control input-sm">
+                                <option value="">-- Satuan --</option>
+                                {loop: $satuans as $s}
+                                <option value="{$s.nama_satuan}" {if: (!empty($matched_item) && ($s.nama_satuan == $matched_item.satuan_dasar)) || (!empty($prefill) && ($s.nama_satuan == $prefill.satuan))}selected{/if}>{$s.nama_satuan}</option>
+                                {/loop}
+                            </select>
+                        </td>
+                        <td class="text-center"><button type="button" class="btn btn-danger btn-xs" onclick="hapusBarisPR(this)"><i class="fa fa-times"></i></button></td>
+                    </tr>
+                {/if}
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-primary" id="btnSimpanPR"><i class="fa fa-save"></i> Simpan Pengajuan</button>
+    </div>
+</form>
+
+<script>
+$(document).ready(function() {
+    $('.select2').select2();
+    initSelect2Barang();
+    $('.datepicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+    
+    // Cache options for cloning rows
+    cachedBarangOptions = $('#tabelItemPR tbody tr:first select.select2-barang').html();
+    cachedSatuanOptions = $('#tabelItemPR tbody tr:first select[name*="[satuan]"]').html();
+});
+
+var cachedBarangOptions = '';
+var cachedSatuanOptions = '';
+
+function initSelect2Barang() {
+    $('.select2-barang').select2({
+        dropdownParent: $('#modalPR')
+    }).on('change', function() {
+        var satuan = $(this).find(':selected').data('satuan');
+        $(this).closest('tr').find('select[name*="[satuan]"]').val(satuan);
+    });
+}
+
+var rowCountPR = {if: $mode == 'edit'}{count: $pr_items}{else}1{/if};
+function tambahBarisPR() {
+    var items_options = cachedBarangOptions || $('#tabelItemPR tbody tr:first select.select2-barang').html();
+    var satuan_options = cachedSatuanOptions || $('#tabelItemPR tbody tr:first select[name*="[satuan]"]').html();
+    var html = '<tr>' +
+        '<td><select name="items['+rowCountPR+'][kode_item]" class="form-control select2-barang" style="width: 100%;" required>' + items_options + '</select></td>' +
+        '<td><input type="number" name="items['+rowCountPR+'][jumlah]" class="form-control input-sm" value="1" step="any" min="0.01" required></td>' +
+        '<td><select name="items['+rowCountPR+'][satuan]" class="form-control input-sm">' + satuan_options + '</select></td>' +
+        '<td class="text-center"><button type="button" class="btn btn-danger btn-xs" onclick="hapusBarisPR(this)"><i class="fa fa-times"></i></button></td>' +
+        '</tr>';
+    $('#tabelItemPR tbody').append(html);
+    initSelect2Barang();
+    rowCountPR++;
+}
+
+function hapusBarisPR(btn) {
+    if($('#tabelItemPR tbody tr').length > 1) {
+        $(btn).closest('tr').remove();
+    } else {
+        alert('Minimal harus ada satu item barang!');
+    }
+}
+
+function ambilDariRKBU() {
+    var kode_unit = $('select[name="kode_unit"]').val();
+    if(kode_unit == '') {
+        alert('Pilih Unit terlebih dahulu!');
+        return;
+    }
+
+    if(confirm('Ambil seluruh item dari Perencanaan Kebutuhan (RKBU) yang telah disetujui untuk unit ini?')) {
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "loadrkbuitems"])?}',
+            type: 'POST',
+            data: { kode_unit: kode_unit },
+            dataType: 'json',
+            success: function(res) {
+                if(res.status == 'success') {
+                    if(res.items.length == 0) {
+                        alert('Tidak ada data perencanaan (RKBU) yang disetujui untuk unit ini pada tahun berjalan.');
+                        return;
+                    }
+                    
+                    // Bersihkan baris kosong jika ada
+                    if($('#tabelItemPR tbody tr').length == 1 && $('#tabelItemPR tbody tr:first select').val() == '') {
+                        $('#tabelItemPR tbody').empty();
+                    }
+
+                    res.items.forEach(function(item) {
+                        tambahBarisPRWithData(item.kode_item, item.total_qty, item.satuan_dasar);
+                    });
+                    alert(res.items.length + ' item berhasil dimuat dari RKBU.');
+                } else {
+                    alert(res.message);
+                }
+            }
+        });
+    }
+}
+
+function tambahBarisPRWithData(kode_item, jumlah, satuan) {
+    var items_options = cachedBarangOptions || $('#tabelItemPR tbody tr:first select.select2-barang').html();
+    var satuan_options = cachedSatuanOptions || $('#tabelItemPR tbody tr:first select[name*="[satuan]"]').html();
+    
+    var html = '<tr>' +
+        '<td><select name="items['+rowCountPR+'][kode_item]" class="form-control select2-barang" style="width: 100%;" required>' + items_options + '</select></td>' +
+        '<td><input type="number" name="items['+rowCountPR+'][jumlah]" class="form-control input-sm" value="'+jumlah+'" step="any" min="0.01" required></td>' +
+        '<td><select name="items['+rowCountPR+'][satuan]" class="form-control input-sm">' + satuan_options + '</select></td>' +
+        '<td class="text-center"><button type="button" class="btn btn-danger btn-xs" onclick="hapusBarisPR(this)"><i class="fa fa-times"></i></button></td>' +
+        '</tr>';
+    
+    var $row = $(html);
+    $('#tabelItemPR tbody').append($row);
+    
+    $row.find('select[name*="[kode_item]"]').val(kode_item);
+    $row.find('select[name*="[satuan]"]').val(satuan);
+    
+    initSelect2Barang();
+    rowCountPR++;
+}
+</script>

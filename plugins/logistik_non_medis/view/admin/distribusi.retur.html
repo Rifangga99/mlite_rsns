@@ -1,0 +1,94 @@
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading" style="overflow: hidden;">
+				<h3 class="panel-title pull-left" style="line-height: 34px;"><i class="fa fa-undo"></i> Retur Barang dari Unit</h3>
+				<div class="btn-group pull-right">
+					<button class="btn btn-primary" id="btn_tambah_retur"><i class="fa fa-plus"></i> Tambah Retur</button>
+				</div>
+			</div>
+			<div class="panel-body">
+				<div class="well well-sm">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="input-group">
+								<input type="text" id="cari_retur" class="form-control" placeholder="Cari No. Retur, SPPB, atau Unit...">
+								<span class="input-group-btn">
+									<button class="btn btn-default" type="button" id="btn_cari_retur"><i class="fa fa-search"></i> Cari</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="display_retur"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Form Retur -->
+<div class="modal fade" id="modal_retur" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div id="form_retur_container"></div>
+		</div>
+	</div>
+</div>
+
+<script>
+function loadRetur(halaman = 1, cari = '') {
+    $('#display_retur').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i><br>Memuat data...</div>');
+    $.post('{?=url([ADMIN, "logistik_non_medis", "displayretur"])?}', {halaman: halaman, cari: cari}, function(data) {
+        $('#display_retur').html(data);
+    });
+}
+
+$(document).ready(function() {
+    loadRetur();
+
+    $('#btn_cari_retur').click(function() {
+        loadRetur(1, $('#cari_retur').val());
+    });
+
+    $('#cari_retur').keypress(function(e) {
+        if(e.which == 13) loadRetur(1, $('#cari_retur').val());
+    });
+
+    $(document).on('click', '.pagination li a', function(e) {
+        e.preventDefault();
+        var halaman = $(this).attr('data-halaman');
+        loadRetur(halaman, $('#cari_retur').val());
+    });
+
+    $('#btn_tambah_retur').click(function() {
+        $('#form_retur_container').html('<div class="modal-body text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+        $('#modal_retur').modal('show');
+        $.post('{?=url([ADMIN, "logistik_non_medis", "formretur"])?}', {mode: 'add'}, function(data) {
+            $('#form_retur_container').html(data);
+        });
+    });
+
+    $(document).on('click', '.btn-edit-retur', function() {
+        var no_retur = $(this).data('no-retur');
+        $('#form_retur_container').html('<div class="modal-body text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+        $('#modal_retur').modal('show');
+        $.post('{?=url([ADMIN, "logistik_non_medis", "formretur"])?}', {mode: 'edit', no_retur: no_retur}, function(data) {
+            $('#form_retur_container').html(data);
+        });
+    });
+
+    $(document).on('click', '.btn-hapus-retur', function() {
+        var no_retur = $(this).data('no-retur');
+        if (confirm('Apakah Anda yakin ingin menghapus data retur ini?')) {
+            $.post('{?=url([ADMIN, "logistik_non_medis", "hapusretur"])?}', {no_retur: no_retur}, function(data) {
+                var response = JSON.parse(data);
+                if (response.status == 'success') {
+                    loadRetur($('#current_halaman').val(), $('#cari_retur').val());
+                } else {
+                    alert(response.message);
+                }
+            });
+        }
+    });
+});
+</script>

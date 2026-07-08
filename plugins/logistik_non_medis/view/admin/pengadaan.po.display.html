@@ -1,0 +1,84 @@
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>No. PO</th>
+                <th>Tgl PO</th>
+                <th>Vendor</th>
+                <th>Total Nilai</th>
+                <th>Status</th>
+                <th width="150">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($po)}
+                {loop: $po as $row}
+                <tr>
+                    <td>{?= $index + 1 + (($halaman - 1) * 10) ?}</td>
+                    <td><b>{$row.no_po}</b></td>
+                    <td>{$row.tgl_po}</td>
+                    <td>{$row.nama_vendor}</td>
+                    <td>{$row.grand_total_formatted}</td>
+                    <td>
+                        {if: $row.status == 'Draft'}
+                            <span class="label label-default">Draft</span>
+                        {elseif: $row.status == 'Terkirim'}
+                            <span class="label label-info">Terkirim</span>
+                        {elseif: $row.status == 'Sebagian Diterima'}
+                            <span class="label label-warning">Sebagian Diterima</span>
+                        {elseif: $row.status == 'Selesai'}
+                            <span class="label label-success">Selesai</span>
+                        {elseif: $row.status == 'Diamandemen'}
+                            <span class="label label-primary">Diamandemen</span>
+                        {elseif: $row.status == 'Dibatalkan'}
+                            <span class="label label-danger">Dibatalkan</span>
+                        {/if}
+                    </td>
+                    <td>
+                        <a href="{?=url([ADMIN, 'logistik_non_medis', 'cetakpo'])?}&id={$row.id}" target="_blank" class="btn btn-default btn-xs" title="Cetak PO"><i class="fa fa-print"></i></a>
+                        {if: $row.status == 'Draft'}
+                        <button type="button" class="btn btn-primary btn-xs edit-po" data-id="{$row.id}" title="Edit"><i class="fa fa-pencil"></i></button>
+                        <button type="button" class="btn btn-success btn-xs update-status-po" data-id="{$row.id}" data-status="Terkirim" title="Kirim PO"><i class="fa fa-paper-plane"></i></button>
+                        {if: $admin_mode == 1}
+                        <button type="button" class="btn btn-danger btn-xs delete-po" data-id="{$row.id}" title="Hapus"><i class="fa fa-trash"></i></button>
+                        {/if}
+                        {else}
+                        <button type="button" class="btn btn-info btn-xs edit-po" data-id="{$row.id}" title="Lihat/Amandemen"><i class="fa fa-eye"></i></button>
+                        {if: $row.status != 'Dibatalkan' && $row.status != 'Selesai'}
+                        <button type="button" class="btn btn-danger btn-xs update-status-po" data-id="{$row.id}" data-status="Dibatalkan" title="Batalkan PO"><i class="fa fa-times"></i></button>
+                        {/if}
+                        {/if}
+                    </td>
+                </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="7" class="text-center">Belum ada data PO.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+{if: $jml_halaman > 1}
+<ul class="pagination pagination-po pagination-sm no-margin pull-right">
+    {if: $halaman > 1}
+    <li><a href="#" data-hal="1">&laquo;</a></li>
+    <li><a href="#" data-hal="{?= $halaman - 1 ?}">&lsaquo;</a></li>
+    {/if}
+
+    {for: $i = 1; $i <= $jml_halaman; $i++}
+        {if: $i == $halaman}
+        <li class="active"><span>{?= $i ?}</span></li>
+        {else}
+        <li><a href="#" data-hal="{?= $i ?}">{?= $i ?}</a></li>
+        {/if}
+    {/for}
+
+    {if: $halaman < $jml_halaman}
+    <li><a href="#" data-hal="{?= $halaman + 1 ?}">&rsaquo;</a></li>
+    <li><a href="#" data-hal="{?= $jml_halaman ?}">&raquo;</a></li>
+    {/if}
+</ul>
+{/if}

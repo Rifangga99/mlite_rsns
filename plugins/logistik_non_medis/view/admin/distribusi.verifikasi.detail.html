@@ -1,0 +1,70 @@
+<input type="hidden" name="no_sppb" value="{$no_sppb}" id="no_sppb_hidden">
+<div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="active">
+                    <th>Nama Barang</th>
+                    <th class="text-center" width="100">Jml Minta</th>
+                    <th class="text-center" width="100">Stok Gudang</th>
+                    <th class="text-center" width="100">Sisa Kuota</th>
+                    <th class="text-center" width="150">Jml Disetujui</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loop: $items}
+                <tr>
+                    <td>
+                        <strong>{$value.nama_barang}</strong><br>
+                        <small class="text-muted">{$value.kode_item}</small>
+                    </td>
+                    <td class="text-center">{$value.jumlah} {$value.satuan}</td>
+                    <td class="text-center">
+                        <span class="label {$value.stok_color}">
+                            {$value.stok}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span class="label {$value.kuota_color}">
+                            {$value.kuota_display}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="input-group input-group-sm">
+                            <input type="number" name="items[{$value.id}][jumlah_disetujui]" 
+                                   class="form-control text-center input-approved" 
+                                   value="{$value.jumlah}" 
+                                   max="{$value.stok}"
+                                   step="any">
+                            <span class="input-group-addon">{$value.satuan}</span>
+                        </div>
+                    </td>
+                    <td><small>{$value.keterangan}</small></td>
+                </tr>
+                {/loop}
+            </tbody>
+        </table>
+    </div>
+    <div class="alert alert-info">
+        <i class="fa fa-info-circle"></i> <strong>Tips:</strong> 
+        <ul>
+            <li>Gunakan <strong>Jml Disetujui</strong> untuk penanganan stok terbatas (*Partial Fulfillment*).</li>
+            <li>Label <span class="label label-danger">Merah</span> pada stok menunjukkan stok di gudang tidak mencukupi permintaan.</li>
+            <li>Label <span class="label label-warning">Kuning</span> pada kuota menunjukkan permintaan melebihi sisa perencanaan unit.</li>
+        </ul>
+    </div>
+
+<script>
+$(document).ready(function() {
+    $('.input-approved').on('change keyup', function() {
+        var val = parseFloat($(this).val());
+        var max = parseFloat($(this).attr('max'));
+        if(val > max) {
+            $(this).parent().addClass('has-error');
+            // Optional: Auto caps or just warning
+        } else {
+            $(this).parent().removeClass('has-error');
+        }
+    });
+});
+</script>

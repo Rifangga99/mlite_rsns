@@ -1,0 +1,143 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Purchase Order (PO)</h3>
+                <ul class="nav nav-tabs pull-right panel-options">
+                    <li class="active"><a data-toggle="tab" href="#po-list"><i class="fa fa-table"></i> Daftar PO</a></li>
+                    <li><a data-toggle="tab" href="#po-form" id="btn-add-po"><i class="fa fa-plus"></i> Buat PO Baru</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                <div class="tab-content">
+                    <!-- Tab List -->
+                    <div id="po-list" class="tab-pane fade in active">
+                        <div class="row" style="margin-bottom: 15px;">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <input type="text" id="cari_po" class="form-control" placeholder="Cari No PO / Vendor...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="button" id="btn-cari-po"><i class="fa fa-search"></i> Cari</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="display-po"></div>
+                    </div>
+                    
+                    <!-- Tab Form -->
+                    <div id="po-form" class="tab-pane fade">
+                        <div id="form-po"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+<script type="text/javascript">
+    $(document).ready(function() {
+        loadPO();
+
+        function loadPO(halaman = 1) {
+            console.log("Loading PO... Page:", halaman);
+            var cari = $('#cari_po').val();
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "displaypengadaanpo"])?}',
+                type: 'POST',
+                data: { halaman: halaman, cari: cari },
+                success: function(response) {
+                    console.log("PO loaded successfully.");
+                    $('#display-po').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Failed to load PO:", status, error);
+                    $('#display-po').html('<div class="alert alert-danger">Gagal memuat data PO. Silakan cek koneksi atau log server.</div>');
+                }
+            });
+        }
+
+        $('#btn-cari-po').click(function() {
+            loadPO(1);
+        });
+
+        $('#cari_po').keypress(function(e) {
+            if(e.which == 13) {
+                loadPO(1);
+            }
+        });
+
+        $(document).on('click', '.pagination-po a', function(e) {
+            e.preventDefault();
+            var halaman = $(this).attr('data-hal');
+            loadPO(halaman);
+        });
+
+        $('#btn-add-po').click(function() {
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "formpengadaanpo"])?}',
+                type: 'POST',
+                success: function(response) {
+                    $('#form-po').html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-po', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "formpengadaanpo"])?}',
+                type: 'POST',
+                data: { id: id },
+                success: function(response) {
+                    $('#form-po').html(response);
+                    $('.nav-tabs a[href="#po-form"]').tab('show');
+                }
+            });
+        });
+
+        $(document).on('click', '.delete-po', function() {
+            var id = $(this).data('id');
+            if(confirm('Yakin ingin menghapus PO ini?')) {
+                $.ajax({
+                    url: '{?=url([ADMIN, "logistik_non_medis", "hapuspengadaanpo"])?}',
+                    type: 'POST',
+                    data: { id: id },
+                    dataType: 'json',
+                    success: function(res) {
+                        if(res.status == 'success') {
+                            alert('Data berhasil dihapus');
+                            loadPO();
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                });
+            }
+        });
+
+        $(document).on('click', '.update-status-po', function() {
+            var id = $(this).data('id');
+            var status = $(this).data('status');
+            var pesan = '';
+            if(status == 'Terkirim') pesan = 'Kirim PO ke Vendor?';
+            if(status == 'Dibatalkan') pesan = 'Yakin membatalkan PO ini? PR akan dikembalikan.';
+            
+            if(confirm(pesan)) {
+                $.ajax({
+                    url: '{?=url([ADMIN, "logistik_non_medis", "ubahstatuspo"])?}',
+                    type: 'POST',
+                    data: { id: id, status: status },
+                    dataType: 'json',
+                    success: function(res) {
+                        if(res.status == 'success') {
+                            alert('Status berhasil diubah');
+                            loadPO();
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Berita Acara Serah Terima (BAST)</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h2 { margin: 0; font-size: 18px; }
+        .header h3 { margin: 5px 0 0; font-size: 14px; font-weight: normal; }
+        .bast-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; text-decoration: underline; }
+        .info-table { width: 100%; margin-bottom: 20px; }
+        .info-table td { padding: 3px; vertical-align: top; }
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .item-table th, .item-table td { border: 1px solid #000; padding: 5px; }
+        .item-table th { background-color: #f0f0f0; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .footer-sig { width: 100%; margin-top: 50px; }
+        .footer-sig td { text-align: center; width: 50%; vertical-align: bottom; }
+        .sig-space { height: 80px; }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <h2>RSU NURUSSYIFA</h2>
+        <h3>Jl. Raya Kudus - Pati No.KM. 10, Kauman, Klaling, Kec. Jekulo, Kabupaten Kudus, Jawa Tengah 59382, Telp: (0291) 6948064</h3>
+    </div>
+    
+    <div class="bast-title">BERITA ACARA SERAH TERIMA BARANG (BAST)</div>
+    
+    <p>Pada hari ini, tanggal <strong>{?= $penerimaan['tgl_penerimaan'] ?}</strong>, telah dilakukan serah terima barang kiriman dari vendor sesuai dengan rincian berikut:</p>
+
+    <table class="info-table">
+        <tr>
+            <td width="20%"><b>No. Penerimaan</b></td>
+            <td width="2%">:</td>
+            <td width="28%">{$penerimaan.no_penerimaan}</td>
+            <td width="20%"><b>Nama Vendor</b></td>
+            <td width="2%">:</td>
+            <td width="28%">{$vendor.nama_vendor}</td>
+        </tr>
+        <tr>
+            <td><b>No. PO Referensi</b></td>
+            <td>:</td>
+            <td>{$penerimaan.no_po}</td>
+            <td><b>No. Faktur</b></td>
+            <td>:</td>
+            <td>{$penerimaan.no_faktur}</td>
+        </tr>
+        <tr>
+            <td><b>No. Surat Jalan</b></td>
+            <td>:</td>
+            <td>{$penerimaan.no_surat_jalan}</td>
+            <td><b>Petugas Penerima</b></td>
+            <td>:</td>
+            <td>{$penerimaan.user_input}</td>
+        </tr>
+    </table>
+    
+    <table class="item-table">
+        <thead>
+            <tr>
+                <th width="5%">No</th>
+                <th width="35%">Nama Barang</th>
+                <th width="10%">Qty PO</th>
+                <th width="10%">Qty Terima</th>
+                <th width="10%">Qty Tolak</th>
+                <th width="15%">Batch / Exp</th>
+                <th width="15%">Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop: $items}
+            <tr>
+                <td class="text-center">{?= $value['index'] + 1 ?}</td>
+                <td>{$value.nama_barang}</td>
+                <td class="text-center">{$value.qty_po}</td>
+                <td class="text-center">{$value.qty_terima}</td>
+                <td class="text-center">{$value.qty_tolak}</td>
+                <td>
+                    {if: !empty($value.batch_no)}B: {$value.batch_no}{/if}
+                    {if: !empty($value.tgl_expired)}<br>E: {$value.tgl_expired}{/if}
+                </td>
+                <td>{$value.keterangan}</td>
+            </tr>
+            {/loop}
+        </tbody>
+    </table>
+    
+    <p>Barang-barang tersebut telah diperiksa kuantitas dan kualitasnya. Demikian Berita Acara ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+    
+    <table class="footer-sig">
+        <tr>
+            <td>
+                Diserahkan Oleh (Vendor),<br>
+                <div class="sig-space"></div>
+                (_________________________)
+            </td>
+            <td>
+                Diterima Oleh (RS),<br>
+                <div class="sig-space"></div>
+                (<strong>{$penerimaan.user_input}</strong>)
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

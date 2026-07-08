@@ -1,0 +1,112 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-battery-half"></i> Penetapan Kuota & Alokasi Unit</h3>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="{?=url([ADMIN, 'logistik_non_medis', 'distribusikuota'])?}">Alokasi Kuota</a></li>
+                    <li><a href="{?=url([ADMIN, 'logistik_non_medis', 'monitoringkuota'])?}">Monitoring Sisa Kuota</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                
+                <div class="well filter-well" style="padding:15px; margin-bottom:15px;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-primary" onclick="formKuota()"><i class="fa fa-plus"></i> Tambah Alokasi</button>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <form id="form-cari-kuota" class="form-inline" onsubmit="event.preventDefault(); displayKuota();">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <input type="text" id="cari-kuota" class="form-control input-sm" placeholder="Cari unit / barang / periode..." style="width:250px;">
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-default"><i class="fa fa-search"></i> Cari</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display Wrapper -->
+                <div id="display-kuota-container">
+                    <div class="text-center" style="padding:40px;">
+                        <i class="fa fa-spinner fa-spin fa-2x"></i><br>
+                        Memuat data alokasi kuota...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Container -->
+<div class="modal fade" id="modal-kuota" tabindex="-1" role="dialog" aria-labelledby="modal-kuota-title">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="modal-kuota-content">
+            <!-- Dynamic Content -->
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    displayKuota();
+});
+
+function displayKuota(halaman = 1) {
+    var cari = $('#cari-kuota').val();
+    $.post('{?=url([ADMIN, "logistik_non_medis", "displaykuota"])?}', {
+        halaman: halaman,
+        cari: cari
+    }, function(html) {
+        $('#display-kuota-container').html(html);
+    });
+}
+
+function formKuota(id = '') {
+    $.post('{?=url([ADMIN, "logistik_non_medis", "formkuota"])?}', {
+        id: id
+    }, function(html) {
+        $('#modal-kuota-content').html(html);
+        $('#modal-kuota').modal('show');
+        try { $('.select2').selectator('destroy'); } catch(e) {}
+        $('.select2').select2({
+            dropdownParent: $('#modal-kuota')
+        });
+    });
+}
+
+function saveKuota() {
+    var form = $('#form-kuota-input');
+    $.post('{?=url([ADMIN, "logistik_non_medis", "savekuota"])?}', form.serialize(), function(response) {
+        var data = JSON.parse(response);
+        if(data.status === 'success') {
+            $('#modal-kuota').modal('hide');
+            displayKuota();
+            alert('Alokasi kuota berhasil disimpan.');
+        } else {
+            alert('Gagal menyimpan alokasi kuota.');
+        }
+    });
+}
+
+function hapusKuota(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus penetapan kuota ini?')) {
+        $.post('{?=url([ADMIN, "logistik_non_medis", "hapuskuota"])?}', {
+            id: id
+        }, function(response) {
+            var data = JSON.parse(response);
+            if(data.status === 'success') {
+                displayKuota();
+                alert('Alokasi kuota berhasil dihapus.');
+            } else {
+                alert('Gagal menghapus alokasi kuota.');
+            }
+        });
+    }
+}
+
+function monitoringKuota() {
+    window.location.href = '{?=url([ADMIN, "logistik_non_medis", "monitoringkuota"])?}';
+}
+</script>

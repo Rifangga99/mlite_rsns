@@ -1,0 +1,83 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-file-text"></i> Legalitas & SK Penghapusan Aset</h4>
+</div>
+<form id="skForm" enctype="multipart/form-data" onsubmit="event.preventDefault(); saveSK();">
+    <input type="hidden" name="id" value="{$pengajuan.id}">
+    <div class="modal-body">
+        
+        <div class="alert alert-info">
+            <strong>Penilaian Aset Selesai:</strong><br>
+            Aset: <strong>{$pengajuan.nama_aset}</strong> (Kode: <code>{$pengajuan.kode_aset}</code>)<br>
+            Taksiran Nilai Sisa: <strong>Rp. {?= number_format($pengajuan['nilai_taksiran'], 0, ',', '.') ?}</strong>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Metode Penghapusan Aset <span class="text-danger">*</span></label>
+                    <select class="form-control" name="metode_penghapusan" id="metode_penghapusan" required>
+                        <option value="Lelang" {if: $pengajuan.metode_penghapusan == 'Lelang'}selected{/if}>Lelang (Penjualan / Tukar Tambah)</option>
+                        <option value="Hibah" {if: $pengajuan.metode_penghapusan == 'Hibah'}selected{/if}>Hibah (Pemberian Gratis Sosial)</option>
+                        <option value="Musnah" {if: $pengajuan.metode_penghapusan == 'Musnah'}selected{/if}>Musnah (Peleburan / Pemusnahan total)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Nomor SK Penghapusan <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="no_sk" value="{$pengajuan.no_sk}" placeholder="Contoh: SK-DIR/042/LOG/2026" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label id="label_detail">Detail Transaksi / Catatan Metode <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="detail_metode" id="detail_metode" rows="3" placeholder="Contoh: Lelang terbuka via KPKNL Surabaya / Dihibahkan ke Panti Asuhan Kasih Ibu" required>{$pengajuan.detail_metode}</textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Tanggal SK Resmi <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" name="tgl_sk" value="{$pengajuan.tgl_sk}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Unggah Dokumen SK (PDF / Gambar)</label>
+                    <input type="file" class="form-control" name="file_sk" accept="application/pdf,image/*">
+                    {if: !empty($pengajuan['file_sk'])}
+                        <p class="help-block text-success"><i class="fa fa-paperclip"></i> File SK terunggah: <a href="{?=url($pengajuan['file_sk'])?}" target="_blank">Unduh Dokumen</a></p>
+                    {else}
+                        <p class="help-block">Format didukung: PDF, JPG, PNG. Maksimal 2MB.</p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Terapkan SK & Setujui</button>
+    </div>
+</form>
+
+<script>
+$(function() {
+    // Dynamic placeholder guidance based on selected disposal method
+    $('#metode_penghapusan').on('change', function() {
+        var val = $(this).val();
+        if (val == 'Lelang') {
+            $('#label_detail').html('Detail Pihak Ketiga / Pemenang Lelang <span class="text-danger">*</span>');
+            $('#detail_metode').attr('placeholder', 'Masukkan nama pemenang lelang, instansi pelelang (misal KPKNL), atau detail transaksi tukar tambah...');
+        } else if (val == 'Hibah') {
+            $('#label_detail').html('Detail Penerima Hibah & Alamat <span class="text-danger">*</span>');
+            $('#detail_metode').attr('placeholder', 'Masukkan nama yayasan/instansi penerima hibah, kontak penerima, dan peruntukannya...');
+        } else {
+            $('#label_detail').html('Detail Saksi & Tata Cara Pemusnahan <span class="text-danger">*</span>');
+            $('#detail_metode').attr('placeholder', 'Masukkan nama saksi pemusnahan (Komite K3/SPI), tata cara pemusnahan (dibakar/dihancurkan), dan lokasi...');
+        }
+    }).trigger('change');
+});
+</script>

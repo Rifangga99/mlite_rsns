@@ -1,0 +1,64 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Picking & Packing SPPB</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" id="cari_packing" class="form-control" placeholder="Cari No. SPPB...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="button" onclick="loadPacking()"><i class="fa fa-search"></i> Cari</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="display_packing"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPacking" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="form_packing_content"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    loadPacking();
+});
+
+function loadPacking(halaman = 1) {
+    var cari = $('#cari_packing').val();
+    $.post('{?=url(ADMIN."/logistik_non_medis/displaydistribusipacking")?}', {
+        halaman: halaman,
+        cari: cari
+    }, function(data) {
+        $('#display_packing').html(data);
+    });
+}
+
+function openPicking(no_sppb) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formpicking")?}', {
+        no_sppb: no_sppb
+    }, function(data) {
+        $('#form_packing_content').html(data);
+        $('#modalPacking').modal('show');
+    });
+}
+
+function openPacking(no_sppb) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formpacking")?}', {
+        no_sppb: no_sppb
+    }, function(data) {
+        $('#form_packing_content').html(data);
+        $('#modalPacking').modal('show');
+    });
+}
+</script>

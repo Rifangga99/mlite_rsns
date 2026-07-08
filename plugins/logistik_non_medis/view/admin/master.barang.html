@@ -1,0 +1,84 @@
+<style>
+    #table-master-barang th, #table-master-barang td {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+    .panel-body {
+        padding: 20px;
+    }
+    .action-row {
+        margin-bottom: 25px;
+    }
+</style>
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Data Barang & Katalog <small>(Total: <span id="total-data">0</span>)</small></h3>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="{?=url([ADMIN, 'logistik_non_medis', 'masterbarang'])?}" data-toggle="tab">Data Barang</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                <div class="row clearfix action-row">
+                    <div class="col col-md-6">
+                        <button type="button" class="btn btn-primary" id="btn-tambah-barang"><i class="fa fa-plus"></i> Tambah Barang Baru</button>
+                    </div>
+                    <div class="col col-md-6">
+                        <form action="" class="searchbox-masterbarang">
+                            <div class="input-group">
+                                <input type="text" name="cari" class="form-control" placeholder="Pencarian Nama Barang/Kode/Barcode..." value="">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="submit"><i class="fa fa-search"></i> Cari</button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="table-responsive no-margin">
+                    <table class="table table-striped no-margin dataTable" id="table-master-barang">
+                        <thead>
+                            <tr>
+                                <th>Kode Item</th>
+                                <th>Barcode</th>
+                                <th>Nama Barang</th>
+                                <th>Kategori</th>
+                                <th>Satuan</th>
+                                <th>Harga Ref (HPS)</th>
+                                <th>Status</th>
+                                <th class="text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="master-barang-list">
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                    <p>Memuat data...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="row clearfix" style="margin-top: 15px;">
+                    <div class="col-md-12 text-right">
+                        <ul class="pagination pagination-sm pagination-master-barang" style="margin:0;">
+                            <!-- Pagination goes here -->
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Form -->
+<div class="modal fade" id="modal-form-barang" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="form-barang-content">
+            <!-- Form loaded via AJAX -->
+        </div>
+    </div>
+</div>

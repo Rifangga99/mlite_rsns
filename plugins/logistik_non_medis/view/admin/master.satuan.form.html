@@ -1,0 +1,36 @@
+<form id="form-master-satuan" method="POST">
+    <div class="modal-body">
+        <input type="hidden" name="id" value="{$satuan.id}">
+        <div class="form-group">
+            <label>Kode Satuan <span class="text-danger">*</span></label>
+            <input type="text" name="kode_satuan" class="form-control" value="{$satuan.kode_satuan}" placeholder="Contoh: PCS, DUS, BOX" required>
+        </div>
+        <div class="form-group">
+            <label>Nama Satuan <span class="text-danger">*</span></label>
+            <input type="text" name="nama_satuan" class="form-control" value="{$satuan.nama_satuan}" placeholder="Contoh: Pieces, Dus, Box" required>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label>Satuan Dasar / Terkecil</label>
+                    <input type="text" name="satuan_dasar" class="form-control" value="{$satuan.satuan_dasar}" placeholder="Contoh: PCS (kosongkan jika ini satuan terkecil)">
+                    <p class="help-block"><small>Satuan ini merujuk ke satuan dasar barang tersebut.</small></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Nilai Konversi</label>
+                    <input type="number" name="nilai_konversi" class="form-control" value="{$satuan.nilai_konversi}" min="1" step="any">
+                    <p class="help-block"><small>Isi 1 untuk satuan dasar.</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="alert alert-info">
+            <small><i class="fa fa-info-circle"></i> <b>Tips:</b> Jika anda membuat satuan <b>DUS</b> yang berisi 48 <b>PCS</b>, maka isi Satuan Dasar dengan <b>PCS</b> dan Nilai Konversi dengan <b>48</b>.</small>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-satuan">Simpan</button>
+    </div>
+</form>

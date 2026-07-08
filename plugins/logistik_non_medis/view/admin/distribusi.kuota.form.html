@@ -1,0 +1,131 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" id="modal-kuota-title">{if: $mode == 'edit'}Edit{else}Tambah{/if} Alokasi Kuota</h4>
+</div>
+<div class="modal-body">
+    <form id="form-kuota-input" class="form-horizontal">
+        <input type="hidden" name="id" value="{$kuota.id}">
+        
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Pilih Unit</label>
+            <div class="col-sm-9">
+                <select name="kode_unit" class="form-control select2" style="width:100%;" required>
+                    <option value="">-- Pilih Unit --</option>
+                    {loop: $unit}
+                    <option value="{$value.kode_unit}" {if: $value.kode_unit == $kuota.kode_unit}selected{/if}>{$value.nama_unit}</option>
+                    {/loop}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Pilih Barang</label>
+            <div class="col-sm-9">
+                <select name="kode_item" class="form-control select2" style="width:100%;" required>
+                    <option value="">-- Pilih Barang --</option>
+                    {loop: $barang}
+                    <option value="{$value.kode_item}" {if: $value.kode_item == $kuota.kode_item}selected{/if}>{$value.nama_barang} ({$value.kode_item})</option>
+                    {/loop}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Tipe Periode</label>
+            <div class="col-sm-9">
+                <label class="radio-inline">
+                    <input type="radio" name="periode_tipe" value="Bulanan" {if: $kuota.periode_tipe == 'Bulanan'}checked{/if} onchange="togglePeriodeFields()"> Bulanan
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="periode_tipe" value="Triwulan" {if: $kuota.periode_tipe == 'Triwulan'}checked{/if} onchange="togglePeriodeFields()"> Triwulan
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Tahun</label>
+            <div class="col-sm-9">
+                <input type="number" name="tahun" class="form-control" value="{$kuota.tahun}" required min="2020" max="2100">
+            </div>
+        </div>
+
+        <div class="form-group" id="group-bulan" style="display:none;">
+            <label class="col-sm-3 control-label">Bulan</label>
+            <div class="col-sm-9">
+                <select name="bulan" class="form-control">
+                    <option value="1" {if: $kuota.bulan == 1}selected{/if}>Januari</option>
+                    <option value="2" {if: $kuota.bulan == 2}selected{/if}>Februari</option>
+                    <option value="3" {if: $kuota.bulan == 3}selected{/if}>Maret</option>
+                    <option value="4" {if: $kuota.bulan == 4}selected{/if}>April</option>
+                    <option value="5" {if: $kuota.bulan == 5}selected{/if}>Mei</option>
+                    <option value="6" {if: $kuota.bulan == 6}selected{/if}>Juni</option>
+                    <option value="7" {if: $kuota.bulan == 7}selected{/if}>Juli</option>
+                    <option value="8" {if: $kuota.bulan == 8}selected{/if}>Agustus</option>
+                    <option value="9" {if: $kuota.bulan == 9}selected{/if}>September</option>
+                    <option value="10" {if: $kuota.bulan == 10}selected{/if}>Oktober</option>
+                    <option value="11" {if: $kuota.bulan == 11}selected{/if}>November</option>
+                    <option value="12" {if: $kuota.bulan == 12}selected{/if}>Desember</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group" id="group-triwulan" style="display:none;">
+            <label class="col-sm-3 control-label">Triwulan</label>
+            <div class="col-sm-9">
+                <select name="triwulan" class="form-control">
+                    <option value="1" {if: $kuota.triwulan == 1}selected{/if}>Triwulan I</option>
+                    <option value="2" {if: $kuota.triwulan == 2}selected{/if}>Triwulan II</option>
+                    <option value="3" {if: $kuota.triwulan == 3}selected{/if}>Triwulan III</option>
+                    <option value="4" {if: $kuota.triwulan == 4}selected{/if}>Triwulan IV</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Jumlah Alokasi</label>
+            <div class="col-sm-9">
+                <input type="number" name="jumlah" class="form-control" value="{$kuota.jumlah}" required min="0">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Jenis Alokasi</label>
+            <div class="col-sm-9">
+                <label class="radio-inline">
+                    <input type="radio" name="jenis" value="Utama" {if: $kuota.jenis == 'Utama'}checked{/if}> Utama (baseline)
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="jenis" value="Tambahan" {if: $kuota.jenis == 'Tambahan'}checked{/if}> Tambahan (supplementary)
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Keterangan</label>
+            <div class="col-sm-9">
+                <textarea name="keterangan" class="form-control" rows="3">{$kuota.keterangan}</textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+    <button type="button" class="btn btn-primary" onclick="saveKuota()">Simpan</button>
+</div>
+
+<script>
+$(document).ready(function(){
+    togglePeriodeFields();
+});
+
+function togglePeriodeFields() {
+    var tipe = $('input[name="periode_tipe"]:checked').val();
+    if(tipe === 'Bulanan') {
+        $('#group-bulan').show();
+        $('#group-triwulan').hide();
+    } else {
+        $('#group-bulan').hide();
+        $('#group-triwulan').show();
+    }
+}
+</script>

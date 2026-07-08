@@ -1,0 +1,139 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">{if: $mode == 'edit'}Edit Data Lokasi{else}Tambah Lokasi Baru{/if}</h4>
+</div>
+<form id="form-master-lokasi" enctype="multipart/form-data">
+    <div class="modal-body">
+        <input type="hidden" name="id" value="{$lokasi.id}">
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Kode Lokasi <span class="text-danger">*</span></label>
+                    <input type="text" name="kode_lokasi" class="form-control" value="{$lokasi.kode_lokasi}" readonly required>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label>Nama Lokasi / Keterangan <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_lokasi" class="form-control" value="{$lokasi.nama_lokasi}" placeholder="Misal: Rak A-01" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Zona</label>
+                    <input type="text" name="kode_zona" class="form-control" value="{$lokasi.kode_zona}" placeholder="Zona A">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Rak</label>
+                    <input type="text" name="rak" class="form-control" value="{$lokasi.rak}" placeholder="R-01">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Bin</label>
+                    <input type="text" name="bin" class="form-control" value="{$lokasi.bin}" placeholder="B-01">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Slot</label>
+                    <input type="text" name="slot" class="form-control" value="{$lokasi.slot}" placeholder="S-01">
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Kapasitas Lokasi</label>
+                    <div class="input-group">
+                        <input type="number" step="any" name="kapasitas" class="form-control" value="{$lokasi.kapasitas}">
+                        <span class="input-group-addon" style="padding:0; border:none;">
+                            <select name="satuan_kapasitas" class="form-control" style="width: 80px; border-radius: 0;">
+                                <option value="Unit" {if: $lokasi.satuan_kapasitas == 'Unit'}selected{/if}>Unit</option>
+                                <option value="Box" {if: $lokasi.satuan_kapasitas == 'Box'}selected{/if}>Box</option>
+                                <option value="Kg" {if: $lokasi.satuan_kapasitas == 'Kg'}selected{/if}>Kg</option>
+                                <option value="m3" {if: $lokasi.satuan_kapasitas == 'm3'}selected{/if}>m3</option>
+                            </select>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Tipe Penyimpanan</label>
+                    <select name="tipe_penyimpanan" class="form-control">
+                        <option value="Normal" {if: $lokasi.tipe_penyimpanan == 'Normal'}selected{/if}>Normal / Ambient</option>
+                        <option value="Chilled" {if: $lokasi.tipe_penyimpanan == 'Chilled'}selected{/if}>Chilled (2-8 C)</option>
+                        <option value="Frozen" {if: $lokasi.tipe_penyimpanan == 'Frozen'}selected{/if}>Frozen (< 0 C)</option>
+                        <option value="Heavy" {if: $lokasi.tipe_penyimpanan == 'Heavy'}selected{/if}>Barang Berat / Lantai</option>
+                        <option value="Hazardous" {if: $lokasi.tipe_penyimpanan == 'Hazardous'}selected{/if}>Bahan Berbahaya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-control">
+                        <option value="Aktif" {if: $lokasi.status == 'Aktif'}selected{/if}>Aktif</option>
+                        <option value="Tidak Aktif" {if: $lokasi.status == 'Tidak Aktif'}selected{/if}>Tidak Aktif</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Suhu Minimal (&deg;C)</label>
+                    <input type="number" step="0.1" name="suhu_min" class="form-control" value="{$lokasi.suhu_min}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Suhu Maksimal (&deg;C)</label>
+                    <input type="number" step="0.1" name="suhu_max" class="form-control" value="{$lokasi.suhu_max}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Berat Maksimal (Kg)</label>
+                    <input type="number" step="any" name="berat_max" class="form-control" value="{$lokasi.berat_max}">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Upload Denah Digital <small>(PDF, JPG, PNG)</small></label>
+                    <input type="file" name="denah_digital" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                    {if: !empty($lokasi.denah_digital)}
+                        <p class="help-block text-success"><i class="fa fa-file-image-o"></i> File terunggah: {$lokasi.denah_digital}</p>
+                    {/if}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" style="margin-top: 25px;">
+                    <label style="cursor: pointer;">
+                        <input type="checkbox" name="is_fragile" value="1" {if: $lokasi.is_fragile == 1}checked{/if}> 
+                        <i class="fa fa-glass text-warning"></i> Khusus Barang Pecah Belah (Fragile Only)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-lokasi">Simpan</button>
+    </div>
+</form>

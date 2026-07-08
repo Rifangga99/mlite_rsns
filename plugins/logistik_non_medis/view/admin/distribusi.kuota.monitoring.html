@@ -1,0 +1,95 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-battery-half"></i> Penetapan Kuota & Alokasi Unit</h3>
+                <ul class="nav nav-tabs">
+                    <li><a href="{?=url([ADMIN, 'logistik_non_medis', 'distribusikuota'])?}">Alokasi Kuota</a></li>
+                    <li class="active"><a href="{?=url([ADMIN, 'logistik_non_medis', 'monitoringkuota'])?}">Monitoring Sisa Kuota</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                
+                <div class="well filter-well" style="padding:15px; margin-bottom:15px;">
+                    <form id="form-filter-monitoring" class="row" onsubmit="event.preventDefault(); loadMonitoring();">
+                        <div class="col-md-4">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-weight:bold;">Pilih Unit</label>
+                                <select id="monitor-unit" class="form-control select2" style="width:100%;" required>
+                                    <option value="">-- Pilih Unit --</option>
+                                    {loop: $unit}
+                                    <option value="{$value.kode_unit}">{$value.nama_unit}</option>
+                                    {/loop}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-weight:bold;">Tahun</label>
+                                <input type="number" id="monitor-tahun" class="form-control" value="{?=date('Y')?}" required min="2020" max="2100">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-weight:bold;">Bulan</label>
+                                <select id="monitor-bulan" class="form-control">
+                                    <option value="1" {if: date('m') == 1}selected{/if}>Januari</option>
+                                    <option value="2" {if: date('m') == 2}selected{/if}>Februari</option>
+                                    <option value="3" {if: date('m') == 3}selected{/if}>Maret</option>
+                                    <option value="4" {if: date('m') == 4}selected{/if}>April</option>
+                                    <option value="5" {if: date('m') == 5}selected{/if}>Mei</option>
+                                    <option value="6" {if: date('m') == 6}selected{/if}>Juni</option>
+                                    <option value="7" {if: date('m') == 7}selected{/if}>Juli</option>
+                                    <option value="8" {if: date('m') == 8}selected{/if}>Agustus</option>
+                                    <option value="9" {if: date('m') == 9}selected{/if}>September</option>
+                                    <option value="10" {if: date('m') == 10}selected{/if}>Oktober</option>
+                                    <option value="11" {if: date('m') == 11}selected{/if}>November</option>
+                                    <option value="12" {if: date('m') == 12}selected{/if}>Desember</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2" style="padding-top:23px;">
+                            <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-refresh"></i> Pantau</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Display Wrapper -->
+                <div id="display-monitoring-container">
+                    <div class="alert alert-info text-center" style="margin:20px 0;">
+                        <i class="fa fa-info-circle fa-lg"></i> Silakan pilih Unit dan Periode di atas untuk memantau sisa kuota pemakaian barang.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<script>
+$(document).ready(function(){
+    try { $('.select2').selectator('destroy'); } catch(e) {}
+    $('.select2').select2();
+});
+
+function loadMonitoring() {
+    var unit = $('#monitor-unit').val();
+    var tahun = $('#monitor-tahun').val();
+    var bulan = $('#monitor-bulan').val();
+
+    if(!unit) {
+        alert('Harap pilih unit terlebih dahulu.');
+        return;
+    }
+
+    $('#display-monitoring-container').html('<div class="text-center" style="padding:40px;"><i class="fa fa-spinner fa-spin fa-2x"></i><br>Menghitung realisasi & sisa kuota alokasi...</div>');
+
+    $.post('{?=url([ADMIN, "logistik_non_medis", "displaymonitoring"])?}', {
+        kode_unit: unit,
+        tahun: tahun,
+        bulan: bulan
+    }, function(html) {
+        $('#display-monitoring-container').html(html);
+    });
+}
+</script>

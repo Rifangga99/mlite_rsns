@@ -1,0 +1,226 @@
+<form id="form_retur_action" method="POST">
+	<input type="hidden" name="mode" value="{$mode}">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal">&times;</button>
+		<h4 class="modal-title"><i class="fa fa-undo"></i> {if: $mode == 'add'}Tambah Retur Barang dari Unit{else}Detail & Approval Retur Barang{/if}</h4>
+	</div>
+	<div class="modal-body">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>No. Retur</label>
+					<input type="text" name="no_retur" class="form-control" value="{$retur.no_retur}" readonly>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Tanggal Retur</label>
+					<input type="text" name="tgl_retur" id="tgl_retur_pick" class="form-control" value="{$retur.tgl_retur}" {if: $mode == 'edit'}readonly{/if}>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="form-group">
+					<label>Referensi Permintaan (SPPB)</label>
+					{if: $mode == 'add'}
+					<select name="no_sppb" id="select_sppb" class="form-control select2" style="width: 100%;" required>
+						<option value="">-- Pilih Nomor SPPB --</option>
+						{loop: $sppbs}
+						<option value="{$value.no_sppb}">{$value.no_sppb} - [{$value.nama_unit}]</option>
+						{/loop}
+					</select>
+					{else}
+					<input type="text" name="no_sppb" class="form-control" value="{$retur.no_sppb}" readonly>
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		<div class="row" style="margin-top: 15px;">
+			<div class="col-md-12">
+				<label>Daftar Barang & Rincian Retur</label>
+				<table class="table table-bordered table-striped" id="table_retur_items">
+					<thead>
+						<tr>
+							<th>Nama Barang</th>
+							<th>No. Batch</th>
+							<th class="text-right" style="width: 80px;">Qty Kirim</th>
+							<th class="text-right" style="width: 100px;">Qty Retur</th>
+							<th style="width: 130px;">Alasan</th>
+							<th>Kondisi Fisik</th>
+							{if: $mode == 'edit'}
+							<th>Inspeksi Logistik</th>
+							{/if}
+						</tr>
+					</thead>
+					<tbody id="retur_items_body">
+						{if: $mode == 'edit'}
+						{loop: $retur.items}
+						<tr>
+							<td>
+								<strong>{$value.nama_barang}</strong>
+								<input type="hidden" name="items[{$key}][kode_item]" value="{$value.kode_item}">
+							</td>
+							<td>
+								{$value.batch_no}
+								<input type="hidden" name="items[{$key}][batch_no]" value="{$value.batch_no}">
+							</td>
+							<td class="text-right">
+								<span class="qty-picked-label">{$value.qty}</span>
+							</td>
+							<td class="text-right">
+								<input type="number" name="items[{$key}][qty]" class="form-control text-right qty-retur-input" value="{$value.qty}" min="0" max="{$value.qty}" step="any" {if: $retur.status != 'Pending'}readonly{/if}>
+							</td>
+							<td>
+								<select name="items[{$key}][alasan]" class="form-control" {if: $retur.status != 'Pending'}disabled{/if}>
+									<option value="Sisa" {if: $value.alasan == 'Sisa'}selected{/if}>Sisa</option>
+									<option value="Salah Kirim" {if: $value.alasan == 'Salah Kirim'}selected{/if}>Salah Kirim</option>
+									<option value="Rusak" {if: $value.alasan == 'Rusak'}selected{/if}>Rusak</option>
+								</select>
+							</td>
+							<td>
+								<input type="text" name="items[{$key}][kondisi_fisik]" class="form-control" value="{$value.kondisi_fisik}" placeholder="Catatan kondisi..." {if: $retur.status != 'Pending'}readonly{/if}>
+							</td>
+							{if: $mode == 'edit'}
+							<td>
+								<input type="text" name="inspeksi[{$value.id}]" class="form-control" value="{$value.inspeksi}" placeholder="Catatan inspeksi petugas..." {if: $retur.status != 'Pending'}readonly{/if}>
+							</td>
+							{/if}
+						</tr>
+						{/loop}
+						{else}
+						<tr>
+							<td colspan="6" class="text-center text-muted" id="placeholder_no_sppb">Silakan pilih Nomor SPPB referensi terlebih dahulu.</td>
+						</tr>
+						{/if}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<div class="pull-left">
+			{if: $mode == 'edit' && $retur.status == 'Pending'}
+			<button type="button" class="btn btn-success btn-action-approval" data-action="approve"><i class="fa fa-check"></i> Setujui Retur & Update Stok</button>
+			<button type="button" class="btn btn-danger btn-action-approval" data-action="reject"><i class="fa fa-times"></i> Tolak Retur</button>
+			{/if}
+		</div>
+		<button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+		{if: $mode == 'add' || ($mode == 'edit' && $retur.status == 'Pending')}
+		<button type="submit" class="btn btn-primary" id="btn_save_retur"><i class="fa fa-save"></i> Simpan Draft</button>
+		{/if}
+	</div>
+</form>
+
+<script>
+$(document).ready(function() {
+    $('.select2').select2({
+        dropdownParent: $('#modal_retur')
+    });
+
+    $('#tgl_retur_pick').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+
+    // Load items when SPPB is selected
+    $('#select_sppb').change(function() {
+        var no_sppb = $(this).val();
+        if (no_sppb == '') {
+            $('#retur_items_body').html('<tr><td colspan="6" class="text-center text-muted">Silakan pilih Nomor SPPB referensi terlebih dahulu.</td></tr>');
+            return;
+        }
+
+        $('#retur_items_body').html('<tr><td colspan="6" class="text-center"><i class="fa fa-spinner fa-spin"></i> Memuat item SPPB...</td></tr>');
+
+        $.post('{?=url([ADMIN, "logistik_non_medis", "loadsppbitems"])?}', {no_sppb: no_sppb}, function(response) {
+            var res = JSON.parse(response);
+            if (res.status == 'success' && res.items.length > 0) {
+                var html = '';
+                $.each(res.items, function(key, val) {
+                    var qty_picked = val.qty_picked || val.jumlah_disetujui || val.jumlah || 0;
+                    html += '<tr>';
+                    html += '  <td><strong>' + val.nama_barang + '</strong><input type="hidden" name="items[' + key + '][kode_item]" value="' + val.kode_item + '"></td>';
+                    html += '  <td>' + (val.batch_no || '-') + '<input type="hidden" name="items[' + key + '][batch_no]" value="' + (val.batch_no || '') + '"></td>';
+                    html += '  <td class="text-right"><span class="qty-picked-label">' + qty_picked + '</span></td>';
+                    html += '  <td class="text-right"><input type="number" name="items[' + key + '][qty]" class="form-control text-right qty-retur-input" value="0" min="0" max="' + qty_picked + '" step="any"></td>';
+                    html += '  <td>';
+                    html += '    <select name="items[' + key + '][alasan]" class="form-control">';
+                    html += '      <option value="Sisa">Sisa</option>';
+                    html += '      <option value="Salah Kirim">Salah Kirim</option>';
+                    html += '      <option value="Rusak">Rusak</option>';
+                    html += '    </select>';
+                    html += '  </td>';
+                    html += '  <td><input type="text" name="items[' + key + '][kondisi_fisik]" class="form-control" placeholder="Catatan kondisi..."></td>';
+                    html += '</tr>';
+                });
+                $('#retur_items_body').html(html);
+            } else {
+                $('#retur_items_body').html('<tr><td colspan="6" class="text-center text-danger">Gagal memuat barang atau SPPB kosong.</td></tr>');
+            }
+        });
+    });
+
+    // Form submit for Save Retur
+    $('#form_retur_action').submit(function(e) {
+        e.preventDefault();
+
+        // Qty validation
+        var valid = false;
+        $('.qty-retur-input').each(function() {
+            var qty = parseFloat($(this).val());
+            var max = parseFloat($(this).attr('max'));
+            if (qty > max) {
+                alert('Jumlah retur tidak boleh melebihi jumlah kirim!');
+                $(this).focus();
+                valid = false;
+                return false;
+            }
+            if (qty > 0) {
+                valid = true; // At least one item is being returned
+            }
+        });
+
+        if (!valid) {
+            alert('Harap masukkan jumlah retur (> 0) minimal untuk satu barang!');
+            return false;
+        }
+
+        $('#btn_save_retur').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan...');
+
+        $.post('{?=url([ADMIN, "logistik_non_medis", "saveretur"])?}', $(this).serialize(), function(data) {
+            var res = JSON.parse(data);
+            if (res.status == 'success') {
+                $('#modal_retur').modal('hide');
+                loadRetur($('#current_halaman').val(), $('#cari_retur').val());
+            } else {
+                alert(res.message);
+                $('#btn_save_retur').prop('disabled', false).html('<i class="fa fa-save"></i> Simpan Draft');
+            }
+        });
+    });
+
+    // Approval Actions (Approve / Reject)
+    $('.btn-action-approval').click(function() {
+        var action = $(this).data('action');
+        var msg = action == 'approve' ? 'Apakah Anda yakin menyetujui retur ini dan memperbarui stok gudang?' : 'Apakah Anda yakin menolak retur barang ini?';
+        
+        if (confirm(msg)) {
+            var form_data = $('#form_retur_action').serializeArray();
+            form_data.push({name: 'action', value: action});
+
+            $.post('{?=url([ADMIN, "logistik_non_medis", "approveretur"])?}', form_data, function(data) {
+                var res = JSON.parse(data);
+                if (res.status == 'success') {
+                    $('#modal_retur').modal('hide');
+                    loadRetur($('#current_halaman').val(), $('#cari_retur').val());
+                } else {
+                    alert(res.message);
+                }
+            });
+        }
+    });
+});
+</script>

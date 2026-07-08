@@ -1,0 +1,130 @@
+<div class="modal-header" style="background-color: #f7f7f7; border-bottom: 1px solid #e5e5e5; border-radius: 8px 8px 0 0;">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" style="font-weight: bold; color: #333;">
+        <i class="fa fa-wrench"></i> {if: $mode == 'edit'}Edit Surat Perintah Kerja (WO){else}Terbitkan Surat Perintah Kerja (WO) Baru{/if}
+    </h4>
+</div>
+<form id="woForm" onsubmit="event.preventDefault(); saveWO();">
+    <input type="hidden" name="id" value="{$wo.id}">
+    <div class="modal-body" style="padding: 20px;">
+        <div class="row">
+            <!-- No WO -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444;">No. Work Order</label>
+                    <input type="text" class="form-control" value="{$wo.kode_pemeliharaan}" readonly style="background-color: #f9f9f9; font-weight: bold; color: #555;">
+                </div>
+            </div>
+            <!-- Jenis PM/Corrective -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444;">Jenis Pekerjaan</label>
+                    <select name="jenis_pemeliharaan" class="form-control" style="font-weight: bold;">
+                        <option value="Corrective" {if: $wo.jenis_pemeliharaan == 'Corrective'}selected{/if}>Corrective (Laporan Insiden/Kerusakan)</option>
+                        <option value="Preventive" {if: $wo.jenis_pemeliharaan == 'Preventive'}selected{/if}>Preventive (Perawatan Berkala)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Live Search Aset -->
+        <div class="form-group">
+            <label style="font-weight: bold; color: #444;">Pilih Aset Terkait <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                <input type="text" id="cari_aset_wo" class="form-control" placeholder="Ketik nama atau kode aset..." value="{if: !empty($wo.nama_aset)}[{$wo.kode_aset}] {$wo.nama_aset}{/if}" required {if: !empty($jadwal_id)}readonly style="background-color: #f9f9f9;"{/if}>
+            </div>
+            <input type="hidden" id="kode_aset_wo" name="kode_aset" value="{$wo.kode_aset}">
+            <small class="help-block text-muted">Aset harus terdaftar di modul Registrasi Aset.</small>
+        </div>
+        
+        <!-- Nama Kegiatan / Keluhan -->
+        <div class="form-group">
+            <label style="font-weight: bold; color: #444;">Nama Pekerjaan / Keluhan Utama <span class="text-danger">*</span></label>
+            <input type="text" name="nama_kegiatan" class="form-control" placeholder="Contoh: Lampu Lift Mati / Service Berkala" value="{$wo.nama_kegiatan}" required>
+        </div>
+        
+        <!-- Deskripsi Keluhan Detail -->
+        <div class="form-group">
+            <label style="font-weight: bold; color: #444;">Deskripsi Keluhan Detail / Rincian Instruksi</label>
+            <textarea name="deskripsi" class="form-control" rows="3" placeholder="Jelaskan secara detail masalah atau instruksi pengerjaan...">{$wo.deskripsi}</textarea>
+        </div>
+        
+        <div class="row">
+            <!-- Prioritas -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444;">Tingkat Prioritas</label>
+                    <select name="prioritas" class="form-control" style="font-weight: bold;">
+                        <option value="Rendah" {if: $wo.prioritas == 'Rendah'}selected{/if}>Rendah</option>
+                        <option value="Sedang" {if: $wo.prioritas == 'Sedang'}selected{/if}>Sedang</option>
+                        <option value="Tinggi" {if: $wo.prioritas == 'Tinggi'}selected{/if}>Tinggi</option>
+                        <option value="Darurat" {if: $wo.prioritas == 'Darurat'}selected{/if}>Darurat / Urgent</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Tanggal Target Pengerjaan -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444;">Tanggal Rencana</label>
+                    <input type="date" name="tanggal_direncanakan" class="form-control" value="{$wo.tanggal_direncanakan}" required>
+                </div>
+            </div>
+            
+            <!-- Status Pengerjaan -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444;">Status</label>
+                    <select name="status" class="form-control">
+                        <option value="Menunggu" {if: $wo.status == 'Menunggu'}selected{/if}>Menunggu</option>
+                        <option value="Diproses" {if: $wo.status == 'Diproses'}selected{/if}>Diproses (Aktif)</option>
+                        <option value="Dibatalkan" {if: $wo.status == 'Dibatalkan'}selected{/if}>Dibatalkan</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Tunjuk Rekanan Jasa (Vendor luar) -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444;">Vendor / Rekanan (Opsional)</label>
+                    <select name="kode_rekanan" class="form-control">
+                        <option value="">-- Pengerjaan Internal --</option>
+                        {loop: $rekanan}
+                        <option value="{$value.kode_rekanan}" {if: $wo.kode_rekanan == $value.kode_rekanan}selected{/if}>{$value.nama_rekanan} [Layanan: {$value.jenis_layanan}]</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+            <!-- Nama Teknisi Penanggungjawab -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label style="font-weight: bold; color: #444;">Nama Teknisi Pelaksana</label>
+                    <input type="text" name="nama_teknisi" class="form-control" placeholder="Nama teknisi internal / eksternal..." value="{$wo.nama_teknisi}">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-footer" style="background-color: #f7f7f7; border-top: 1px solid #e5e5e5; border-radius: 0 0 8px 8px;">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Terbitkan WO</button>
+    </div>
+</form>
+
+<script>
+$(function() {
+    // Autocomplete untuk pencarian aset di form WO
+    $("#cari_aset_wo").autocomplete({
+        source: "{?=url(ADMIN.'/logistik_non_medis/searchasetautocomplete')?}",
+        minLength: 1,
+        select: function(event, ui) {
+            $("#kode_aset_wo").val(ui.item.kode_aset);
+            $("#cari_aset_wo").val(ui.item.label);
+            return false;
+        }
+    });
+});
+</script>

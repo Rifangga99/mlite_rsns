@@ -1,0 +1,306 @@
+<style>
+    #table-aset th {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+    #table-aset td {
+        vertical-align: middle !important;
+        padding: 12px 8px;
+    }
+    .filter-well {
+        background-color: #fcfcfc;
+        border: 1px solid #e3e3e3;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-cubes"></i> Registrasi & Manajemen Aset Non-Medis
+                    <small class="pull-right">Total Data: <span id="total-aset-count" class="badge">0</span></small>
+                </h3>
+            </div>
+            <div class="panel-body">
+                
+                <!-- Filter Panel -->
+                <div class="filter-well">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Unit Penugasan</label>
+                            <select id="filter_unit" class="form-control select-filter">
+                                <option value="">-- Semua Unit --</option>
+                                {if: !empty($units)}
+                                {loop: $units}
+                                <option value="{$value.kode_unit}">{$value.nama_unit}</option>
+                                {/loop}
+                                {/if}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Sumber Perolehan</label>
+                            <select id="filter_sumber" class="form-control select-filter">
+                                <option value="">-- Semua Sumber --</option>
+                                <option value="Beli">Beli</option>
+                                <option value="Hibah">Hibah</option>
+                                <option value="APBD">APBD</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Kondisi Aset</label>
+                            <select id="filter_kondisi" class="form-control select-filter">
+                                <option value="">-- Semua Kondisi --</option>
+                                <option value="Baik">Baik</option>
+                                <option value="Rusak Ringan">Rusak Ringan</option>
+                                <option value="Rusak Berat">Rusak Berat</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Pencarian Kata Kunci</label>
+                            <div class="input-group">
+                                <input type="text" id="search_keyword" class="form-control" placeholder="Kode/Nama/Serial No...">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button" id="btn-search-trigger"><i class="fa fa-search"></i> Cari</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button Row -->
+                <div class="row" style="margin-bottom: 20px;">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-primary" id="btn-tambah-aset">
+                            <i class="fa fa-plus-circle"></i> Registrasikan Aset Baru
+                        </button>
+                        <button type="button" class="btn btn-default" onclick="loadAset()" title="Segarkan Data">
+                            <i class="fa fa-refresh"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Table Container -->
+                <div class="table-responsive no-margin">
+                    <table class="table table-striped no-margin dataTable" id="table-aset">
+                        <thead>
+                            <tr>
+                                <th>Kode Aset</th>
+                                <th>Serial Number</th>
+                                <th>Nama Aset</th>
+                                <th>Unit Penugasan</th>
+                                <th>Tanggal Perolehan</th>
+                                <th>Harga Perolehan</th>
+                                <th>Kondisi</th>
+                                <th class="text-right" style="width: 160px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="display-aset">
+                            <tr>
+                                <td colspan="8" class="text-center" style="padding: 40px 0;">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                    <p>Memuat data aset...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Container -->
+                <div class="row" style="margin-top: 15px;">
+                    <div class="col-md-12 text-right">
+                        <ul class="pagination pagination-sm pagination-aset" style="margin: 0;">
+                            <!-- Pagination rendered dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal CRUD Form Aset -->
+<div class="modal fade" id="modal-form-aset" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="form-aset-content">
+            <!-- Loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail & History Aset -->
+<div class="modal fade" id="modal-detail-aset" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="detail-aset-content">
+            <!-- Loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        loadAset(1);
+
+        // Search trigger on enter key
+        $('#search_keyword').on('keypress', function(e) {
+            if(e.which === 13) {
+                e.preventDefault();
+                loadAset(1);
+            }
+        });
+
+        // Search click
+        $('#btn-search-trigger').on('click', function(e) {
+            e.preventDefault();
+            loadAset(1);
+        });
+
+        // Filter dropdowns change
+        $('.select-filter').on('change', function() {
+            loadAset(1);
+        });
+
+        // Trigger Add Form Modal
+        $('#btn-tambah-aset').on('click', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "formasetregistrasi"])?}',
+                type: 'POST',
+                beforeSend: function() {
+                    $('#form-aset-content').html('<div class="text-center" style="padding:50px;"><i class="fa fa-spinner fa-spin fa-2x"></i><p style="margin-top:10px;">Menyiapkan form...</p></div>');
+                    $('#modal-form-aset').modal('show');
+                },
+                success: function(response) {
+                    $('#form-aset-content').html(response);
+                },
+                error: function() {
+                    alert('Gagal memuat form registrasi aset.');
+                    $('#modal-form-aset').modal('hide');
+                }
+            });
+        });
+
+        // Delegated Pagination Clicks
+        $(document).on('click', '.pagination-aset a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('data-page');
+            if(page) {
+                loadAset(page);
+            }
+        });
+
+        // Delegated Edit Button Clicks
+        $(document).on('click', '.btn-edit-aset', function(e) {
+            e.preventDefault();
+            var id = $(this).attr('data-id');
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "formasetregistrasi"])?}',
+                type: 'POST',
+                data: { id: id },
+                beforeSend: function() {
+                    $('#form-aset-content').html('<div class="text-center" style="padding:50px;"><i class="fa fa-spinner fa-spin fa-2x"></i><p style="margin-top:10px;">Memuat data form...</p></div>');
+                    $('#modal-form-aset').modal('show');
+                },
+                success: function(response) {
+                    $('#form-aset-content').html(response);
+                },
+                error: function() {
+                    alert('Gagal memuat data form edit.');
+                    $('#modal-form-aset').modal('hide');
+                }
+            });
+        });
+
+        // Delegated Detail Button Clicks
+        $(document).on('click', '.btn-detail-aset', function(e) {
+            e.preventDefault();
+            var id = $(this).attr('data-id');
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "detailasetregistrasi"])?}',
+                type: 'POST',
+                data: { id: id },
+                beforeSend: function() {
+                    $('#detail-aset-content').html('<div class="text-center" style="padding:50px;"><i class="fa fa-spinner fa-spin fa-2x"></i><p style="margin-top:10px;">Mengambil detail aset...</p></div>');
+                    $('#modal-detail-aset').modal('show');
+                },
+                success: function(response) {
+                    $('#detail-aset-content').html(response);
+                },
+                error: function() {
+                    alert('Gagal memuat detail aset.');
+                    $('#modal-detail-aset').modal('hide');
+                }
+            });
+        });
+
+        // Delegated Label Print Button Clicks
+        $(document).on('click', '.btn-print-aset', function(e) {
+            e.preventDefault();
+            var kode_aset = encodeURIComponent($(this).attr('data-kode'));
+            var print_url = '{?=url([ADMIN, "logistik_non_medis", "asetprintlabel"])?}&kode_aset=' + kode_aset;
+            window.open(print_url, '_blank');
+        });
+
+        // Delegated Delete Button Clicks
+        $(document).on('click', '.btn-hapus-aset', function(e) {
+            e.preventDefault();
+            var id = $(this).attr('data-id');
+            var kode = $(this).attr('data-kode');
+            
+            if(confirm('Apakah Anda yakin ingin menghapus data Registrasi Aset (' + kode + ') ini?')) {
+                $.ajax({
+                    url: '{?=url([ADMIN, "logistik_non_medis", "hapusasetregistrasi"])?}',
+                    type: 'POST',
+                    data: { id: id },
+                    dataType: 'json',
+                    success: function(response) {
+                        if(response.status === 'success') {
+                            alert('Aset berhasil dihapus.');
+                            loadAset(1);
+                        } else {
+                            alert('Gagal menghapus: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Terjadi kesalahan jaringan saat menghapus aset.');
+                    }
+                });
+            }
+        });
+    });
+
+    // Main AJAX loading function
+    function loadAset(page) {
+        if(!page) page = 1;
+        var cari = $('#search_keyword').val();
+        var filter_unit = $('#filter_unit').val();
+        var filter_sumber = $('#filter_sumber').val();
+        var filter_kondisi = $('#filter_kondisi').val();
+
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "displayasetregistrasi"])?}',
+            type: 'POST',
+            data: {
+                halaman: page,
+                cari: cari,
+                filter_unit: filter_unit,
+                filter_sumber: filter_sumber,
+                filter_kondisi: filter_kondisi
+            },
+            beforeSend: function() {
+                $('#display-aset').html('<tr><td colspan="8" class="text-center" style="padding: 40px 0;"><i class="fa fa-spinner fa-spin fa-2x"></i><p style="margin-top:10px;">Segar data...</p></td></tr>');
+            },
+            success: function(response) {
+                $('#display-aset').html(response);
+            },
+            error: function() {
+                $('#display-aset').html('<tr><td colspan="8" class="text-center text-danger" style="padding: 40px 0;"><i class="fa fa-exclamation-triangle fa-2x"></i><p style="margin-top:10px;">Gagal memuat data dari server.</p></td></tr>');
+            }
+        });
+    }
+</script>

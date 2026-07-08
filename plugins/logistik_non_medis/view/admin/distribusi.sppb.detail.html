@@ -1,0 +1,78 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">Detail Permintaan Barang (SPPB)</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-condensed">
+                <tr><th width="150">No. SPPB</th><td>: <strong>{$sppb.no_sppb}</strong></td></tr>
+                <tr><th>Tgl. Permintaan</th><td>: {?=date('d/m/Y', strtotime($sppb.tgl_sppb))?}</td></tr>
+                <tr><th>Unit Pengaju</th><td>: {$sppb.nama_unit}</td></tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-condensed">
+                <tr><th width="150">Status</th><td>: 
+                    {if: $sppb.status == 'Draft'}
+                        <span class="label label-default">Draft</span>
+                    {elseif: $sppb.status == 'Diajukan'}
+                        <span class="label label-info">Diajukan</span>
+                    {elseif: $sppb.status == 'Disetujui Unit'}
+                        <span class="label label-primary">Disetujui Unit</span>
+                    {elseif: $sppb.status == 'Terverifikasi'}
+                        <span class="label label-success">Terverifikasi</span>
+                    {elseif: $sppb.status == 'Selesai'}
+                        <span class="label label-success"><i class="fa fa-check"></i> Selesai</span>
+                    {elseif: $sppb.status == 'Ditolak'}
+                        <span class="label label-danger">Ditolak</span>
+                    {/if}
+                </td></tr>
+                <tr><th>User Input</th><td>: {$sppb.user_input} <small class="text-muted">({$sppb.tgl_input})</small></td></tr>
+                {if: $sppb.user_approve_unit}
+                <tr><th>Approve Unit</th><td>: {$sppb.user_approve_unit} <small class="text-muted">({$sppb.tgl_approve_unit})</small></td></tr>
+                {/if}
+            </table>
+        </div>
+    </div>
+
+    <div class="well well-sm">
+        <strong>Keterangan:</strong><br>
+        {if: !empty($sppb.keterangan)}{?=nl2br($sppb.keterangan)?}{else}-{/if}
+    </div>
+
+    <h4>Daftar Barang</h4>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr class="active">
+                <th width="50">No</th>
+                <th width="150">Kode Barang</th>
+                <th>Nama Barang</th>
+                <th width="100" class="text-right">Jumlah</th>
+                <th width="100">Satuan</th>
+                <th>Catatan Item</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop: $sppb.items}
+                <tr>
+                    <td>{?= $value.index + 1 ?}</td>
+                    <td>{$value.kode_item}</td>
+                    <td>{$value.nama_barang}</td>
+                    <td class="text-right">{$value.jumlah}</td>
+                    <td>{$value.satuan}</td>
+                    <td>{$value.keterangan}</td>
+                </tr>
+            {/loop}
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+    {if: $sppb.status == 'Diajukan'}
+        <button type="button" class="btn btn-primary" onclick="approveUnit('{$sppb.no_sppb}')">Approve Unit</button>
+    {elseif: $sppb.status == 'Disetujui Unit'}
+        <button type="button" class="btn btn-success" onclick="verifikasiLogistik('{$sppb.no_sppb}')">Verifikasi Logistik</button>
+    {/if}
+    <a href="{?=url(ADMIN.'/logistik_non_medis/cetaksppb/'.$sppb.no_sppb)?}" target="_blank" class="btn btn-info"><i class="fa fa-print"></i> Cetak</a>
+</div>

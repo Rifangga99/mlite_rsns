@@ -1,0 +1,115 @@
+<div id="display">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">E-Katalog & E-Purchasing</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="clearfix" style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                        <div class="pull-left" style="padding-bottom: 10px;">
+                            <button type="button" class="btn btn-primary" onclick="importKatalog()"><i class="fa fa-sync-alt"></i> Sinkronisasi Katalog</button>
+                        </div>
+                        <ul class="nav nav-tabs pull-right" role="tablist" style="border-bottom: none; margin-bottom: -1px;">
+                            <li role="presentation" class="active"><a href="#master" aria-controls="master" role="tab" data-toggle="tab" onclick="loadKatalog('master')">Daftar Produk Katalog</a></li>
+                            <li role="presentation"><a href="#history" aria-controls="history" role="tab" data-toggle="tab" onclick="loadKatalog('history')">Riwayat E-Purchasing</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" style="padding-top: 20px;">
+                        <div role="tabpanel" class="tab-pane active" id="master">
+                            <div class="well">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <input type="text" id="cari_katalog" class="form-control" placeholder="Cari Nama Produk, Merk, atau Penyedia...">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" onclick="loadKatalog('master')">Cari</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <button class="btn btn-info" onclick="bandingkanHarga()"><i class="fa fa-balance-scale"></i> Bandingkan Harga</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="katalog_master_content"></div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="history">
+                            <div id="katalog_history_content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEkatalog" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="modal_content"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    loadKatalog('master');
+    
+    $('#cari_katalog').on('keyup', function(e) {
+        if(e.keyCode == 13) {
+            loadKatalog('master');
+        }
+    });
+});
+
+function loadKatalog(mode, halaman = 1) {
+    var cari = $('#cari_katalog').val();
+    var target = (mode == 'master') ? '#katalog_master_content' : '#katalog_history_content';
+    
+    $(target).html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i><br>Memuat data...</div>');
+    
+    $.post(mlite.url + '/' + mlite.admin + '/logistik_non_medis/displayekatalog?t=' + mlite.token, {
+        mode: mode,
+        halaman: halaman,
+        cari: cari
+    }, function(res) {
+        $(target).html(res);
+    });
+}
+
+function importKatalog() {
+    $.post(mlite.url + '/' + mlite.admin + '/logistik_non_medis/formimportekatalog?t=' + mlite.token, function(res) {
+        $('#modal_content').html(res);
+        $('#modalEkatalog').modal('show');
+    });
+}
+
+function bandingkanHarga() {
+    var cari = $('#cari_katalog').val();
+    if(cari == '') {
+        alert('Masukkan nama produk di kolom pencarian untuk dibandingkan harganya.');
+        return;
+    }
+    
+    $.post(mlite.url + '/' + mlite.admin + '/logistik_non_medis/bandingkanharga?t=' + mlite.token, {
+        nama_produk: cari
+    }, function(res) {
+        $('#modal_content').html(res);
+        $('#modalEkatalog').modal('show');
+    });
+}
+
+function viewLink(link) {
+    if(link) {
+        var url = link;
+        if (!/^https?:\/\//i.test(link)) {
+            url = 'https://' + link;
+        }
+        window.open(url, '_blank');
+    } else {
+        alert('Tautan produk tidak tersedia.');
+    }
+}
+</script>

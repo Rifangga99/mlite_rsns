@@ -1,0 +1,97 @@
+<div class="row">
+    <div class="col-md-3 text-center">
+        <div style="background: #f4f4f4; padding: 20px; border-radius: 10px;">
+            <i class="fa fa-building fa-5x text-muted"></i>
+            <h4 style="margin-top: 15px;">{$vendor.kode_vendor}</h4>
+            <span class="label {if: $vendor.status == 'Whitelist'}label-success{else}label-danger{/if}">{$vendor.status}</span>
+        </div>
+        <div style="margin-top: 20px;">
+            <label>Rating</label><br>
+            {loop: range(1, 5) as $i}
+                <i class="fa fa-star fa-lg {if: $i <= $vendor.rating}text-warning{else}text-muted{/if}"></i>
+            {/loop}
+        </div>
+    </div>
+    <div class="col-md-9">
+        <table class="table table-bordered">
+            <tr>
+                <th width="200" class="bg-light">Nama Vendor</th>
+                <td><strong>{$vendor.nama_vendor}</strong></td>
+            </tr>
+            <tr>
+                <th class="bg-light">Alamat</th>
+                <td>{$vendor.alamat}</td>
+            </tr>
+            <tr>
+                <th class="bg-light">Kontak Kantor</th>
+                <td>
+                    <i class="fa fa-phone"></i> {$vendor.no_telp}<br>
+                    <i class="fa fa-envelope"></i> {$vendor.email}<br>
+                    <i class="fa fa-globe"></i> <a href="{$vendor.website}" target="_blank">{$vendor.website}</a>
+                </td>
+            </tr>
+            <tr>
+                <th class="bg-light">PIC Vendor</th>
+                <td><strong>{$vendor.pic_nama}</strong> ({$vendor.pic_kontak})</td>
+            </tr>
+            <tr>
+                <th class="bg-light">Kategori Barang/Jasa</th>
+                <td>
+                    {? $cats = explode(',', $vendor.kategori_vendor) ?}
+                    {loop: $cats as $c}
+                        <span class="label label-info">{$c}</span>
+                    {/loop}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-md-6">
+        <div class="panel panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Data Legalitas</h3></div>
+            <div class="panel-body">
+                <table class="table table-condensed">
+                    <tr><th>NPWP</th><td>{$vendor.npwp}</td></tr>
+                    <tr><th>SIUP / NIB</th><td>{$vendor.siup}</td></tr>
+                    <tr><th>Status PKP</th><td><span class="label label-default">{$vendor.status_pkp}</span></td></tr>
+                </table>
+                <hr>
+                <div class="btn-group btn-group-justified">
+                    {if: !empty($vendor.file_npwp)}
+                        <a href="javascript:void(0)" onclick="previewVendorFile('{$vendor.file_npwp}')" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Preview NPWP</a>
+                    {else}
+                        <a href="#" class="btn btn-default btn-sm disabled"><i class="fa fa-times"></i> NPWP Kosong</a>
+                    {/if}
+                    
+                    {if: !empty($vendor.file_siup)}
+                        <a href="javascript:void(0)" onclick="previewVendorFile('{$vendor.file_siup}')" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Preview SIUP</a>
+                    {else}
+                        <a href="#" class="btn btn-default btn-sm disabled"><i class="fa fa-times"></i> SIUP Kosong</a>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-warning">
+            <div class="panel-heading"><h3 class="panel-title">Informasi Pembayaran</h3></div>
+            <div class="panel-body">
+                <table class="table table-condensed">
+                    <tr><th>Nama Bank</th><td>{$vendor.nama_bank}</td></tr>
+                    <tr><th>No. Rekening</th><td>{$vendor.no_rekening}</td></tr>
+                    <tr><th>Atas Nama</th><td>{$vendor.nama_rekening}</td></tr>
+                </table>
+                <div class="well well-sm" style="margin-top: 10px; font-size: 11px;">
+                    <strong>Catatan Evaluasi:</strong><br>
+                    {if: !empty($vendor.evaluasi)}
+                        {$vendor.evaluasi}
+                    {else}
+                        <em>Belum ada catatan evaluasi.</em>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

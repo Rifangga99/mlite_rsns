@@ -1,0 +1,283 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-cubes"></i> Pengelolaan Stok Real-time</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card-stok card-primary">
+                            <div class="card-body">
+                                <h5>Total Item</h5>
+                                <h2 id="summary-total-item">0</h2>
+                                <i class="fa fa-list icon-bg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-stok card-warning">
+                            <div class="card-body">
+                                <h5>Perlu Reorder</h5>
+                                <h2 id="summary-reorder">0</h2>
+                                <i class="fa fa-shopping-cart icon-bg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-stok card-danger">
+                            <div class="card-body">
+                                <h5>Stok Kritis</h5>
+                                <h2 id="summary-critical">0</h2>
+                                <i class="fa fa-warning icon-bg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-stok card-success">
+                            <div class="card-body">
+                                <h5>Nilai Persediaan</h5>
+                                <h2 id="summary-value">Rp. 0</h2>
+                                <i class="fa fa-money icon-bg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Cari Barang</label>
+                            <input type="text" id="cari-stok" class="form-control" placeholder="Nama barang atau kode...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Filter Lokasi</label>
+                            <select id="filter-lokasi" class="form-control select2">
+                                <option value="">Semua Lokasi</option>
+                                {loop: $lokasi}
+                                <option value="{$value.kode_lokasi}">{$value.nama_lokasi}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-right" style="padding-top: 25px;">
+                        <button class="btn btn-info" id="btn-refresh-stok"><i class="fa fa-refresh"></i> Refresh</button>
+                        <button class="btn btn-success" id="btn-export-stok"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+                    </div>
+                </div>
+
+                <div id="display-stok" class="table-responsive" style="margin-top: 20px;">
+                    <!-- Data will be loaded here via AJAX -->
+                    <div class="text-center" style="padding: 50px;">
+                        <i class="fa fa-spinner fa-spin fa-3x"></i>
+                        <p>Memuat data stok...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mb-4 { margin-bottom: 20px; }
+.card-stok {
+    border-radius: 10px;
+    padding: 20px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+.card-stok:hover { transform: translateY(-5px); }
+.card-stok h5 { margin-top: 0; opacity: 0.8; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+.card-stok h2 { margin: 10px 0 0 0; font-weight: bold; }
+.card-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
+.card-warning { background: linear-gradient(45deg, #f6c23e, #f4b619); }
+.card-danger { background: linear-gradient(45deg, #e74a3b, #be2617); }
+.card-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
+.icon-bg {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 60px;
+    opacity: 0.2;
+}
+/* Popover Styling Improvement */
+.popover {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    background: #2c3e50;
+    color: #fff;
+}
+.popover-title {
+    background: #1a252f;
+    color: #fff;
+    border-bottom: 1px solid #34495e;
+    font-weight: bold;
+    border-radius: 8px 8px 0 0;
+}
+.popover-content {
+    padding: 12px;
+    line-height: 1.6;
+}
+.popover.right > .arrow:after {
+    border-right-color: #2c3e50;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    loadStok(1);
+
+    $('#cari-stok').keyup(function() {
+        loadStok(1);
+    });
+
+    $('#filter-lokasi').change(function() {
+        loadStok(1);
+    });
+
+    $('#btn-refresh-stok').on('click', function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        var icon = btn.find('i');
+        icon.addClass('fa-spin'); // Mulai animasi putar
+        btn.prop('disabled', true);
+        
+        loadStok(1, function() {
+            icon.removeClass('fa-spin'); // Berhenti setelah selesai
+            btn.prop('disabled', false);
+        });
+    });
+
+    $('#btn-export-stok').click(function() {
+        var table = document.querySelector('#display-stok table');
+        if (!table) {
+            alert('Tidak ada data untuk di-export');
+            return;
+        }
+        var html = table.outerHTML;
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{?=url([ADMIN, "logistik_non_medis", "ExportExcelHtml"])?}';
+        form.target = '_blank';
+
+        var inputFilename = document.createElement('input');
+        inputFilename.type = 'hidden';
+        inputFilename.name = 'filename';
+        inputFilename.value = 'Laporan_Stok_Logistik';
+        form.appendChild(inputFilename);
+
+        var inputHtml = document.createElement('input');
+        inputHtml.type = 'hidden';
+        inputHtml.name = 'html';
+        inputHtml.value = html;
+        form.appendChild(inputHtml);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    });
+
+    function loadStok(halaman, callback) {
+        var cari = $('#cari-stok').val();
+        var lokasi = $('#filter-lokasi').val();
+        $.post('{?=url(ADMIN.'/logistik_non_medis/displaygudangstok')?}', {
+            halaman: halaman,
+            cari: cari,
+            lokasi: lokasi
+        }, function(data) {
+            $('#display-stok').html(data);
+            $('.batch-popover').popover(); // Initialize popovers
+            updateSummary();
+            if(typeof callback === 'function') callback();
+        }).fail(function() {
+            if(typeof callback === 'function') callback();
+        });
+    }
+
+    function updateSummary() {
+        var total = $('.stok-row').length;
+        var expired = $('.label-danger:contains("EXPIRED")').length;
+        var near = $('.label-warning:contains("DEKAT EXP")').length;
+        var totalValue = 0;
+        $('.nilai-row').each(function() {
+            var val = $(this).data('value');
+            if(val && !isNaN(val)) {
+                totalValue += parseFloat(val);
+            }
+        });
+
+        $('#summary-total-item').text(total);
+        $('#summary-reorder').text(near); // Reusing reorder for near exp for now
+        $('#summary-critical').text(expired); // Reusing critical for expired for now
+        $('#summary-value').text('Rp. ' + totalValue.toLocaleString('id-ID'));
+        
+        // Update labels if we want more precision
+        if(expired > 0) {
+            $('#summary-critical').closest('.card-stok').find('h5').text('Item Expired');
+        }
+        if(near > 0) {
+            $('#summary-reorder').closest('.card-stok').find('h5').text('Dekat Expire');
+        }
+    }
+
+    // Pagination handler
+    $(document).on('click', '.pagination a', function(e) {
+        e.preventDefault();
+        var halaman = $(this).attr('data-page');
+        loadStok(halaman);
+    });
+
+    // Detail Mutasi Handler
+    $(document).on('click', '.btn-detail-stok', function() {
+        var kode = $(this).data('id');
+        window.location.href = '{?=url([ADMIN, 'logistik_non_medis', 'gudangmutasi'])?}&kode_item=' + kode;
+    });
+
+    // Set Limit Handler (Reuse Master Barang Form)
+    $(document).on('click', '.btn-edit-limit', function() {
+        var kode = $(this).data('id');
+        $.post('{?=url(ADMIN.'/logistik_non_medis/formmasterbarang')?}', {
+            kode_item: kode
+        }, function(data) {
+            $('#modal-master-barang').remove();
+            $('body').append('<div class="modal fade" id="modal-master-barang" tabindex="-1" role="dialog">' +
+                '<div class="modal-dialog modal-lg" role="document">' +
+                '<div class="modal-content">' + data + '</div></div></div>');
+            $('#modal-master-barang').modal('show');
+            $('#modal-master-barang .select2').select2();
+        });
+    });
+
+    // Save logic from Master Barang needed for the modal above
+    $(document).on('submit', '#form-master-barang', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            url: '{?=url(ADMIN.'/logistik_non_medis/savemasterbarang')?}',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                var res = JSON.parse(response);
+                if(res.status == 'success') {
+                    $('#modal-master-barang').modal('hide');
+                    loadStok(1);
+                    alert('Batas stok berhasil diperbarui!');
+                } else {
+                    alert(res.message);
+                }
+            }
+        });
+    });
+});
+</script>

@@ -1,0 +1,67 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="panel-title"><i class="fa fa-handshake-o"></i> Manajemen & Evaluasi Vendor</h3>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <button class="btn btn-primary btn-sm" id="btn-tambah-manajemen"><i class="fa fa-plus"></i> Tambah Data</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row mb-20">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Filter Vendor</label>
+                            <select class="form-control select2" id="filter-vendor">
+                                <option value="">-- Semua Vendor --</option>
+                                {loop: $vendor}
+                                <option value="{$value.kode_vendor}">{$value.nama_vendor}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div id="display-vendor-manajemen">
+                    <div class="text-center p-20">
+                        <i class="fa fa-spinner fa-spin fa-3x"></i>
+                        <p>Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Manajemen -->
+<div class="modal fade" id="modal-manajemen" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="form-vendor-manajemen"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    mlite.logistik_non_medis.loadManajemen();
+    
+    $('#filter-vendor').on('change', function() {
+        mlite.logistik_non_medis.loadManajemen($(this).val());
+    });
+
+    $('#btn-tambah-manajemen').on('click', function() {
+        mlite.logistik_non_medis.formManajemen('', $('#filter-vendor').val());
+    });
+
+    // Cleanup Select2 inside modal when it closes to prevent duplication on filter-vendor
+    $('#modal-manajemen').on('hidden.bs.modal', function() {
+        try { $('#modal-manajemen .select2').select2('destroy'); } catch(e) {}
+        $('#form-vendor-manajemen').empty();
+    });
+});
+</script>

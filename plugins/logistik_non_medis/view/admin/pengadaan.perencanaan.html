@@ -1,0 +1,235 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Perencanaan Kebutuhan (RKBU)</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#rkbu" aria-controls="rkbu" role="tab" data-toggle="tab"><i class="fa fa-list"></i> RKBU per Unit</a></li>
+                    <li role="presentation"><a href="#konsolidasi" aria-controls="konsolidasi" role="tab" data-toggle="tab"><i class="fa fa-cubes"></i> Konsolidasi RKA</a></li>
+                    <li role="presentation"><a href="#analisis" aria-controls="analisis" role="tab" data-toggle="tab"><i class="fa fa-line-chart"></i> Analisis Tren</a></li>
+                    <li role="presentation"><a href="#anggaran" aria-controls="anggaran" role="tab" data-toggle="tab"><i class="fa fa-money"></i> Estimasi Anggaran</a></li>
+                </ul>
+
+                <div class="tab-content" style="margin-top: 20px;">
+
+                    <!-- Tab RKBU -->
+                    <div role="tabpanel" class="tab-pane active" id="rkbu">
+                        <div class="row" style="margin-bottom: 15px;">
+                            <div class="col-md-9">
+                                <input type="text" id="cari_rkbu" class="form-control" placeholder="Cari Unit/Barang/Kode...">
+                            </div>
+                            <div class="col-md-3 text-right">
+                                <button class="btn btn-primary" onclick="tambahRKBU()"><i class="fa fa-plus"></i> Tambah Usulan</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="tbl-perencanaan">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Unit</th>
+                                        <th>Tahun</th>
+                                        <th>Barang</th>
+                                        <th>Total Qty</th>
+                                        <th>Estimasi Anggaran</th>
+                                        <th>Prioritas</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-perencanaan">
+                                    {if: !empty($perencanaan)}
+                                        {loop: $perencanaan as $row}
+                                        <tr>
+                                            <td>{$row.no}</td>
+                                            <td><b>{$row.nama_unit}</b><br><small class="text-muted">{$row.kode_perencanaan}</small></td>
+                                            <td>{$row.tahun}</td>
+                                            <td>{$row.nama_barang}<br><small class="text-muted">{$row.kode_item}</small></td>
+                                            <td>{$row.total_qty} {$row.satuan_dasar}</td>
+                                            <td>Rp. {$row.estimasi}</td>
+                                            <td>
+                                                {if: $row.prioritas == 'Vital'}
+                                                    <span class="label label-danger">Vital</span>
+                                                {elseif: $row.prioritas == 'Essential'}
+                                                    <span class="label label-warning">Essential</span>
+                                                {else}
+                                                    <span class="label label-info">Desirable</span>
+                                                {/if}
+                                            </td>
+                                            <td>
+                                                {if: $row.status == 'Disetujui'}
+                                                    <span class="label label-success">Disetujui</span>
+                                                {elseif: $row.status == 'Diajukan'}
+                                                    <span class="label label-primary">Diajukan</span>
+                                                {elseif: $row.status == 'Ditolak'}
+                                                    <span class="label label-danger">Ditolak</span>
+                                                {else}
+                                                    <span class="label label-default">Draft</span>
+                                                {/if}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-xs btn-info" onclick="viewRKBU('{$row.id}')" title="Lihat Detail"><i class="fa fa-eye"></i></button>
+                                                    <button class="btn btn-xs btn-default" onclick="editRKBU('{$row.id}')" title="Ubah Data"><i class="fa fa-edit"></i></button>
+                                                    <button class="btn btn-xs btn-danger" onclick="hapusRKBU('{$row.id}')" title="Hapus Data"><i class="fa fa-trash"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {/loop}
+                                    {else}
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted" style="padding: 30px;">
+                                                <i class="fa fa-inbox fa-2x"></i><br>Belum ada data perencanaan.
+                                            </td>
+                                        </tr>
+                                    {/if}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Konsolidasi -->
+                    <div role="tabpanel" class="tab-pane" id="konsolidasi">
+                        <div class="well well-sm">
+                            <h4>Rekapitulasi Konsolidasi Tahun {$tahun}</h4>
+                            <p><small>Menampilkan total usulan dari seluruh unit yang telah berstatus <b>Disetujui</b>.</small></p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr class="bg-primary">
+                                        <th>No</th>
+                                        <th>Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th>Satuan</th>
+                                        <th class="text-right">Total Kebutuhan</th>
+                                        <th class="text-right">Harga Rata-rata</th>
+                                        <th class="text-right">Estimasi Biaya</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {if: !empty($konsolidasi)}
+                                        {loop: $konsolidasi as $row}
+                                        <tr>
+                                            <td>{$row.no}</td>
+                                            <td>{$row.kode_item}</td>
+                                            <td>{$row.nama_barang}</td>
+                                            <td>{$row.satuan_dasar}</td>
+                                            <td class="text-right"><b>{$row.total_qty}</b></td>
+                                            <td class="text-right">Rp. {$row.harga_avg_fmt}</td>
+                                            <td class="text-right">Rp. {$row.estimasi}</td>
+                                        </tr>
+                                        {/loop}
+                                    {else}
+                                        <tr>
+                                            <td colspan="7" class="text-center">Tidak ada data yang disetujui untuk dikonsolidasi.</td>
+                                        </tr>
+                                    {/if}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn btn-success" onclick="window.print()"><i class="fa fa-print"></i> Cetak Konsolidasi</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Analisis Tren -->
+                    <div role="tabpanel" class="tab-pane" id="analisis">
+                        <div class="well well-sm">
+                            <h4>Analisis Tren Kebutuhan</h4>
+                            <p>Fitur ini membandingkan data usulan tahun berjalan dengan data pemakaian tahun sebelumnya.</p>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle"></i> <strong>Informasi:</strong> Data analisis tren akan terbentuk secara otomatis setelah modul ini berjalan minimal selama 2 periode tahunan atau jika data mutasi stok tersedia di sistem.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body text-center" style="height: 300px; padding-top: 100px;">
+                                <i class="fa fa-line-chart fa-5x text-muted"></i>
+                                <h4>Visualisasi Tren Konsumsi</h4>
+                                <p>Menunggu akumulasi data transaksi atau integrasi modul stok.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Estimasi Anggaran -->
+                    <div role="tabpanel" class="tab-pane" id="anggaran">
+                        <div class="well well-sm">
+                            <h4>Estimasi Anggaran Per Kategori Tahun {$tahun}</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered">
+                                        <thead>
+                                            <tr class="bg-success">
+                                                <th>No</th>
+                                                <th>Kategori Barang</th>
+                                                <th class="text-right">Total Anggaran</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {if: !empty($anggaran)}
+                                                {loop: $anggaran as $row}
+                                                <tr>
+                                                    <td>{$row.no}</td>
+                                                    <td>{$row.kategori}</td>
+                                                    <td class="text-right">Rp. {$row.subtotal_fmt}</td>
+                                                </tr>
+                                                {/loop}
+                                                <tr class="info">
+                                                    <td colspan="2" class="text-right"><strong>GRAND TOTAL</strong></td>
+                                                    <td class="text-right"><strong>Rp. {$grand_total}</strong></td>
+                                                </tr>
+                                            {else}
+                                                <tr>
+                                                    <td colspan="3" class="text-center">Data anggaran belum tersedia.</td>
+                                                </tr>
+                                            {/if}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><i class="fa fa-pie-chart"></i> Struktur Anggaran</div>
+                                    <div class="panel-body text-center">
+                                        <canvas id="chartAnggaran" height="180"></canvas>
+                                        {if: empty($anggaran)}
+                                            <p class="text-muted" style="margin-top: 10px;">Belum ada data anggaran.</p>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Form -->
+<div class="modal fade" id="modalForm" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="form_content"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Filter tabel RKBU secara lokal
+    $('#cari_rkbu').on('keyup', function() {
+        var val = $(this).val().toLowerCase();
+        $('#tbl-perencanaan tbody tr').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(val) > -1);
+        });
+    });
+});
+</script>
+
+{$js}

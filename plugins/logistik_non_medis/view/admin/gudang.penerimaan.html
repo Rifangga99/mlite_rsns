@@ -1,0 +1,57 @@
+<article class="row">
+    <div class="col-md-12">
+        <div id="gudang-penerimaan-content">
+            <!-- Content will be loaded here (Dashboard or Form) -->
+            <div class="text-center" style="padding: 50px;">
+                <i class="fa fa-spinner fa-spin fa-3x"></i>
+                <p>Memuat Dashboard Gudang...</p>
+            </div>
+        </div>
+    </div>
+</article>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        window.loadGudangDashboard = function() {
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "displaygudangpenerimaan"])?}',
+                type: 'POST',
+                success: function(response) {
+                    $('#gudang-penerimaan-content').html(response);
+                },
+                error: function(xhr, status, error) {
+                    $('#gudang-penerimaan-content').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Gagal memuat dashboard: ' + error + '</div>');
+                }
+            });
+        }
+
+        window.openGudangReceiptForm = function(no_po = '', no_penerimaan = '') {
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "formgudangpenerimaan"])?}',
+                type: 'POST',
+                data: { no_po: no_po, no_penerimaan: no_penerimaan },
+                success: function(response) {
+                    $('#gudang-penerimaan-content').html(response);
+                }
+            });
+        }
+
+        window.loadGudangHistory = function(halaman = 1) {
+            var cari = ''; // Optional: add search later
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "displaypenerimaan"])?}',
+                type: 'POST',
+                data: { halaman: halaman, cari: cari },
+                success: function(response) {
+                    var html = '<div class="panel panel-default">';
+                    html += '<div class="panel-heading"><div class="pull-right"><button class="btn btn-default btn-xs" onclick="loadGudangDashboard()"><i class="fa fa-arrow-left"></i> Kembali</button></div><h3 class="panel-title">Riwayat Penerimaan Barang</h3></div>';
+                    html += '<div class="panel-body">' + response + '</div>';
+                    html += '</div>';
+                    $('#gudang-penerimaan-content').html(html);
+                }
+            });
+        }
+
+        loadGudangDashboard();
+    });
+</script>

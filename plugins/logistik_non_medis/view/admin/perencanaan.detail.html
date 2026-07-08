@@ -1,0 +1,91 @@
+<div class="modal-header bg-info">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-info-circle"></i> Detail Usulan Perencanaan (RKBU)</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-condensed table-striped" style="border: none;">
+                <tr><th width="150">Kode Perencanaan</th><td>: <b>{$data.kode_perencanaan}</b></td></tr>
+                <tr><th>Unit / Departemen</th><td>: {$data.nama_unit}</td></tr>
+                <tr><th>Tahun Anggaran</th><td>: {$data.tahun}</td></tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-condensed table-striped" style="border: none;">
+                <tr><th width="150">Nama Barang</th><td>: <b>{$data.nama_barang}</b></td></tr>
+                <tr><th>Kategori</th><td>: {$data.kategori}</td></tr>
+                <tr><th>Harga Referensi</th><td>: Rp. {$data.harga_referensi_fmt} / {$data.satuan_dasar}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <hr style="margin: 10px 0;">
+    
+    <div class="well well-sm bg-primary" style="margin-bottom: 10px;">
+        <h5 style="margin: 0;"><i class="fa fa-calendar"></i> Rincian Kuantitas Bulanan</h5>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center">
+            <thead>
+                <tr class="bg-info">
+                    <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>Mei</th><th>Jun</th>
+                    <th>Jul</th><th>Agu</th><th>Sep</th><th>Okt</th><th>Nov</th><th>Des</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{$data.jan}</td><td>{$data.feb}</td><td>{$data.mar}</td><td>{$data.apr}</td><td>{$data.mei}</td><td>{$data.jun}</td>
+                    <td>{$data.jul}</td><td>{$data.agu}</td><td>{$data.sep}</td><td>{$data.okt}</td><td>{$data.nov}</td><td>{$data.des}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="info">
+                    <th colspan="6" class="text-right">Total Kuantitas :</th>
+                    <th colspan="6" class="text-left"><b>{$data.total_qty} {$data.satuan_dasar}</b></th>
+                </tr>
+                <tr class="success">
+                    <th colspan="6" class="text-right">Estimasi Total Anggaran :</th>
+                    <th colspan="6" class="text-left"><b>Rp. {$data.estimasi}</b></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Prioritas:</label>
+                <div>
+                    {if: $data.prioritas == 'Vital'}
+                        <span class="label label-danger">Vital (Sangat Penting)</span>
+                    {elseif: $data.prioritas == 'Essential'}
+                        <span class="label label-warning">Essential (Penting)</span>
+                    {else}
+                        <span class="label label-info">Desirable (Tambahan)</span>
+                    {/if}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Status Usulan:</label>
+                <div>
+                    {if: $data.status == 'Disetujui'}
+                        <span class="label label-success">Disetujui</span>
+                    {elseif: $data.status == 'Diajukan'}
+                        <span class="label label-primary">Diajukan</span>
+                    {elseif: $data.status == 'Ditolak'}
+                        <span class="label label-danger">Ditolak</span>
+                    {else}
+                        <span class="label label-default">Draft</span>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+</div>

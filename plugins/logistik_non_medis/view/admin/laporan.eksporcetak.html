@@ -1,0 +1,1089 @@
+<style>
+    /* Spacing & Table Sizing layouts - colors and styling are handled dynamically by the active MLite system theme */
+    .preview-header-meta {
+        background: #fcfcfc;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .preview-table-container {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        max-height: 500px;
+        overflow-y: auto;
+        overflow-x: auto;
+        background: #ffffff;
+    }
+
+    .preview-table-container table {
+        margin-bottom: 0 !important;
+        font-size: 13px;
+    }
+
+    .preview-table-container th {
+        position: sticky;
+        top: 0;
+        background-color: #f5f5f5 !important;
+        z-index: 10;
+        border-bottom: 2px solid #ddd !important;
+    }
+
+    /* Loading Spinner Overlay */
+    .overlay-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 99;
+        border-radius: 4px;
+    }
+
+    .spinner-premium {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #eee;
+        border-top: 5px solid #337ab7; /* Standard Bootstrap Primary blue */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        margin-top: 15px;
+        font-weight: bold;
+        color: #337ab7;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-action-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-action-panel .btn {
+        text-align: left;
+        font-weight: bold;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- Navigation Tabs following System Style -->
+        <ul class="nav nav-tabs" style="margin-bottom: 20px;">
+            <li class="active">
+                <a href="#tab-portal" data-toggle="tab">
+                    <i class="fa fa-print"></i> Portal Cetak & Ekspor
+                </a>
+            </li>
+            <li>
+                <a href="#tab-penjadwalan" data-toggle="tab">
+                    <i class="fa fa-clock-o"></i> Penjadwalan & Distribusi Otomatis
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- TAB 1: PORTAL EKSPOR & CETAK -->
+            <div class="tab-pane active" id="tab-portal">
+                <div class="row">
+                    <!-- Left Sidebar Filters -->
+                    <div class="col-md-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-sliders"></i> Filter Konfigurasi Laporan</h3>
+                            </div>
+                            <div class="panel-body" style="position: relative;">
+                                <form id="form-filter-laporan">
+                                    <div class="form-group">
+                                        <label for="report-category">Kategori Modul</label>
+                                        <select id="report-category" class="form-control">
+                                            <option value="stok_mutasi">Stok & Mutasi Persediaan</option>
+                                            <option value="pengadaan">Pengadaan & Perencanaan</option>
+                                            <option value="distribusi">Distribusi & Permintaan Unit</option>
+                                            <option value="aset">Manajemen Aset & Inventaris</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="sub-report-type">Jenis Laporan</label>
+                                        <select id="sub-report-type" class="form-control">
+                                            <!-- Dynamically filled by JS -->
+                                        </select>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label for="tgl-awal">Tanggal Awal</label>
+                                                <input type="text" id="tgl-awal" class="form-control datepicker" value="{?=date('Y-m-01')?}">
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label for="tgl-akhir">Tanggal Akhir</label>
+                                                <input type="text" id="tgl-akhir" class="form-control datepicker" value="{?=date('Y-m-d')?}">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="filter-kategori">Kategori Item</label>
+                                        <select id="filter-kategori" class="form-control">
+                                            <option value="">-- Semua Kategori --</option>
+                                            {loop: $kategori}
+                                            <option value="{$value.nama_kategori}">{$value.nama_kategori}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="filter-lokasi">Lokasi / Gudang</label>
+                                        <select id="filter-lokasi" class="form-control">
+                                            <option value="">-- Semua Gudang --</option>
+                                            {loop: $lokasi}
+                                            <option value="{$value.kode_lokasi}">[{$value.kode_lokasi}] {$value.nama_lokasi}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="filter-unit">Unit / Departemen</label>
+                                        <select id="filter-unit" class="form-control">
+                                            <option value="">-- Semua Unit --</option>
+                                            {loop: $unit}
+                                            <option value="{$value.kode_unit}">[{$value.kode_unit}] {$value.nama_unit}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group" id="group-kib-jenis" style="display: none;">
+                                        <label for="kib-jenis">Golongan KIB Aset</label>
+                                        <select id="kib-jenis" class="form-control">
+                                            <option value="A">KIB A - Tanah</option>
+                                            <option value="B">KIB B - Peralatan & Mesin</option>
+                                            <option value="C">KIB C - Gedung & Bangunan</option>
+                                            <option value="D">KIB D - Jalan, Irigasi & Jaringan</option>
+                                            <option value="E">KIB E - Aset Tetap Lainnya</option>
+                                            <option value="F">KIB F - Konstruksi Dalam Pengerjaan</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="filter-cari">Kata Kunci Pencarian</label>
+                                        <input type="text" id="filter-cari" class="form-control" placeholder="Nama barang, no transaksi, dll...">
+                                    </div>
+                                </form>
+
+                                <div class="btn-action-panel">
+                                    <button type="button" class="btn btn-primary" id="btn-preview-report">
+                                        <i class="fa fa-eye"></i> Pratinjau Laporan
+                                    </button>
+                                    <button type="button" class="btn btn-default" id="btn-print-direct">
+                                        <i class="fa fa-print"></i> Cetak Langsung (Iframe)
+                                    </button>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="button" class="btn btn-danger btn-block" id="btn-export-pdf-p" style="margin-top:0;">
+                                            <i class="fa fa-file-pdf-o"></i> PDF Portrait
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-block" id="btn-export-pdf-l" style="margin-top:0;">
+                                            <i class="fa fa-file-pdf-o"></i> PDF Landscape
+                                        </button>
+                                    </div>
+                                    <button type="button" class="btn btn-success" id="btn-export-excel">
+                                        <i class="fa fa-file-excel-o"></i> Unduh File Excel (.xlsx)
+                                    </button>
+                                    <button type="button" class="btn btn-info" id="btn-email-modal">
+                                        <i class="fa fa-envelope-o"></i> Kirim Laporan via Email
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Live Preview Panel -->
+                    <div class="col-md-8">
+                        <div class="panel panel-default" style="position: relative; min-height: 600px;">
+                            <!-- Loading Spinner Overlay -->
+                            <div class="overlay-loading" id="preview-loading">
+                                <div class="spinner-premium"></div>
+                                <div class="loading-text">Sedang Menarik Laporan...</div>
+                            </div>
+
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-table"></i> Lembar Pratinjau Laporan (Live Spreadsheet)</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="preview-header-meta">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <h4 id="preview-report-title" style="margin:0 0 5px 0; font-weight:bold; text-transform:uppercase;">Silakan Pilih Laporan</h4>
+                                            <p id="preview-report-desc" class="text-muted" style="margin:0; font-size:12px;">Pilih filter lalu klik tombol "Pratinjau Laporan" untuk memuat data lembar kerja.</p>
+                                        </div>
+                                        <div class="col-sm-4 text-right">
+                                            <span class="label label-success" style="font-size:11px; padding:4px 8px; display:inline-block;"><i class="fa fa-shield"></i> Terverifikasi Digital</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="preview-table-container">
+                                    <table class="table table-bordered table-striped" id="table-preview-report">
+                                        <tbody id="preview-table-body">
+                                            <tr>
+                                                <td style="padding: 100px 20px; text-align: center; color: #aaa;">
+                                                    <i class="fa fa-print fa-4x" style="margin-bottom:15px; color:#ccc;"></i>
+                                                    <h4>Portal Ekspor & Cetak Laporan</h4>
+                                                    <p>Pilih kategori laporan, tentukan rentang filter yang diinginkan di sebelah kiri, kemudian klik tombol <b>Pratinjau Laporan</b>.</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div style="margin-top: 15px; font-size: 11px; color:#777; display:flex; align-items:center; gap:5px;">
+                                    <i class="fa fa-info-circle text-primary"></i> <i>Tampilan pratinjau merupakan data real-time, cetakan PDF akan dilengkapi dengan Kop Surat Resmi SIMRS dan Tanda Tangan QR-Code Kriptografi.</i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: AUTOCRON SCHEDULING -->
+            <div class="tab-pane" id="tab-penjadwalan">
+                <div class="row">
+                    <!-- Schedule Creation Form -->
+                    <div class="col-md-5">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-plus-circle"></i> Tambah / Edit Jadwal Laporan</h3>
+                            </div>
+                            <div class="panel-body">
+                                <form id="form-schedule-report">
+                                    <input type="hidden" id="schedule-id" value="">
+
+                                    <div class="form-group">
+                                        <label for="sched-report-name">Nama Jadwal Laporan</label>
+                                        <input type="text" id="sched-report-name" class="form-control" placeholder="Contoh: Laporan Stok Kritis Divisi Umum" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="sched-report-type">Kategori Modul</label>
+                                                <select id="sched-report-type" class="form-control">
+                                                    <option value="stok_mutasi">Stok & Mutasi Persediaan</option>
+                                                    <option value="pengadaan">Pengadaan & Perencanaan</option>
+                                                    <option value="distribusi">Distribusi & Permintaan Unit</option>
+                                                    <option value="aset">Manajemen Aset & Inventaris</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="sched-sub-report-type">Tipe Laporan</label>
+                                                <select id="sched-sub-report-type" class="form-control">
+                                                    <!-- Dynamically filled -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label for="sched-frequency">Frekuensi</label>
+                                                <select id="sched-frequency" class="form-control">
+                                                    <option value="daily">Harian</option>
+                                                    <option value="weekly">Mingguan</option>
+                                                    <option value="monthly">Bulanan</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label for="sched-send-time">Jam Pengiriman</label>
+                                                <input type="time" id="sched-send-time" class="form-control" value="07:00" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4" id="group-sched-day" style="display: none;">
+                                            <div class="form-group">
+                                                <label for="sched-send-day" id="sched-day-label">Hari Pengiriman</label>
+                                                <select id="sched-send-day" class="form-control">
+                                                    <!-- Dynamic days -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="sched-recipients">Email Penerima (Gunakan koma untuk banyak email)</label>
+                                        <textarea id="sched-recipients" class="form-control" rows="3" placeholder="direktur@rs.com, kepalagudang@rs.com, audit@rs.com" required></textarea>
+                                    </div>
+
+                                    <div class="panel panel-default" style="background: #fcfcfc; padding: 15px; margin-bottom: 20px;">
+                                        <p style="font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom:10px;"><i class="fa fa-filter"></i> Parameter Filter Bawaan</p>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group" style="margin-bottom:10px;">
+                                                    <label style="font-size:10px;">Gudang</label>
+                                                    <select id="sched-filter-lokasi" class="form-control input-sm">
+                                                        <option value="">Semua Gudang</option>
+                                                        {loop: $lokasi}
+                                                        <option value="{$value.kode_lokasi}">{$value.nama_lokasi}</option>
+                                                        {/loop}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group" style="margin-bottom:10px;">
+                                                    <label style="font-size:10px;">Kategori</label>
+                                                    <select id="sched-filter-kategori" class="form-control input-sm">
+                                                        <option value="">Semua Kategori</option>
+                                                        {loop: $kategori}
+                                                        <option value="{$value.nama_kategori}">{$value.nama_kategori}</option>
+                                                        {/loop}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label style="font-size:10px;">Unit Kerja</label>
+                                                    <select id="sched-filter-unit" class="form-control input-sm">
+                                                        <option value="">Semua Unit</option>
+                                                        {loop: $unit}
+                                                        <option value="{$value.kode_unit}">{$value.nama_unit}</option>
+                                                        {/loop}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group" id="sched-group-kib" style="margin-bottom:0; display:none;">
+                                                    <label style="font-size:10px;">KIB Jenis</label>
+                                                    <select id="sched-filter-kib" class="form-control input-sm">
+                                                        <option value="A">KIB A</option>
+                                                        <option value="B">KIB B</option>
+                                                        <option value="C">KIB C</option>
+                                                        <option value="D">KIB D</option>
+                                                        <option value="E">KIB E</option>
+                                                        <option value="F">KIB F</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="sched-status">Status Jadwal</label>
+                                        <select id="sched-status" class="form-control">
+                                            <option value="Aktif">Aktif (Kirim berkala)</option>
+                                            <option value="Tidak Aktif">Tidak Aktif (Tangguhkan)</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; font-weight:bold;" id="btn-save-schedule">
+                                        <i class="fa fa-save"></i> Simpan Penjadwalan Laporan
+                                    </button>
+                                    <button type="button" class="btn btn-default btn-block" id="btn-reset-schedule" style="display: none;">
+                                        Batal / Buat Baru
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Schedules List Grid -->
+                    <div class="col-md-7">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-list"></i> Jadwal Laporan Otomatis Terdaftar</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped" id="table-schedules" style="font-size: 12px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama Jadwal</th>
+                                                <th>Laporan / Tipe</th>
+                                                <th>Frekuensi</th>
+                                                <th>Email Penerima</th>
+                                                <th>Status</th>
+                                                <th style="width: 100px; text-align: center;">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {if: empty($schedules)}
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted" style="padding:40px;">
+                                                    <i class="fa fa-clock-o fa-2x"></i><br>Belum ada jadwal laporan terdaftar.
+                                                </td>
+                                            </tr>
+                                            {else}
+                                            {loop: $schedules}
+                                            <tr id="schedule-row-{$value.id}" data-item="{?=htmlspecialchars(json_encode($value))?}">
+                                                <td>
+                                                    <strong>{$value.report_name}</strong>
+                                                    <div style="font-size:10px; color:#888;">Dibuat oleh: {$value.created_by}</div>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-info" style="font-size:9px;">{$value.report_type}</span>
+                                                    <div style="font-family: monospace; font-size:10px; margin-top:2px;">{$value.sub_report_type}</div>
+                                                </td>
+                                                <td>
+                                                    <span style="font-weight:bold; color:#2a5298;">{?=strtoupper($value.frequency)?}</span>
+                                                    <div style="font-size:10px; color:#777;">
+                                                        Jam: {$value.send_time}
+                                                        {if: !empty($value.send_day)}
+                                                        | Hari/Tgl: {$value.send_day}
+                                                        {/if}
+                                                    </div>
+                                                </td>
+                                                <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{$value.email_recipients}">
+                                                    {$value.email_recipients}
+                                                </td>
+                                                <td align="center">
+                                                    {if: $value.status == 'Aktif'}
+                                                    <span class="label label-success"><i class="fa fa-play-circle"></i> Aktif</span>
+                                                    {else}
+                                                    <span class="label label-danger"><i class="fa fa-pause-circle"></i> Tidak Aktif</span>
+                                                    {/if}
+                                                    <div style="font-size:9px; color:#888; margin-top:3px;">
+                                                        Last Run:<br>
+                                                        {if: !empty($value.last_run)}{$value.last_run}{else}Belum Pernah{/if}
+                                                    </div>
+                                                </td>
+                                                <td align="center">
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-default btn-xs btn-edit-schedule" data-id="{$value.id}" title="Edit Jadwal"><i class="fa fa-pencil text-primary"></i></button>
+                                                        <button class="btn btn-default btn-xs btn-delete-schedule" data-id="{$value.id}" title="Hapus Jadwal"><i class="fa fa-trash text-danger"></i></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {/loop}
+                                            {/if}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Instant Email Send -->
+<div class="modal fade" id="modal-email-instant" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border-radius: 4px;">
+            <div class="modal-header" style="background:#337ab7; color:#fff; border-top-left-radius: 4px; border-top-right-radius: 4px;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff; opacity:1;"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" style="font-weight: bold;"><i class="fa fa-paper-plane-o"></i> Kirim Laporan via Email (PHPMailer SMTP)</h4>
+            </div>
+            <div class="modal-body" style="padding: 20px 25px;">
+                <div class="alert alert-info" style="font-size:12px;">
+                    <i class="fa fa-info-circle"></i> Laporan akan diproses secara instan menjadi format **PDF Terverifikasi** dan dilampirkan langsung menggunakan server SMTP utama rumah sakit.
+                </div>
+
+                <div class="form-group">
+                    <label>Laporan Yang Akan Dikirim</label>
+                    <input type="text" id="modal-email-report-name" class="form-control" readonly style="background:#fcfcfc; font-weight:bold;">
+                </div>
+
+                <div class="form-group">
+                    <label for="modal-email-recipients">Email Tujuan (Gunakan koma `,` jika mengirim ke banyak email)</label>
+                    <textarea id="modal-email-recipients" class="form-control" rows="3" placeholder="direktur@rs.com, humas@rs.com, auditor@rs.com" required></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label>Periode Awal</label>
+                            <input type="text" id="modal-email-tgl-awal" class="form-control" readonly style="background:#fcfcfc;">
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label>Periode Akhir</label>
+                            <input type="text" id="modal-email-tgl-akhir" class="form-control" readonly style="background:#fcfcfc;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="background:#fcfcfc; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" id="btn-send-email-confirm" style="padding: 8px 20px; font-weight: bold;">
+                    <i class="fa fa-send"></i> Kirim Laporan Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Silent Print Iframe -->
+<iframe id="print-iframe" style="display: none; position: absolute; width: 0px; height: 0px; border: none;"></iframe>
+
+<script>
+$(document).ready(function() {
+    // 0. Dynamic System Theme Color Extraction & Adaptation
+    function getThemeColors() {
+        var tempBtnPrimary = $('<button class="btn btn-primary" style="display:none;"></button>').appendTo('body');
+        var tempBtnInfo = $('<button class="btn btn-info" style="display:none;"></button>').appendTo('body');
+        var tempBtnSuccess = $('<button class="btn btn-success" style="display:none;"></button>').appendTo('body');
+        var tempBtnWarning = $('<button class="btn btn-warning" style="display:none;"></button>').appendTo('body');
+        var tempBtnDanger = $('<button class="btn btn-danger" style="display:none;"></button>').appendTo('body');
+        var tempMuted = $('<span class="text-muted" style="display:none;"></span>').appendTo('body');
+        var tempPanel = $('<div class="panel panel-default" style="display:none;"></div>').appendTo('body');
+        var tempWell = $('<div class="well" style="display:none;"></div>').appendTo('body');
+        
+        var colors = {
+            primary: tempBtnPrimary.css('background-color') || '#4e73df',
+            info: tempBtnInfo.css('background-color') || '#36b9cc',
+            success: tempBtnSuccess.css('background-color') || '#1cc88a',
+            warning: tempBtnWarning.css('background-color') || '#f6c23e',
+            danger: tempBtnDanger.css('background-color') || '#e74a3b',
+            muted: tempMuted.css('color') || '#858796',
+            panelBg: tempPanel.css('background-color') || '#ffffff',
+            panelBorder: tempPanel.css('border-color') || '#e3e6f0',
+            wellBg: tempWell.css('background-color') || '#f8f9fc',
+            wellBorder: tempWell.css('border-color') || '#eaecf4'
+        };
+        
+        tempBtnPrimary.remove();
+        tempBtnInfo.remove();
+        tempBtnSuccess.remove();
+        tempBtnWarning.remove();
+        tempBtnDanger.remove();
+        tempMuted.remove();
+        tempPanel.remove();
+        tempWell.remove();
+        
+        return colors;
+    }
+
+    function isDarkTheme() {
+        var bodyBg = $('body').css('background-color');
+        if (!bodyBg) return false;
+        var rgb = bodyBg.match(/\d+/g);
+        if (!rgb || rgb.length < 3) return false;
+        var r = parseInt(rgb[0]);
+        var g = parseInt(rgb[1]);
+        var b = parseInt(rgb[2]);
+        var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+
+    var themeColors = getThemeColors();
+    var isDark = isDarkTheme();
+    
+    // Inject dynamic CSS overrides using theme colors
+    var dynamicStyles = 
+        '.panel { border-radius: 8px !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03) !important; border: 1px solid ' + themeColors.panelBorder + ' !important; overflow: hidden !important; margin-bottom: 20px !important; }' +
+        '.panel-heading { border-top-left-radius: 8px !important; border-top-right-radius: 8px !important; padding: 12px 15px !important; font-weight: bold !important; }' +
+        '.btn { border-radius: 6px !important; font-weight: bold !important; padding: 6px 14px !important; transition: all 0.2s ease-in-out !important; }' +
+        '.btn-sm { border-radius: 4px !important; padding: 4px 10px !important; }' +
+        '.btn:hover { transform: translateY(-1px) !important; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important; }' +
+        '.btn:active { transform: translateY(0px) !important; box-shadow: none !important; }' +
+        '.panel-default { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+        '.panel-default > .panel-heading { background-color: ' + themeColors.wellBg + ' !important; border-bottom: 1px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.primary + ' !important; }' +
+        '.preview-header-meta { background: ' + themeColors.wellBg + ' !important; border: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+        '.preview-table-container { background: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+        '.preview-table-container th { background-color: ' + themeColors.wellBg + ' !important; border-bottom: 2px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+        '.table > thead > tr { background-color: ' + themeColors.wellBg + ' !important; }' +
+        '.table > thead > tr > th { border-bottom: 2px solid ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+        '.table > tbody > tr > td { border-top: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+        '.table-striped > tbody > tr:nth-of-type(odd) { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)') + ' !important; }' +
+        '.table-hover > tbody > tr:hover { background-color: ' + (isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)') + ' !important; }' +
+        '.form-control { background-color: ' + (isDark ? themeColors.wellBg : '#ffffff') + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + (isDark ? '#eaecf4' : '#495057') + ' !important; }' +
+        '.input-group-addon { background-color: ' + themeColors.wellBg + ' !important; border-color: ' + themeColors.wellBorder + ' !important; color: ' + themeColors.muted + ' !important; }' +
+        '.modal-content { background-color: ' + themeColors.panelBg + ' !important; border: 1px solid ' + themeColors.panelBorder + ' !important; }' +
+        '.modal-header { background-color: ' + themeColors.wellBg + ' !important; border-bottom: 1px solid ' + themeColors.wellBorder + ' !important; }' +
+        '.modal-footer { background-color: ' + themeColors.wellBg + ' !important; border-top: 1px solid ' + themeColors.wellBorder + ' !important; }';
+
+    if (isDark) {
+        dynamicStyles += 
+            'h4, h5, h3, td, th, .modal-title, .control-label { color: #eaecf4 !important; }' +
+            '.preview-report-desc { color: #a0a2ad !important; }';
+    }
+
+    $('<style>').prop('type', 'text/css').html(dynamicStyles).appendTo('head');
+
+    // Dynamic Sub-report mappings
+    const reportMap = {
+        'stok_mutasi': [
+            { value: 'kartu_stok', label: 'Kartu Stok Barang Logistik' },
+            { value: 'mutasi_saldo', label: 'Mutasi & Saldo Persediaan (Stok Card)' },
+            { value: 'stok_kritis', label: 'Laporan Barang Stok Kritis / Alert' },
+            { value: 'nilai_persediaan', label: 'Laporan Nilai Persediaan (Valuasi Asset)' },
+            { value: 'perbandingan', label: 'Laporan Perbandingan Harga Penawaran Vendor' }
+        ],
+        'pengadaan': [
+            { value: 'realisasi_rencana', label: 'Laporan Realisasi Rencana Kebutuhan (RKBU)' },
+            { value: 'nilai_volume_vendor', label: 'Nilai & Volume Pembelian per Rekanan Vendor' },
+            { value: 'lead_time', label: 'Laporan Analisis Lead Time Pengadaan' },
+            { value: 'po_periode', label: 'Laporan Penerimaan Barang per Periode PO' },
+            { value: 'realisasi_anggaran', label: 'Laporan Realisasi Anggaran & Nilai Kontrak' },
+            { value: 'kinerja_vendor', label: 'Laporan Evaluasi Skor Kinerja Vendor' }
+        ],
+        'distribusi': [
+            { value: 'distribusi', label: 'Distribusi Pengeluaran Barang per Unit Kerja' },
+            { value: 'sppb_periode', label: 'Laporan Permintaan Barang & SPPB per Periode' }
+        ],
+        'aset': [
+            { value: 'aset_kib', label: 'Kartu Inventaris Barang (KIB) Digital' },
+            { value: 'aset_penyusutan', label: 'Laporan Depresiasi & Nilai Buku Aset' },
+            { value: 'aset_kondisi', label: 'Laporan Sensus Kondisi Aset Non-Medis' },
+            { value: 'aset_masamanfaat', label: 'Laporan Analisis Masa Manfaat & Usia Aset' },
+            { value: 'aset_pemeliharaan', label: 'Jadwal & Realisasi Pemeliharaan Aset (WO)' },
+            { value: 'aset_penghapusan', label: 'Laporan Usulan & Penghapusan Aset Tetap' }
+        ]
+    };
+
+    // Initialize Datepicker if present
+    if ($.fn.datepicker) {
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+    }
+
+    // Dynamic Select populate helper
+    function populateSubReports(catSelectId, subSelectId, showKibGroupId) {
+        const cat = $(catSelectId).val();
+        const subSelect = $(subSelectId);
+        subSelect.empty();
+
+        if (reportMap[cat]) {
+            reportMap[cat].forEach(item => {
+                subSelect.append(`<option value="${item.value}">${item.label}</option>`);
+            });
+        }
+        subSelect.trigger('change');
+    }
+
+    // Toggle specific KIB Golongan field visibility
+    function toggleKibGroup(subReportVal, groupSelectorId) {
+        if (subReportVal === 'aset_kib') {
+            $(groupSelectorId).slideDown(200);
+        } else {
+            $(groupSelectorId).slideUp(150);
+        }
+    }
+
+    // Handle TAB 1 Selects changes
+    $('#report-category').on('change', function() {
+        populateSubReports('#report-category', '#sub-report-type', '#group-kib-jenis');
+    });
+
+    $('#sub-report-type').on('change', function() {
+        toggleKibGroup($(this).val(), '#group-kib-jenis');
+    });
+
+    // Handle TAB 2 (Scheduler) Selects changes
+    $('#sched-report-type').on('change', function() {
+        populateSubReports('#sched-report-type', '#sched-sub-report-type', '#sched-group-kib');
+    });
+
+    $('#sched-sub-report-type').on('change', function() {
+        toggleKibGroup($(this).val(), '#sched-group-kib');
+    });
+
+    // Populate selects on load
+    populateSubReports('#report-category', '#sub-report-type', '#group-kib-jenis');
+    populateSubReports('#sched-report-type', '#sched-sub-report-type', '#sched-group-kib');
+
+    // Dynamic days population based on frequency selection
+    $('#sched-frequency').on('change', function() {
+        const freq = $(this).val();
+        const dayGroup = $('#group-sched-day');
+        const dayLabel = $('#sched-day-label');
+        const daySelect = $('#sched-send-day');
+        daySelect.empty();
+
+        if (freq === 'daily') {
+            dayGroup.hide();
+        } else if (freq === 'weekly') {
+            dayLabel.text('Hari Pengiriman');
+            const weeks = [
+                { val: 1, label: 'Senin' },
+                { val: 2, label: 'Selasa' },
+                { val: 3, label: 'Rabu' },
+                { val: 4, label: 'Kamis' },
+                { val: 5, label: 'Jumat' },
+                { val: 6, label: 'Sabtu' },
+                { val: 7, label: 'Minggu' }
+            ];
+            weeks.forEach(d => {
+                daySelect.append(`<option value="${d.val}">${d.label}</option>`);
+            });
+            dayGroup.show();
+        } else if (freq === 'monthly') {
+            dayLabel.text('Tanggal Pengiriman');
+            for (let i = 1; i <= 28; i++) {
+                daySelect.append(`<option value="${i}">Tanggal ${i}</option>`);
+            }
+            daySelect.append(`<option value="29">Tanggal 29</option>`);
+            daySelect.append(`<option value="30">Tanggal 30</option>`);
+            daySelect.append(`<option value="31">Tanggal Akhir Bulan</option>`);
+            dayGroup.show();
+        }
+    });
+    $('#sched-frequency').trigger('change');
+
+    // Filter gathering helper
+    function getFilters() {
+        return {
+            sub_report_type: $('#sub-report-type').val(),
+            tgl_awal: $('#tgl-awal').val(),
+            tgl_akhir: $('#tgl-akhir').val(),
+            kategori: $('#filter-kategori').val(),
+            kode_lokasi: $('#filter-lokasi').val(),
+            kode_unit: $('#filter-unit').val(),
+            kib_jenis: $('#group-kib-jenis').is(':visible') ? $('#kib-jenis').val() : '',
+            cari: $('#filter-cari').val()
+        };
+    }
+
+    // --- BUTTON HANDLERS ---
+
+    // 1. Live Preview Button
+    $('#btn-preview-report').on('click', function() {
+        const filters = getFilters();
+        const reportTitle = $('#sub-report-type option:selected').text();
+        const categoryLabel = $('#report-category option:selected').text();
+
+        $('#preview-loading').css('display', 'flex');
+
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "GetReportPreview"])?}',
+            method: 'POST',
+            data: filters,
+            dataType: 'html',
+            success: function(response) {
+                $('#preview-report-title').text(reportTitle);
+                $('#preview-report-desc').html(`<i class="fa fa-folder-open text-warning"></i> Kategori: <b>${categoryLabel}</b> | Filter Aktif - Periode: <b>${filters.tgl_awal} s/d ${filters.tgl_akhir}</b>`);
+                $('#preview-table-body').html(response);
+                $('#preview-loading').hide();
+            },
+            error: function() {
+                alert('Gagal mengambil pratinjau laporan dari server. Cek koneksi Anda.');
+                $('#preview-loading').hide();
+            }
+        });
+    });
+
+    // 2. Silent direct print iframe
+    $('#btn-print-direct').on('click', function() {
+        const tableContent = $('#preview-table-body').html();
+        if (!tableContent || tableContent.includes('Portal Ekspor & Cetak Laporan') || tableContent.includes('Tidak ditemukan data')) {
+            alert('Silakan lakukan "Pratinjau Laporan" terlebih dahulu sebelum mencetak.');
+            return;
+        }
+
+        const reportTitle = $('#sub-report-type option:selected').text();
+        const tglAwal = $('#tgl-awal').val();
+        const tglAkhir = $('#tgl-akhir').val();
+        const iframe = document.getElementById('print-iframe');
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+        doc.open();
+        doc.write(`
+            <html>
+            <head>
+                <title>${reportTitle}</title>
+                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 25px; color: #333; }
+                    h3 { font-weight: bold; margin-bottom: 5px; text-transform: uppercase; text-align: center; }
+                    h4 { margin-top: 0; text-align: center; font-weight: normal; margin-bottom: 25px; color: #555; }
+                    .meta-table { width: 100%; margin-bottom: 20px; font-size: 11px; }
+                    .table { font-size: 11px; border-collapse: collapse !important; }
+                    .table th { background-color: #f1f1f1 !important; border: 1px solid #ccc !important; font-weight: bold; }
+                    .table td { border: 1px solid #ccc !important; padding: 5px !important; }
+                    .text-center { text-align: center; }
+                    .text-right { text-align: right; }
+                    .print-signature { margin-top: 40px; display: flex; justify-content: flex-end; }
+                    .sig-box { width: 220px; text-align: center; font-size: 11px; }
+                </style>
+            </head>
+            <body>
+                <h3>${reportTitle}</h3>
+                <h4>Periode: ${tglAwal} s/d ${tglAkhir}</h4>
+                
+                <table class="meta-table">
+                    <tr>
+                        <td><b>Modul:</b> Logistik Non-Medis</td>
+                        <td align="right"><b>Tanggal Cetak:</b> ${new Date().toLocaleString('id-ID')}</td>
+                    </tr>
+                </table>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        ${tableContent}
+                    </table>
+                </div>
+
+                <div class="print-signature">
+                    <div class="sig-box">
+                        <p style="margin-bottom: 60px;">Mengetahui/Mengesahkan,<br><b>Kepala Urusan Logistik Non-Medis</b></p>
+                        <p style="font-weight: bold; text-decoration: underline; margin-bottom:0;">M. Aulia Rahman, S.T.</p>
+                        <p style="color: #666; margin-top:0;">NIP. 19840210 200904 1 002</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `);
+        doc.close();
+
+        setTimeout(function() {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }, 500);
+    });
+
+    // 3. Export PDF Portrait / Landscape Helper
+    function exportPdf(orientation) {
+        const filters = getFilters();
+        const reportTitle = $('#sub-report-type option:selected').text();
+        const params = $.param({
+            report_name: reportTitle,
+            sub_report_type: filters.sub_report_type,
+            tgl_awal: filters.tgl_awal,
+            tgl_akhir: filters.tgl_akhir,
+            kode_lokasi: filters.kode_lokasi,
+            kategori: filters.kategori,
+            kode_unit: filters.kode_unit,
+            kib_jenis: filters.kib_jenis,
+            cari: filters.cari,
+            orientation: orientation
+        });
+        window.open('{?=url([ADMIN, "logistik_non_medis", "ExportPDFLaporan"])?}&' + params, '_blank');
+    }
+
+    $('#btn-export-pdf-p').on('click', function() { exportPdf('P'); });
+    $('#btn-export-pdf-l').on('click', function() { exportPdf('L'); });
+
+    // 4. Export Excel Action
+    $('#btn-export-excel').on('click', function() {
+        const filters = getFilters();
+        const reportTitle = $('#sub-report-type option:selected').text();
+        const params = $.param({
+            report_name: reportTitle,
+            sub_report_type: filters.sub_report_type,
+            tgl_awal: filters.tgl_awal,
+            tgl_akhir: filters.tgl_akhir,
+            kode_lokasi: filters.kode_lokasi,
+            kategori: filters.kategori,
+            kode_unit: filters.kode_unit,
+            kib_jenis: filters.kib_jenis,
+            cari: filters.cari
+        });
+        window.location.href = '{?=url([ADMIN, "logistik_non_medis", "ExportExcelLaporan"])?}&' + params;
+    });
+
+    // 5. Kirim Email Modal Opens
+    $('#btn-email-modal').on('click', function() {
+        const reportTitle = $('#sub-report-type option:selected').text();
+        $('#modal-email-report-name').val(reportTitle);
+        $('#modal-email-tgl-awal').val($('#tgl-awal').val());
+        $('#modal-email-tgl-akhir').val($('#tgl-akhir').val());
+        $('#modal-email-recipients').val('');
+        $('#modal-email-instant').modal('show');
+    });
+
+    // 6. Send Email Confirmation Action
+    $('#btn-send-email-confirm').on('click', function() {
+        const btn = $(this);
+        const emails = $('#modal-email-recipients').val();
+        if (!emails.trim()) {
+            alert('Silakan masukkan minimal satu alamat email penerima.');
+            return;
+        }
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Sedang Mengirim...');
+        
+        const payload = {
+            report_name: $('#modal-email-report-name').val(),
+            sub_report_type: $('#sub-report-type').val(),
+            tgl_awal: $('#modal-email-tgl-awal').val(),
+            tgl_akhir: $('#modal-email-tgl-akhir').val(),
+            kode_lokasi: $('#filter-lokasi').val(),
+            kategori: $('#filter-kategori').val(),
+            kode_unit: $('#filter-unit').val(),
+            kib_jenis: $('#group-kib-jenis').is(':visible') ? $('#kib-jenis').val() : '',
+            cari: $('#filter-cari').val(),
+            emails: emails
+        };
+
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "SendInstantEmail"])?}',
+            method: 'POST',
+            data: payload,
+            dataType: 'json',
+            success: function(res) {
+                btn.prop('disabled', false).html('<i class="fa fa-send"></i> Kirim Laporan Sekarang');
+                if (res.status === 'success') {
+                    alert('Laporan PDF terverifikasi berhasil dikirim via email SMTP ke: ' + emails);
+                    $('#modal-email-instant').modal('hide');
+                } else {
+                    alert('Gagal mengirim email: ' + res.message);
+                }
+            },
+            error: function(err) {
+                btn.prop('disabled', false).html('<i class="fa fa-send"></i> Kirim Laporan Sekarang');
+                alert('Kesalahan jaringan saat memproses pengiriman email.');
+            }
+        });
+    });
+
+    // --- TAB 2: Penjadwalan Laporan Actions ---
+
+    // 1. Submit Schedule (Add / Edit)
+    $('#form-schedule-report').on('submit', function(e) {
+        e.preventDefault();
+
+        const btn = $('#btn-save-schedule');
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan Jadwal...');
+
+        const payload = {
+            id: $('#schedule-id').val(),
+            report_name: $('#sched-report-name').val(),
+            report_type: $('#sched-report-type').val(),
+            sub_report_type: $('#sched-sub-report-type').val(),
+            frequency: $('#sched-frequency').val(),
+            send_time: $('#sched-send-time').val(),
+            send_day: $('#sched-send-day').is(':visible') ? $('#sched-send-day').val() : '',
+            email_recipients: $('#sched-recipients').val(),
+            kode_lokasi: $('#sched-filter-lokasi').val(),
+            kategori: $('#sched-filter-kategori').val(),
+            kode_unit: $('#sched-filter-unit').val(),
+            kib_jenis: $('#sched-filter-kib').is(':visible') ? $('#sched-filter-kib').val() : '',
+            status: $('#sched-status').val()
+        };
+
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "SaveReportSchedule"])?}',
+            method: 'POST',
+            data: payload,
+            dataType: 'json',
+            success: function(res) {
+                btn.prop('disabled', false).html('<i class="fa fa-save"></i> Simpan Penjadwalan Laporan');
+                if (res.status === 'success') {
+                    alert('Konfigurasi Jadwal Laporan Otomatis berhasil disimpan.');
+                    window.location.reload(); // Reload to refresh the schedules grid
+                } else {
+                    alert('Gagal menyimpan jadwal laporan.');
+                }
+            },
+            error: function() {
+                btn.prop('disabled', false).html('<i class="fa fa-save"></i> Simpan Penjadwalan Laporan');
+                alert('Kesalahan jaringan saat menyimpan jadwal.');
+            }
+        });
+    });
+
+    // 2. Edit Schedule Trigger
+    $('.btn-edit-schedule').on('click', function() {
+        const id = $(this).attr('data-id');
+        const row = $(`#schedule-row-${id}`);
+        const data = JSON.parse(row.attr('data-item'));
+
+        $('#schedule-id').val(data.id);
+        $('#sched-report-name').val(data.report_name);
+        $('#sched-report-type').val(data.report_type).trigger('change');
+        
+        // Timeout to let sub-report fill up dynamically
+        setTimeout(function() {
+            $('#sched-sub-report-type').val(data.sub_report_type).trigger('change');
+        }, 100);
+
+        $('#sched-frequency').val(data.frequency).trigger('change');
+        $('#sched-send-time').val(data.send_time.substring(0, 5));
+        
+        setTimeout(function() {
+            if (data.send_day) {
+                $('#sched-send-day').val(data.send_day);
+            }
+        }, 150);
+
+        $('#sched-recipients').val(data.email_recipients);
+        $('#sched-status').val(data.status);
+
+        // Filters JSON parsing
+        if (data.filters_json) {
+            try {
+                const filters = JSON.parse(data.filters_json);
+                $('#sched-filter-lokasi').val(filters.kode_lokasi);
+                $('#sched-filter-kategori').val(filters.kategori);
+                $('#sched-filter-unit').val(filters.kode_unit);
+                if (filters.kib_jenis) {
+                    $('#sched-filter-kib').val(filters.kib_jenis);
+                }
+            } catch (e) {}
+        }
+
+        $('#btn-reset-schedule').show();
+        $('#btn-save-schedule').html('<i class="fa fa-save"></i> Perbarui Jadwal Laporan');
+        $('html, body').animate({ scrollTop: $('#form-schedule-report').offset().top - 100 }, 500);
+    });
+
+    // 3. Reset Schedule Form Trigger
+    $('#btn-reset-schedule').on('click', function() {
+        $('#schedule-id').val('');
+        $('#form-schedule-report')[0].reset();
+        $('#sched-report-type').trigger('change');
+        $('#sched-frequency').trigger('change');
+        $(this).hide();
+        $('#btn-save-schedule').html('<i class="fa fa-save"></i> Simpan Penjadwalan Laporan');
+    });
+
+    // 4. Delete Schedule Trigger
+    $('.btn-delete-schedule').on('click', function() {
+        const id = $(this).attr('data-id');
+        if (confirm('Apakah Anda yakin ingin menghapus jadwal laporan berkala ini?')) {
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "DeleteReportSchedule"])?}',
+                method: 'POST',
+                data: { id: id },
+                dataType: 'json',
+                success: function(res) {
+                    if (res.status === 'success') {
+                        $(`#schedule-row-${id}`).fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        alert('Jadwal laporan berhasil dihapus.');
+                    } else {
+                        alert('Gagal menghapus jadwal: ' + res.message);
+                    }
+                },
+                error: function() {
+                    alert('Kesalahan jaringan saat menghapus jadwal.');
+                }
+            });
+        }
+    });
+});
+</script>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Berita Acara Mutasi Aset - {$mutasi.no_mutasi}</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #fff;
+        }
+        .header-table {
+            width: 100%;
+            border-bottom: 3px double #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .logo-rs {
+            width: 80px;
+            height: auto;
+            max-height: 80px;
+        }
+        .title-rs {
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            color: #111;
+        }
+        .subtitle-rs {
+            font-size: 11px;
+            color: #555;
+            margin: 3px 0 0 0;
+        }
+        .doc-title {
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: underline;
+            margin-top: 25px;
+            margin-bottom: 5px;
+            color: #000;
+        }
+        .doc-number {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 25px;
+            color: #444;
+        }
+        .intro-text {
+            text-align: justify;
+            margin-bottom: 20px;
+            text-indent: 30px;
+        }
+        .table-data {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .table-data th, .table-data td {
+            border: 1px solid #333;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .table-data th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .closing-text {
+            text-align: justify;
+            margin-bottom: 40px;
+        }
+        .signature-table {
+            width: 100%;
+            margin-top: 30px;
+            page-break-inside: avoid;
+        }
+        .signature-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+        .signature-name {
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: underline;
+            text-align: center;
+            margin: 0;
+        }
+        .signature-nip {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            margin: 2px 0 0 0;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body onload="window.print();">
+
+    <!-- HOSPITAL LETTERHEAD (KOP SURAT) -->
+    <table class="header-table">
+        <tr>
+            {if: !empty($logo)}
+            <td width="90" align="center">
+                <img src="{$logo}" class="logo-rs" alt="Logo RS">
+            </td>
+            {/if}
+            <td align="left" valign="middle">
+                <h1 class="title-rs">{$nama_rs}</h1>
+                <p class="subtitle-rs">{$alamat_rs}</p>
+                <p class="subtitle-rs">Hubungi: {$kontak_rs}</p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- DOCUMENT TITLE -->
+    <div class="doc-title">BERITA ACARA SERAH TERIMA (BAST) MUTASI ASET</div>
+    <div class="doc-number">Nomor Surat: {$mutasi.no_mutasi}</div>
+
+    <!-- CONTENT -->
+    <p class="intro-text">
+        Pada hari ini, tanggal <strong>{?=date('d', strtotime($mutasi.tanggal_mutasi))?}</strong> 
+        bulan <strong>{?=date('m', strtotime($mutasi.tanggal_mutasi))?}</strong> 
+        tahun <strong>{?=date('Y', strtotime($mutasi.tanggal_mutasi))?}</strong>, 
+        telah disepakati bersama oleh pihak-pihak terkait mengenai pelaksanaan penyerahan, pemindahan, dan mutasi barang/aset non-medis rumah sakit dengan rincian sebagai berikut:
+    </p>
+
+    <table class="table-data">
+        <tr>
+            <th width="25%">Nama Barang / Aset</th>
+            <td><strong>{$mutasi.nama_aset}</strong></td>
+        </tr>
+        <tr>
+            <th>Kode Registrasi Aset</th>
+            <td><code>{$mutasi.kode_aset}</code></td>
+        </tr>
+        <tr>
+            <th>Serial Number</th>
+            <td>{$mutasi.serial_number}</td>
+        </tr>
+        <tr>
+            <th>Spesifikasi & Kondisi</th>
+            <td>{$mutasi.spesifikasi} (Kondisi Fisik: <strong>{$mutasi.status_kondisi}</strong>)</td>
+        </tr>
+        <tr>
+            <th>Unit / Ruangan Asal</th>
+            <td><strong>{$mutasi.nama_unit_asal}</strong> - (Ruang: {$mutasi.nama_lokasi_asal})</td>
+        </tr>
+        <tr>
+            <th>Unit / Ruangan Tujuan</th>
+            <td><strong>{$mutasi.nama_unit_tujuan}</strong> - (Ruang: {$mutasi.nama_lokasi_tujuan})</td>
+        </tr>
+        <tr>
+            <th>Alasan / Keterangan Mutasi</th>
+            <td>{$mutasi.keterangan}</td>
+        </tr>
+    </table>
+
+    <p class="closing-text">
+        Demikian Berita Acara Serah Terima Mutasi Aset ini dibuat dengan sebenar-benarnya untuk dipergunakan sebagaimana mestinya. Sejak ditandatanganinya berita acara ini, tanggung jawab pemeliharaan, keamanan, dan administrasi pencatatan aset beralih sepenuhnya kepada Unit Tujuan.
+    </p>
+
+    <!-- SIGNATURE BLOCK -->
+    <table class="signature-table">
+        <tr>
+            <td width="33%" align="center" valign="top">
+                <p style="margin-bottom: 60px;"><strong>Pihak I (Yang Menyerahkan)</strong><br>Kepala Unit Asal</p>
+                <p class="signature-name">{$mutasi.user_approval_asal}</p>
+                <p class="signature-nip">NIP. .........................</p>
+            </td>
+            <td width="33%" align="center" valign="top">
+                <p style="margin-bottom: 60px;"><strong>Pihak II (Yang Menerima)</strong><br>Kepala Unit Tujuan</p>
+                <p class="signature-name">{$mutasi.user_approval_tujuan}</p>
+                <p class="signature-nip">NIP. .........................</p>
+            </td>
+            <td width="33%" align="center" valign="top">
+                <p style="margin-bottom: 60px;"><strong>Mengetahui,</strong><br>Petugas Logistik / Operator</p>
+                <p class="signature-name">{$mutasi.user_mutasi}</p>
+                <p class="signature-nip">NIP. .........................</p>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

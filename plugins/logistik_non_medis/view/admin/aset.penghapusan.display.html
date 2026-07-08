@@ -1,0 +1,108 @@
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th style="width: 140px;">No. Pengajuan</th>
+                <th>Detail Aset</th>
+                <th>Pengusul & Alasan</th>
+                <th>Penilaian & Nilai Buku</th>
+                <th>SK & Metode</th>
+                <th>Bukti BA</th>
+                <th class="text-center" style="width: 100px;">Status</th>
+                <th class="text-center" style="width: 130px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($pengajuan)}
+                {loop: $pengajuan}
+                <tr>
+                    <td>
+                        <code>{$value.no_pengajuan}</code><br>
+                        <small class="text-muted"><i class="fa fa-calendar"></i> {?= date('d-m-Y', strtotime($value['tanggal_pengajuan'])) ?}</small>
+                    </td>
+                    <td>
+                        <strong>{$value.nama_aset}</strong><br>
+                        <small class="text-muted">Kode: <code>{$value.kode_aset}</code> {if: !empty($value['serial_number'])}| S/N: {$value.serial_number}{/if}</small>
+                    </td>
+                    <td>
+                        <strong>{$value.pic_pengusul}</strong><br>
+                        <small class="text-muted">Alasan: {$value.alasan_penghapusan}</small>
+                    </td>
+                    <td>
+                        {if: !empty($value['status_kondisi_terakhir'])}
+                            <span class="label label-default">Kondisi: {$value.status_kondisi_terakhir}</span><br>
+                            <small>
+                                Buku: Rp. {?= number_format($value['nilai_buku_terakhir'], 0, ',', '.') ?}<br>
+                                Taksir: <strong>Rp. {?= number_format($value['nilai_taksiran'], 0, ',', '.') ?}</strong>
+                            </small>
+                        {else}
+                            <span class="text-muted"><i class="fa fa-spinner"></i> Menunggu Penilaian</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if: !empty($value['no_sk'])}
+                            <span class="label label-primary">{$value.metode_penghapusan}</span><br>
+                            <small>
+                                SK: {$value.no_sk}<br>
+                                {if: !empty($value['file_sk'])}
+                                    <a href="{?=url($value['file_sk'])?}" target="_blank" class="text-success"><i class="fa fa-download"></i> Unduh SK</a>
+                                {/if}
+                            </small>
+                        {else}
+                            <span class="text-muted">-</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if: !empty($value['no_ba'])}
+                            <small>
+                                BA: {$value.no_ba}<br>
+                                {if: !empty($value['file_ba'])}
+                                    <a href="{?=url($value['file_ba'])?}" target="_blank" class="text-success"><i class="fa fa-download"></i> Unduh BA</a>
+                                {/if}
+                            </small>
+                        {else}
+                            <span class="text-muted">-</span>
+                        {/if}
+                    </td>
+                    <td class="text-center">
+                        {if: $value['status'] == 'Draft'}
+                            <span class="label label-default">Draft</span>
+                        {elseif: $value['status'] == 'Pengajuan'}
+                            <span class="label label-warning">Pengajuan</span>
+                        {elseif: $value['status'] == 'Dinilai'}
+                            <span class="label label-info">Dinilai</span>
+                        {elseif: $value['status'] == 'Disetujui'}
+                            <span class="label label-primary" style="background-color: #7a43b6;">Disetujui</span>
+                        {elseif: $value['status'] == 'Selesai'}
+                            <span class="label label-success">Selesai</span>
+                        {elseif: $value['status'] == 'Ditolak'}
+                            <span class="label label-danger">Ditolak</span>
+                        {/if}
+                    </td>
+                    <td class="text-center">
+                        {if: $value['status'] == 'Draft' || $value['status'] == 'Pengajuan'}
+                            <div class="btn-group">
+                                <button class="btn btn-xs btn-default" onclick="formPengajuan('{$value.id}')" title="Ubah Usulan"><i class="fa fa-edit"></i></button>
+                                <button class="btn btn-xs btn-danger" onclick="hapusPengajuan('{$value.id}')" title="Hapus Usulan"><i class="fa fa-trash-o"></i></button>
+                            </div>
+                            <button class="btn btn-xs btn-info" onclick="formPenilaian('{$value.id}')" style="margin-top: 4px; display: block; width: 100%;"><i class="fa fa-gavel"></i> Cek Fisik / Nilai</button>
+                        {elseif: $value['status'] == 'Dinilai'}
+                            <button class="btn btn-xs btn-primary" onclick="formSK('{$value.id}')" style="display: block; width: 100%;"><i class="fa fa-file-text"></i> Input SK & Metode</button>
+                            <button class="btn btn-xs btn-default" onclick="formPenilaian('{$value.id}')" style="margin-top: 4px; display: block; width: 100%;" title="Koreksi Penilaian"><i class="fa fa-gavel"></i> Koreksi Cek</button>
+                        {elseif: $value['status'] == 'Disetujui'}
+                            <button class="btn btn-xs btn-success" onclick="formBA('{$value.id}')" style="display: block; width: 100%;"><i class="fa fa-check"></i> Eksekusi & BA</button>
+                            <button class="btn btn-xs btn-default" onclick="formSK('{$value.id}')" style="margin-top: 4px; display: block; width: 100%;" title="Koreksi SK"><i class="fa fa-file-text"></i> Koreksi SK</button>
+                        {elseif: $value['status'] == 'Selesai'}
+                            <span class="text-success" style="font-size: 11px; font-weight: bold;"><i class="fa fa-check-circle"></i> Selesai Disposal</span>
+                        {/if}
+                    </td>
+                </tr>
+                {/loop}
+            {else}
+                <tr class="empty-row">
+                    <td colspan="8" class="text-center text-muted" style="padding: 25px;">Tidak ada transaksi penghapusan aset dengan status ini.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>

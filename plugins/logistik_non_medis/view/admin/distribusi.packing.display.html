@@ -1,0 +1,67 @@
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>No. SPPB</th>
+                <th>Tanggal</th>
+                <th>Unit Tujuan</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($sppb)}
+            {loop: $sppb}
+            <tr>
+                <td><strong>{$value.no_sppb}</strong></td>
+                <td>{?=date('d/m/Y', strtotime($value.tgl_sppb))?}</td>
+                <td>{$value.nama_unit}</td>
+                <td>
+                    {if: $value.status == 'Terverifikasi'}
+                        <span class="label label-info">Siap Ambil (Pick)</span>
+                    {elseif: $value.status == 'Picking'}
+                        <span class="label label-warning">Proses Ambil</span>
+                    {elseif: $value.status == 'Packing'}
+                        <span class="label label-primary">Proses Packing</span>
+                    {else}
+                        <span class="label label-default">{$value.status}</span>
+                    {/if}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-info" title="Mulai Picking" onclick="openPicking('{$value.no_sppb}')">
+                            <i class="fa fa-hand-lizard-o"></i> Picking
+                        </button>
+                        {if: $value.status == 'Picking' || $value.status == 'Packing' || $value.has_packing}
+                        <button class="btn btn-sm btn-primary" title="Mulai Packing" onclick="openPacking('{$value.no_sppb}')">
+                            <i class="fa fa-archive"></i> Packing
+                        </button>
+                        {/if}
+                        <a href="{?=url(ADMIN.'/logistik_non_medis/printpicklist?no_sppb='.$value.no_sppb)?}" target="_blank" class="btn btn-sm btn-warning" title="Cetak Pick List">
+                            <i class="fa fa-list-alt"></i> Pick List
+                        </a>
+                        <a href="{?=url(ADMIN.'/logistik_non_medis/cetaksppb?no_sppb='.$value.no_sppb)?}" target="_blank" class="btn btn-sm btn-default" title="Cetak SPPB">
+                            <i class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {/loop}
+            {else}
+            <tr>
+                <td colspan="5" class="text-center">Tidak ada data SPPB yang siap di-pick/pack.</td>
+            </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+{if: !empty($pages)}
+<div class="text-center">
+    <ul class="pagination">
+        {loop: $pages}
+        <li class="{if: $halaman == $value}active{/if}"><a href="javascript:void(0)" onclick="loadPacking('{$value}')">{$value}</a></li>
+        {/loop}
+    </ul>
+</div>
+{/if}

@@ -1,0 +1,149 @@
+<div class="row">
+    <!-- Card 1: PM Overdue -->
+    <div class="col-md-3">
+        <div class="alert alert-danger pm-widget">
+            <div class="icon-bg"><i class="fa fa-exclamation-triangle"></i></div>
+            <h4>Jadwal PM Jatuh Tempo</h4>
+            <h2>{$overdue_count} Aset</h2>
+        </div>
+    </div>
+    <!-- Card 2: Active WO -->
+    <div class="col-md-3">
+        <div class="alert alert-info pm-widget">
+            <div class="icon-bg"><i class="fa fa-spinner fa-spin"></i></div>
+            <h4>WO Sedang Berjalan</h4>
+            <h2>{$active_count} Pengerjaan</h2>
+        </div>
+    </div>
+    <!-- Card 3: Corrective MTD -->
+    <div class="col-md-3">
+        <div class="alert alert-warning pm-widget">
+            <div class="icon-bg"><i class="fa fa-fire-extinguisher"></i></div>
+            <h4>Insiden Kerusakan Bulan Ini</h4>
+            <h2>{$corrective_count} Laporan</h2>
+        </div>
+    </div>
+    <!-- Card 4: Cost YTD -->
+    <div class="col-md-3">
+        <div class="alert alert-success pm-widget">
+            <div class="icon-bg"><i class="fa fa-money"></i></div>
+            <h4>Biaya Servis Tahun Ini</h4>
+            <h2>Rp. {?=number_format($total_cost, 0, ',', '.')?}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 15px;">
+    <!-- Column Left: Overdue Alert List -->
+    <div class="col-md-6">
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <i class="fa fa-bell"></i> Alert Jadwal Servis Jatuh Tempo
+            </div>
+            <div class="panel-body" style="padding: 10px;">
+                <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                    <table class="table table-bordered table-striped table-hover" style="margin-bottom: 0;">
+                        <thead>
+                            <tr>
+                                <th>Aset / Kode</th>
+                                <th>Nama Perawatan</th>
+                                <th style="width: 120px;" class="text-center">Jatuh Tempo</th>
+                                <th style="width: 110px;" class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {if: !empty($overdue_pms)}
+                                {loop: $overdue_pms}
+                                <tr>
+                                    <td>
+                                        <strong>{$value.nama_aset}</strong><br>
+                                        <small class="text-muted">{$value.kode_aset}</small>
+                                    </td>
+                                    <td>
+                                        <strong>{$value.nama_kegiatan}</strong><br>
+                                        <span class="label label-warning">{$value.frekuensi}</span>
+                                    </td>
+                                    <td class="text-center text-danger" style="vertical-align: middle; font-weight: bold;">
+                                        {?=date('d M Y', strtotime($value['tanggal_direncanakan']))?}
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        <button class="btn btn-warning btn-sm" onclick="formWO('', '{$value.id}')" title="Terbitkan Work Order"><i class="fa fa-wrench"></i> Terbitkan WO</button>
+                                    </td>
+                                </tr>
+                                {/loop}
+                            {else}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted" style="padding: 30px;">
+                                        <i class="fa fa-check-circle text-success fa-2x" style="margin-bottom: 10px;"></i><br>
+                                        Semua aset dalam kondisi prima! Tidak ada jadwal pemeliharaan berkala yang jatuh tempo.
+                                    </td>
+                                </tr>
+                            {/if}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Column Right: Active Work Orders List -->
+    <div class="col-md-6">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <i class="fa fa-tasks"></i> Pekerjaan Servis & Perbaikan Berjalan
+            </div>
+            <div class="panel-body" style="padding: 10px;">
+                <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                    <table class="table table-bordered table-striped table-hover" style="margin-bottom: 0;">
+                        <thead>
+                            <tr>
+                                <th>No WO / Aset</th>
+                                <th>Pekerjaan & Keluhan</th>
+                                <th style="width: 100px;" class="text-center">Prioritas</th>
+                                <th style="width: 110px;" class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {if: !empty($active_wos)}
+                                {loop: $active_wos}
+                                <tr>
+                                    <td>
+                                        <code>{$value.kode_pemeliharaan}</code><br>
+                                        <strong>{$value.nama_aset}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="label label-default">{$value.jenis_pemeliharaan}</span>
+                                        <strong>{$value.nama_kegiatan}</strong><br>
+                                        <small class="text-muted">{$value.deskripsi}</small>
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        {if: $value.prioritas == 'Darurat'}
+                                            <span class="label label-danger" style="font-size: 11px; padding: 4px 8px;"><i class="fa fa-bolt"></i> {$value.prioritas}</span>
+                                        {elseif: $value.prioritas == 'Tinggi'}
+                                            <span class="label label-warning" style="font-size: 11px; padding: 4px 8px;">{$value.prioritas}</span>
+                                        {elseif: $value.prioritas == 'Sedang'}
+                                            <span class="label label-info" style="font-size: 11px; padding: 4px 8px;">{$value.prioritas}</span>
+                                        {else}
+                                            <span class="label label-default" style="font-size: 11px; padding: 4px 8px;">{$value.prioritas}</span>
+                                        {/if}
+                                    </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        <button class="btn btn-primary btn-sm" onclick="formSelesaikanWO('{$value.id}')" title="Selesaikan Pekerjaan"><i class="fa fa-check"></i> Selesaikan</button>
+                                    </td>
+                                </tr>
+                                {/loop}
+                            {else}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted" style="padding: 30px;">
+                                        <i class="fa fa-coffee fa-2x" style="margin-bottom: 10px;"></i><br>
+                                        Tidak ada Surat Perintah Kerja (WO) yang aktif berjalan saat ini.
+                                    </td>
+                                </tr>
+                            {/if}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{if: $mode == 'edit'}Edit{else}Tambah{/if} Data Identifikasi Barang Rusak</h3>
+    </div>
+    <div class="panel-body">
+        <form id="form-rusak">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>No. Transaksi</label>
+                        <input type="text" name="no_transaksi" class="form-control" value="{$rusak.no_transaksi}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Identifikasi</label>
+                        <input type="text" name="tgl_transaksi" class="form-control datepicker" value="{$rusak.tgl_transaksi}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Barang</label>
+                        <select name="kode_item" id="kode_item" class="form-control select2" required style="width:100%;">
+                            <option value="">-- Pilih Barang --</option>
+                            {loop: $barang as $row}
+                            <option value="{$row.kode_item}" {if: $rusak.kode_item == $row.kode_item}selected{/if}>{$row.nama_barang} ({$row.kode_item})</option>
+                            {/loop}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Lokasi Gudang</label>
+                        <select name="kode_lokasi" class="form-control" required>
+                            <option value="">-- Pilih Lokasi --</option>
+                            {loop: $lokasi as $l}
+                            <option value="{$l.kode_lokasi}" {if: $rusak.kode_lokasi == $l.kode_lokasi}selected{/if}>{$l.nama_lokasi}</option>
+                            {/loop}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Batch / No. Lot</label>
+                        <input type="text" name="batch" class="form-control" value="{$rusak.batch}" placeholder="Contoh: BT001 (Kosongkan jika tidak ada)">
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Rusak</label>
+                        <input type="number" step="any" name="jumlah" class="form-control" value="{$rusak.jumlah}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori Kerusakan</label>
+                        <select name="kategori_kerusakan" class="form-control" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="Fisik" {if: $rusak.kategori_kerusakan == 'Fisik'}selected{/if}>Kerusakan Fisik</option>
+                            <option value="Kadaluarsa" {if: $rusak.kategori_kerusakan == 'Kadaluarsa'}selected{/if}>Kadaluarsa</option>
+                            <option value="Cacat Produksi" {if: $rusak.kategori_kerusakan == 'Cacat Produksi'}selected{/if}>Cacat Produksi / Malfungsi</option>
+                            <option value="Lainnya" {if: $rusak.kategori_kerusakan == 'Lainnya'}selected{/if}>Lainnya</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Keterangan Detail</label>
+                        <textarea name="keterangan" class="form-control" rows="3">{$rusak.keterangan}</textarea>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-right">
+                <button type="button" class="btn btn-default" onclick="cancelForm()">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Simpan & Karantina</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.select2').select2();
+    $('.datepicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+
+    $('#form-rusak').submit(function(e) {
+        e.preventDefault();
+        $.post('{?=url([ADMIN, "logistik_non_medis", "savegudangrusak"])?}', $(this).serialize(), function(data) {
+            let res = JSON.parse(data);
+            if(res.status == 'success') {
+                alert('Data berhasil disimpan ke Karantina!');
+                cancelForm();
+                loadData();
+            } else {
+                alert('Error: ' + res.message);
+            }
+        });
+    });
+});
+
+function cancelForm() {
+    $('#form-container').hide();
+    $('#display').fadeIn();
+}
+</script>

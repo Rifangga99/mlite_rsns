@@ -1,0 +1,79 @@
+<div class="row" style="margin-bottom: 20px;">
+    <div class="col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4 class="panel-title text-center">Req &rarr; Approve</h4></div>
+            <div class="panel-body text-center">
+                <h3>{?= $averages['req_to_app'] ?} Jam</h3>
+                <small>Rata-rata Waktu Persetujuan</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4 class="panel-title text-center">Approve &rarr; Packing</h4></div>
+            <div class="panel-body text-center">
+                <h3>{?= $averages['app_to_pack'] ?} Jam</h3>
+                <small>Rata-rata Waktu Persiapan</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4 class="panel-title text-center">Packing &rarr; Kirim</h4></div>
+            <div class="panel-body text-center">
+                <h3>{?= $averages['pack_to_del'] ?} Jam</h3>
+                <small>Rata-rata Waktu Tunggu Kurir</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4 class="panel-title text-center">Kirim &rarr; Terima</h4></div>
+            <div class="panel-body text-center">
+                <h3>{?= $averages['del_to_rec'] ?} Jam</h3>
+                <small>Rata-rata Waktu Perjalanan</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>No. SPPB</th>
+                <th>Unit Tujuan</th>
+                <th class="text-center">Req &rarr; Approve</th>
+                <th class="text-center">Approve &rarr; Packing</th>
+                <th class="text-center">Packing &rarr; Kirim</th>
+                <th class="text-center">Kirim &rarr; Terima</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($laporan)}
+                {loop: $laporan}
+                <tr>
+                    <td><strong>{?= $value['no_sppb'] ?}</strong></td>
+                    <td>{?= $value['nama_unit'] ?}</td>
+                    <td class="text-center {?= ($value['req_to_app'] > 24) ? 'text-danger' : 'text-success' ?}">
+                        {?= $value['req_to_app'] ?} Jam
+                    </td>
+                    <td class="text-center {?= ($value['app_to_pack'] > 24) ? 'text-danger' : 'text-success' ?}">
+                        {?= $value['app_to_pack'] ?} Jam
+                    </td>
+                    <td class="text-center {?= ($value['pack_to_del'] > 12) ? 'text-danger' : 'text-success' ?}">
+                        {?= $value['pack_to_del'] ?} Jam
+                    </td>
+                    <td class="text-center {?= ($value['del_to_rec'] > 12) ? 'text-danger' : 'text-success' ?}">
+                        {?= $value['del_to_rec'] ?} Jam
+                    </td>
+                </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="6" class="text-center">Belum ada data pengiriman yang selesai.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,76 @@
+<div class="modal-header bg-primary">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title text-white">Detail Mutasi #{$mutasi.no_mutasi}</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-condensed no-border">
+                <tr><th width="150">No. Mutasi</th><td>: <b>{$mutasi.no_mutasi}</b></td></tr>
+                <tr><th>Tanggal</th><td>: {$mutasi.tgl_mutasi}</td></tr>
+                <tr><th>Status</th><td>: 
+                    {if: $mutasi.status == 'Draft'}<span class="label label-default">Draft</span>
+                    {elseif: $mutasi.status == 'Dikirim'}<span class="label label-info">Dikirim</span>
+                    {elseif: $mutasi.status == 'Diterima'}<span class="label label-success">Diterima</span>
+                    {elseif: $mutasi.status == 'Batal'}<span class="label label-danger">Batal</span>
+                    {/if}
+                </td></tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-condensed no-border">
+                <tr><th width="150">Gudang Asal</th><td>: {$mutasi.asal}</td></tr>
+                <tr><th>Gudang Tujuan</th><td>: {$mutasi.tujuan}</td></tr>
+                <tr><th>Keterangan</th><td>: {$mutasi.keterangan}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <hr>
+    <h4>Daftar Barang</h4>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr class="bg-gray">
+                    <th>Barang</th>
+                    <th>Batch</th>
+                    <th class="text-right">Qty Mutasi</th>
+                    <th>Satuan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loop: $mutasi.details}
+                <tr>
+                    <td>{$value.nama_barang}</td>
+                    <td>{$value.batch_no}</td>
+                    <td class="text-right">{$value.qty}</td>
+                    <td>{$value.satuan}</td>
+                </tr>
+                {/loop}
+            </tbody>
+        </table>
+    </div>
+
+    {if: $mutasi.status == 'Diterima'}
+    <div class="alert alert-success" style="margin-top: 20px;">
+        <p><i class="fa fa-check-circle"></i> Barang telah diterima oleh <b>{$mutasi.user_terima}</b> pada <b>{$mutasi.tgl_terima}</b></p>
+    </div>
+    {/if}
+</div>
+<div class="modal-footer">
+    <div class="pull-left">
+        <a href="{?=url(ADMIN.'/logistik_non_medis/printmutasi?no_mutasi='.$mutasi.no_mutasi)?}" class="btn btn-default" target="_blank"><i class="fa fa-print"></i> Cetak Surat Jalan</a>
+    </div>
+    
+    {if: $mutasi.status == 'Draft'}
+    <button type="button" class="btn btn-danger" onclick="prosesMutasi('{$mutasi.no_mutasi}', 'batal')">Batalkan</button>
+    <button type="button" class="btn btn-info" onclick="prosesMutasi('{$mutasi.no_mutasi}', 'kirim')"><i class="fa fa-truck"></i> Kirim Barang</button>
+    {/if}
+
+    {if: $mutasi.status == 'Dikirim'}
+    <button type="button" class="btn btn-danger" onclick="prosesMutasi('{$mutasi.no_mutasi}', 'batal')">Batalkan & Retur Stok</button>
+    <button type="button" class="btn btn-success" onclick="prosesMutasi('{$mutasi.no_mutasi}', 'terima')"><i class="fa fa-check"></i> Konfirmasi Terima</button>
+    {/if}
+
+    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+</div>

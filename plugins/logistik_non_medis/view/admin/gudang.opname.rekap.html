@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rekapitulasi Hasil Stock Opname</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 20px; }
+        .header { display: flex; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .header img { height: 60px; margin-right: 20px; }
+        .header-text h2 { margin: 0; font-size: 18px; }
+        .header-text p { margin: 2px 0; font-size: 10px; }
+        .title { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 5px; text-decoration: underline; }
+        .subtitle { text-align: center; font-size: 11px; margin-bottom: 20px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .data-table th, .data-table td { border: 1px solid #000; padding: 5px; text-align: left; }
+        .data-table th { background: #f2f2f2; }
+        .text-center { text-align: center !important; }
+        .text-right { text-align: right !important; }
+        .footer { margin-top: 30px; text-align: right; font-size: 10px; }
+        .footer-sign { width: 100%; margin-top: 30px; }
+        .footer-sign td { width: 33%; text-align: center; vertical-align: top; }
+        .sign-space { height: 60px; }
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <img src="{$logo}" alt="Logo">
+        <div class="header-text">
+            <h2>{$nama_rs}</h2>
+            <p>{$alamat_rs}, {$kota_rs}</p>
+        </div>
+    </div>
+
+    <div class="title">REKAPITULASI HASIL STOCK OPNAME</div>
+    <div class="subtitle">Periode: {$tgl_awal} s/d {$tgl_akhir}</div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th width="30" class="text-center">No</th>
+                <th width="100">No. Opname</th>
+                <th width="70">Tanggal</th>
+                <th>Nama Barang</th>
+                <th width="60" class="text-right">Sistem</th>
+                <th width="60" class="text-right">Fisik</th>
+                <th width="60" class="text-right">Selisih</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($rows)}
+                {loop: $rows as $index => $row}
+                {if: !empty($row.kode_item)}
+                <tr>
+                    <td class="text-center">{?=($index+1)?}</td>
+                    <td>{$row.no_opname}</td>
+                    <td>{if: $row.status == 'Jadwal'}{$row.tgl_jadwal}{else}{$row.tgl_opname}{/if}</td>
+                    <td>{$row.nama_barang}</td>
+                    <td class="text-right">{$row.stok_sistem}</td>
+                    <td class="text-right">{$row.stok_fisik}</td>
+                    <td class="text-right">{$row.selisih}</td>
+                    <td>{$row.keterangan}</td>
+                </tr>
+                {/if}
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="8" class="text-center">Tidak ada data hasil opname pada periode ini.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+
+    <table class="footer-sign">
+        <tr>
+            <td>
+                Mengetahui,<br>
+                Kepala Logistik<br><br>
+                <div class="sign-space"></div>
+                ( ................................ )
+            </td>
+            <td>
+                Verifikator,<br><br><br>
+                <div class="sign-space"></div>
+                ( ................................ )
+            </td>
+            <td>
+                Petugas Pelaksana,<br><br><br>
+                <div class="sign-space"></div>
+                ( ................................ )
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        Dicetak pada: {?=date('Y-m-d H:i:s')?}
+    </div>
+
+    <div class="no-print text-center" style="margin-top: 20px;">
+        <button onclick="window.print()">Cetak</button>
+        <button onclick="window.close()">Tutup</button>
+    </div>
+</body>
+</html>

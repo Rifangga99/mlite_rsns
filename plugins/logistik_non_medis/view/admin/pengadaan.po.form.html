@@ -1,0 +1,316 @@
+<form id="po-form-data" class="form-horizontal">
+    <input type="hidden" name="id" value="{?= $data['id'] ?}">
+    <input type="hidden" id="items_json" name="items_json" value='{?= json_encode($data['items']) ?}'>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">No. PO</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="no_po" value="{?= $data['no_po'] ?}" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tanggal PO</label>
+                <div class="col-sm-8">
+                    <input type="date" class="form-control" name="tgl_po" value="{?= $data['tgl_po'] ?}" {if: $data['status'] != 'Draft' && $data['status'] != 'Terkirim' && $data['status'] != 'Sebagian Diterima' && $data['status'] != 'Diamandemen'}readonly{/if}>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vendor</label>
+                <div class="col-sm-8">
+                    <select class="form-control select2" name="kode_vendor" id="kode_vendor" {if: $data['status'] != 'Draft'}disabled{/if}>
+                        <option value="">-- Pilih Vendor --</option>
+                        {loop: $vendors as $row}
+                        <option value="{$row.kode_vendor}" {if: $data['kode_vendor'] == $row['kode_vendor']}selected{/if}>{$row.nama_vendor}</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Status</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="status" value="{?= $data['status'] ?}" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+    
+    <h4>Rincian Barang</h4>
+    {if: $data['status'] == 'Draft' || $data['status'] == 'Terkirim' || $data['status'] == 'Sebagian Diterima' || $data['status'] == 'Diamandemen'}
+    <div class="row" style="margin-bottom: 15px;">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-info btn-sm" id="btn-load-pr"><i class="fa fa-download"></i> Load dari PR Disetujui</button>
+        </div>
+    </div>
+    {/if}
+
+    <div class="table-responsive">
+        <table class="table table-bordered" id="table-po-items">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th width="120">Qty Pesan</th>
+                    <th width="150">Harga Satuan</th>
+                    <th width="150">Subtotal</th>
+                    <th width="50">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Items will be loaded here by JS -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-right"><b>Total Nilai</b></td>
+                    <td>
+                        <input type="number" class="form-control text-right" name="total_nilai" id="total_nilai" value="{?= $data['total_nilai'] ?}" readonly>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right"><b>Diskon (Rp)</b></td>
+                    <td>
+                        <input type="number" class="form-control text-right calc-total" name="diskon" id="diskon" value="{?= $data['diskon'] ?}" {if: $data['status'] != 'Draft' && $data['status'] != 'Terkirim' && $data['status'] != 'Sebagian Diterima' && $data['status'] != 'Diamandemen'}readonly{/if}>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right"><b>PPN (Rp)</b></td>
+                    <td>
+                        <input type="number" class="form-control text-right calc-total" name="ppn" id="ppn" value="{?= $data['ppn'] ?}" {if: $data['status'] != 'Draft' && $data['status'] != 'Terkirim' && $data['status'] != 'Sebagian Diterima' && $data['status'] != 'Diamandemen'}readonly{/if}>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right"><b>Grand Total</b></td>
+                    <td>
+                        <input type="number" class="form-control text-right" name="grand_total" id="grand_total" value="{?= $data['grand_total'] ?}" readonly>
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Catatan</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" name="catatan" rows="3" {if: $data['status'] != 'Draft' && $data['status'] != 'Terkirim' && $data['status'] != 'Sebagian Diterima' && $data['status'] != 'Diamandemen'}readonly{/if}>{?= $data['catatan'] ?}</textarea>
+        </div>
+    </div>
+
+    <div class="form-group text-right" style="margin-top: 20px;">
+        <button type="button" class="btn btn-default" onclick="$('.nav-tabs a[href=\'#po-list\']').tab('show');">Batal / Kembali</button>
+        {if: $data['status'] == 'Draft' || $data['status'] == 'Terkirim' || $data['status'] == 'Sebagian Diterima' || $data['status'] == 'Diamandemen'}
+        <button type="button" class="btn btn-primary" id="btn-save-po"><i class="fa fa-save"></i> Simpan PO</button>
+        {/if}
+    </div>
+</form>
+
+<!-- Modal Load PR -->
+<div class="modal fade" id="modal-load-pr" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Pilih Purchase Request (PR) Disetujui</h4>
+      </div>
+      <div class="modal-body">
+          <div class="table-responsive">
+              <table class="table table-bordered table-striped" id="table-pr-list">
+                  <thead>
+                      <tr>
+                          <th>Pilih</th>
+                          <th>No. PR</th>
+                          <th>Tanggal</th>
+                          <th>Item</th>
+                          <th>Qty</th>
+                          <th>Harga Ref</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        <button type="button" class="btn btn-primary" id="btn-tambahkan-pr">Tambahkan ke PO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.select2').select2();
+    var isEditable = "{?= ($data['status'] == 'Draft' || $data['status'] == 'Terkirim' || $data['status'] == 'Sebagian Diterima' || $data['status'] == 'Diamandemen') ? 'true' : 'false' ?}";
+    var items = JSON.parse($('#items_json').val() || '[]');
+    var barangMap = {?= json_encode($barang_map) ?};
+
+    function renderItems() {
+        var tbody = $('#table-po-items tbody');
+        tbody.empty();
+        var total_nilai = 0;
+
+        if(items.length === 0) {
+            tbody.append('<tr><td colspan="5" class="text-center">Belum ada rincian barang.</td></tr>');
+        } else {
+            items.forEach(function(item, index) {
+                var nama = barangMap[item.kode_item] || item.kode_item;
+                var subtotal = parseFloat(item.qty_pesan) * parseFloat(item.harga_satuan);
+                item.subtotal = subtotal; // update object
+                total_nilai += subtotal;
+
+                var tr = $('<tr>');
+                tr.append('<td>' + nama + '<br><small>PR: ' + (item.no_pr || '-') + '</small></td>');
+                
+                if(isEditable === 'true') {
+                    tr.append('<td><input type="number" class="form-control input-sm qty-pesan" data-index="'+index+'" value="'+item.qty_pesan+'" min="1"></td>');
+                    tr.append('<td><input type="number" class="form-control input-sm harga-satuan" data-index="'+index+'" value="'+item.harga_satuan+'" min="0"></td>');
+                } else {
+                    tr.append('<td>' + item.qty_pesan + '</td>');
+                    tr.append('<td>' + item.harga_satuan + '</td>');
+                }
+                
+                tr.append('<td class="text-right">' + subtotal.toLocaleString('id-ID') + '</td>');
+                
+                if(isEditable === 'true') {
+                    tr.append('<td><button type="button" class="btn btn-danger btn-xs btn-remove-item" data-index="'+index+'"><i class="fa fa-trash"></i></button></td>');
+                } else {
+                    tr.append('<td></td>');
+                }
+                
+                tbody.append(tr);
+            });
+        }
+        
+        $('#total_nilai').val(total_nilai);
+        $('#items_json').val(JSON.stringify(items));
+        calculateGrandTotal();
+    }
+
+    function calculateGrandTotal() {
+        var total = parseFloat($('#total_nilai').val()) || 0;
+        var diskon = parseFloat($('#diskon').val()) || 0;
+        var ppn = parseFloat($('#ppn').val()) || 0;
+        var grand = total - diskon + ppn;
+        $('#grand_total').val(grand);
+    }
+
+    // Init display
+    renderItems();
+
+    $(document).on('input', '.calc-total', function() {
+        calculateGrandTotal();
+    });
+
+    $(document).on('input', '.qty-pesan, .harga-satuan', function() {
+        var index = $(this).data('index');
+        var tr = $(this).closest('tr');
+        var qty = parseFloat(tr.find('.qty-pesan').val()) || 0;
+        var hrg = parseFloat(tr.find('.harga-satuan').val()) || 0;
+        
+        items[index].qty_pesan = qty;
+        items[index].harga_satuan = hrg;
+        renderItems();
+    });
+
+    $(document).on('click', '.btn-remove-item', function() {
+        var index = $(this).data('index');
+        items.splice(index, 1);
+        renderItems();
+    });
+
+    $('#btn-load-pr').click(function() {
+        var vendor = $('#kode_vendor').val();
+        // Remove mandatory vendor check here if user wants to see all PRs first
+        // if(!vendor) {
+        //    alert('Silakan pilih Vendor terlebih dahulu!');
+        //    return;
+        // }
+
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "loadprforpo"])?}',
+            type: 'POST',
+            data: { kode_vendor: vendor },
+            dataType: 'json',
+            success: function(res) {
+                var tbody = $('#table-pr-list tbody');
+                tbody.empty();
+                if(res.length > 0) {
+                    res.forEach(function(pr) {
+                        var tr = $('<tr>');
+                        var chk = $('<input type="checkbox" class="chk-pr">').data('pr', pr);
+                        tr.append($('<td>').append(chk));
+                        tr.append('<td>' + pr.no_pr + '</td>');
+                        tr.append('<td>' + pr.tgl_pr + '</td>');
+                        tr.append('<td>' + pr.nama_barang + '</td>');
+                        tr.append('<td>' + pr.jumlah + ' ' + pr.satuan + '</td>');
+                        tr.append('<td>' + parseFloat(pr.harga_referensi).toLocaleString('id-ID') + '</td>');
+                        tbody.append(tr);
+                    });
+                } else {
+                    tbody.append('<tr><td colspan="6" class="text-center">Tidak ada PR yang disetujui.</td></tr>');
+                }
+                $('#modal-load-pr').modal('show');
+            },
+            error: function(xhr, status, error) {
+                console.error("Load PR AJAX Error:", status, error);
+                console.log("Response text:", xhr.responseText);
+                alert('Gagal memuat data PR. Cek konsol browser untuk detail.');
+            }
+        });
+    });
+
+    $('#btn-tambahkan-pr').click(function() {
+        $('.chk-pr:checked').each(function() {
+            var pr = $(this).data('pr');
+            // Check if already in items
+            var exists = items.some(function(i) { return i.id_pr == pr.id; });
+            if(!exists) {
+                items.push({
+                    id_pr: pr.id,
+                    no_pr: pr.no_pr,
+                    kode_item: pr.kode_item,
+                    qty_pesan: pr.jumlah,
+                    qty_diterima: 0,
+                    harga_satuan: pr.harga_referensi,
+                    subtotal: 0
+                });
+            }
+        });
+        $('#modal-load-pr').modal('hide');
+        renderItems();
+    });
+
+    $('#btn-save-po').click(function() {
+        if(items.length === 0) {
+            alert('Detail PR/Item PO wajib ditambahkan!');
+            return;
+        }
+        $('#kode_vendor').removeAttr('disabled');
+        $('#items_json').val(JSON.stringify(items));
+        var data = $('#po-form-data').serialize();
+        $.ajax({
+            url: '{?=url([ADMIN, "logistik_non_medis", "savepengadaanpo"])?}',
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function(res) {
+                if(res.status == 'success') {
+                    alert('PO Berhasil Disimpan: ' + res.no_po);
+                    $('.nav-tabs a[href="#po-list"]').tab('show');
+                    $('#btn-cari-po').click();
+                } else {
+                    alert(res.message);
+                }
+            }
+        });
+    });
+});
+</script>

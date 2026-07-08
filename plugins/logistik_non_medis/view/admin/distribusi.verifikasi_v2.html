@@ -1,0 +1,158 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="overflow: hidden;">
+                <h3 class="panel-title pull-left" style="line-height: 34px;"><i class="fa fa-check-square-o"></i> Verifikasi & Approval Permintaan (SPPB)</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="col-md-4 pull-right">
+                        <div class="input-group">
+                            <input type="text" id="cari_verifikasi" class="form-control" placeholder="Cari No. SPPB atau Unit...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="btn_cari_verifikasi"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="display_verifikasi">
+                    <div class="text-center">
+                        <i class="fa fa-spinner fa-spin fa-3x"></i>
+                        <p>Memuat data verifikasi...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Verifikasi -->
+<div class="modal fade" id="modal_verifikasi" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form id="form_verifikasi_sppb">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Verifikasi Permintaan Barang (SPPB)</h4>
+                </div>
+                <div class="modal-body" id="detail_verifikasi">
+                    <!-- Content via AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger pull-left" id="btn_tolak_sppb"><i class="fa fa-times"></i> Tolak Permintaan</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="btn_simpan_verifikasi"><i class="fa fa-save"></i> Simpan Verifikasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    var current_no_sppb = '';
+    displayVerifikasi();
+
+    function displayVerifikasi(halaman = 1) {
+        var cari = $('#cari_verifikasi').val();
+        var url = '{?=url(ADMIN."/logistik_non_medis/displaydistribusiverifikasi")?}';
+        
+        if(typeof mlite !== 'undefined' && mlite.token) {
+            url += (url.indexOf('?') > -1 ? '&' : '?') + 't=' + mlite.token;
+        }
+
+        $.post(url, {
+            halaman: halaman,
+            cari: cari
+        }, function(data) {
+            $('#display_verifikasi').html(data);
+        }).fail(function(xhr, status, error) {
+            $('#display_verifikasi').html('<div class="alert alert-danger text-center"><i class="fa fa-exclamation-triangle"></i> Gagal memuat data. Error: ' + error + '</div>');
+        });
+    }
+
+    $('#btn_cari_verifikasi').click(function() {
+        displayVerifikasi();
+    });
+
+    $('#cari_verifikasi').keyup(function(e) {
+        if(e.keyCode == 13) displayVerifikasi();
+    });
+
+    $(document).on('click', '.btn-verif', function() {
+        current_no_sppb = $(this).data('no');
+        var url = '{?=url(ADMIN."/logistik_non_medis/detaildistribusiverifikasi")?}';
+        if(typeof mlite !== 'undefined' && mlite.token) {
+            url += (url.indexOf('?') > -1 ? '&' : '?') + 't=' + mlite.token;
+        }
+
+        $.post(url, {
+            no_sppb: current_no_sppb
+        }, function(data) {
+            $('#detail_verifikasi').html(data);
+            $('#modal_verifikasi').modal('show');
+        }).fail(function(xhr, status, error) {
+            alert('Gagal mengambil detail: ' + error);
+        });
+    });
+
+    $('#btn_simpan_verifikasi').click(function() {
+        var formData = $('#form_verifikasi_sppb').serialize() + '&no_sppb=' + encodeURIComponent(current_no_sppb) + '&status_verif=Terverifikasi';
+
+        var url = '{?=url(ADMIN."/logistik_non_medis/savedistribusiverifikasi")?}';
+        if(typeof mlite !== 'undefined' && mlite.token) {
+            url += (url.indexOf('?') > -1 ? '&' : '?') + 't=' + mlite.token;
+        }
+
+        $.post(url, formData, function(data) {
+            try {
+                var res = JSON.parse(data);
+                if(res.status == 'success') {
+                    $('#modal_verifikasi').modal('hide');
+                    displayVerifikasi();
+                    alert('Verifikasi berhasil disimpan!');
+                } else {
+                    alert('Gagal menyimpan verifikasi: ' + res.message);
+                }
+            } catch(e) {
+                console.error("JSON Parse Error:", e, data);
+                alert('Respon server tidak valid. Silakan cek konsol browser.');
+            }
+        });
+    });
+
+    $('#btn_tolak_sppb').click(function() {
+        var alasan = prompt("Masukkan alasan penolakan:");
+        if (alasan != null && alasan != "") {
+            var formData = 'no_sppb=' + encodeURIComponent(current_no_sppb) + '&status_verif=Ditolak&alasan_penolakan=' + encodeURIComponent(alasan);
+            
+            var url = '{?=url(ADMIN."/logistik_non_medis/savedistribusiverifikasi")?}';
+            if(typeof mlite !== 'undefined' && mlite.token) {
+                url += (url.indexOf('?') > -1 ? '&' : '?') + 't=' + mlite.token;
+            }
+
+            $.post(url, formData, function(data) {
+                try {
+                    var res = JSON.parse(data);
+                    if(res.status == 'success') {
+                        $('#modal_verifikasi').modal('hide');
+                        displayVerifikasi();
+                        alert('Permintaan telah ditolak.');
+                    } else {
+                        alert('Gagal menolak permintaan: ' + res.message);
+                    }
+                } catch(e) {
+                    console.error("JSON Parse Error:", e, data);
+                    alert('Respon server tidak valid.');
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.pagination li a', function(e) {
+        e.preventDefault();
+        var halaman = $(this).data('halaman');
+        displayVerifikasi(halaman);
+    });
+});
+</script>

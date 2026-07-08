@@ -1,0 +1,506 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-calculator text-primary"></i> Modul Penyusutan Aset (Metode Garis Lurus)</h3>
+            </div>
+            <div class="panel-body" style="padding: 20px;">
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs" id="deprTabs" role="tablist" style="margin-bottom: 20px;">
+                    <li class="active">
+                        <a href="#kalkulasi" data-toggle="tab" role="tab"><i class="fa fa-play-circle"></i> Kalkulasi Periodik</a>
+                    </li>
+                    <li>
+                        <a href="#masa_manfaat" data-toggle="tab" role="tab"><i class="fa fa-sliders"></i> Default Masa Manfaat</a>
+                    </li>
+                    <li>
+                        <a href="#coa_map" data-toggle="tab" role="tab"><i class="fa fa-exchange"></i> COA Mapping</a>
+                    </li>
+                    <li>
+                        <a href="#riwayat" id="tab-riwayat-btn" data-toggle="tab" role="tab"><i class="fa fa-history"></i> Riwayat & Rollback</a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: Kalkulasi Periodik -->
+                    <div class="tab-pane active" id="kalkulasi">
+                        <div class="well" style="background-color: #fcfcfc; border: 1px solid #e3e3e3;">
+                            <form id="form-filter-kalkulasi" class="form-inline">
+                                <div class="form-group" style="margin-right: 15px;">
+                                    <label style="margin-right: 8px;">Pilih Bulan:</label>
+                                    <select name="bulan" id="depr_bulan" class="form-control" style="min-width: 140px; font-weight: bold;">
+                                        <option value="01" {if: $current_month == '01'}selected{/if}>Januari</option>
+                                        <option value="02" {if: $current_month == '02'}selected{/if}>Februari</option>
+                                        <option value="03" {if: $current_month == '03'}selected{/if}>Maret</option>
+                                        <option value="04" {if: $current_month == '04'}selected{/if}>April</option>
+                                        <option value="05" {if: $current_month == '05'}selected{/if}>Mei</option>
+                                        <option value="06" {if: $current_month == '06'}selected{/if}>Juni</option>
+                                        <option value="07" {if: $current_month == '07'}selected{/if}>Juli</option>
+                                        <option value="08" {if: $current_month == '08'}selected{/if}>Agustus</option>
+                                        <option value="09" {if: $current_month == '09'}selected{/if}>September</option>
+                                        <option value="10" {if: $current_month == '10'}selected{/if}>Oktober</option>
+                                        <option value="11" {if: $current_month == '11'}selected{/if}>November</option>
+                                        <option value="12" {if: $current_month == '12'}selected{/if}>Desember</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-right: 15px;">
+                                    <label style="margin-right: 8px;">Pilih Tahun:</label>
+                                    <select name="tahun" id="depr_tahun" class="form-control" style="min-width: 100px; font-weight: bold;">
+                                        {loop: $years}
+                                        <option value="{$value}" {if: $value == $current_year}selected{/if}>{$value}</option>
+                                        {/loop}
+                                    </select>
+                                </div>
+                                <button type="button" id="btn-preview-depr" class="btn btn-primary" style="margin-right: 8px;"><i class="fa fa-search"></i> Hitung & Preview</button>
+                                <button type="button" id="btn-proses-depr" class="btn btn-success" disabled><i class="fa fa-check-circle"></i> Proses & Post Jurnal</button>
+                            </form>
+                        </div>
+
+                        <!-- Data Display Container -->
+                        <div id="kalkulasi-container">
+                            <div class="alert alert-info text-center" style="margin-top: 30px;">
+                                <i class="fa fa-info-circle fa-2x"></i><br><br>
+                                Silakan tentukan periode penyusutan di atas, kemudian klik <strong>Hitung & Preview</strong> untuk memproses simulasi perhitungan.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Masa Manfaat Default -->
+                    <div class="tab-pane" id="masa_manfaat">
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-2">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-clock-o"></i> Atur Standar Masa Manfaat Aset & Nilai Residu</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <form id="form-settings-manfaat" method="POST">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped align-middle">
+                                                    <thead>
+                                                        <tr style="background-color: #f7f7f7;">
+                                                            <th width="35%">Jenis Aset (KIB)</th>
+                                                            <th width="30%">Masa Manfaat (Tahun)</th>
+                                                            <th width="35%">Nilai Residu (%) dari Harga Beli</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><strong>KIB B</strong> - Peralatan & Mesin</td>
+                                                            <td>
+                                                                <input type="number" name="settings[depr_manfaat_B]" class="form-control text-center" value="{$settings.depr_manfaat_B}" min="1" required>
+                                                            </td>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="number" step="0.01" name="settings[depr_residu_B]" class="form-control text-center" value="{$settings.depr_residu_B}" min="0" max="100" required>
+                                                                    <span class="input-group-addon">%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>KIB C</strong> - Gedung & Bangunan</td>
+                                                            <td>
+                                                                <input type="number" name="settings[depr_manfaat_C]" class="form-control text-center" value="{$settings.depr_manfaat_C}" min="1" required>
+                                                            </td>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="number" step="0.01" name="settings[depr_residu_C]" class="form-control text-center" value="{$settings.depr_residu_C}" min="0" max="100" required>
+                                                                    <span class="input-group-addon">%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>KIB D</strong> - Jalan, Irigasi & Jaringan</td>
+                                                            <td>
+                                                                <input type="number" name="settings[depr_manfaat_D]" class="form-control text-center" value="{$settings.depr_manfaat_D}" min="1" required>
+                                                            </td>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="number" step="0.01" name="settings[depr_residu_D]" class="form-control text-center" value="{$settings.depr_residu_D}" min="0" max="100" required>
+                                                                    <span class="input-group-addon">%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>KIB E</strong> - Aset Tetap Lainnya</td>
+                                                            <td>
+                                                                <input type="number" name="settings[depr_manfaat_E]" class="form-control text-center" value="{$settings.depr_manfaat_E}" min="1" required>
+                                                            </td>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="number" step="0.01" name="settings[depr_residu_E]" class="form-control text-center" value="{$settings.depr_residu_E}" min="0" max="100" required>
+                                                                    <span class="input-group-addon">%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="text-right" style="margin-top: 15px;">
+                                                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Simpan Default Konfigurasi</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: COA Mapping -->
+                    <div class="tab-pane" id="coa_map">
+                        <div class="row">
+                            <div class="col-md-10 col-md-offset-1">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title"><i class="fa fa-exchange"></i> Pemetaan Kode Rekening Akuntansi (Chart of Accounts)</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <form id="form-settings-coa" method="POST">
+                                            <div class="alert alert-warning" style="margin-bottom: 20px;">
+                                                <i class="fa fa-warning"></i> <strong>Penting:</strong> Akun ini akan digunakan saat memposting jurnal otomatis penyusutan aset ke jurnal keuangan. Pastikan Anda memilih kode rekening yang benar untuk Debit (Beban Penyusutan) dan Kredit (Akumulasi Penyusutan).
+                                            </div>
+
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped align-middle">
+                                                    <thead>
+                                                        <tr style="background-color: #f7f7f7;">
+                                                            <th width="30%">Jenis Aset (KIB)</th>
+                                                            <th width="35%">Akun Beban Penyusutan (Debet)</th>
+                                                            <th width="35%">Akun Akumulasi Penyusutan (Kredit)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- KIB B -->
+                                                        <tr>
+                                                            <td><strong>KIB B</strong><br><small class="text-muted">Peralatan & Mesin</small></td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_beban_B]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Beban --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_beban_B}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_akum_B]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Akumulasi --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_akum_B}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- KIB C -->
+                                                        <tr>
+                                                            <td><strong>KIB C</strong><br><small class="text-muted">Gedung & Bangunan</small></td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_beban_C]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Beban --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_beban_C}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_akum_C]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Akumulasi --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_akum_C}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- KIB D -->
+                                                        <tr>
+                                                            <td><strong>KIB D</strong><br><small class="text-muted">Jalan, Irigasi & Jaringan</small></td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_beban_D]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Beban --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_beban_D}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_akum_D]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Akumulasi --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_akum_D}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- KIB E -->
+                                                        <tr>
+                                                            <td><strong>KIB E</strong><br><small class="text-muted">Aset Tetap Lainnya</small></td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_beban_E]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Beban --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_beban_E}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <select name="settings[depr_rek_akum_E]" class="form-control select-coa" style="width: 100%;">
+                                                                    <option value="">-- Pilih Akun Akumulasi --</option>
+                                                                    {loop: $rekening}
+                                                                    <option value="{$value.kd_rek}" {if: $value.kd_rek == $settings.depr_rek_akum_E}selected{/if}>{$value.kd_rek} - {$value.nm_rek}</option>
+                                                                    {/loop}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="text-right" style="margin-top: 15px;">
+                                                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Simpan COA Mappings</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: Riwayat & Rollback -->
+                    <div class="tab-pane" id="riwayat">
+                        <div id="riwayat-container">
+                            <div class="text-center" style="padding: 40px;">
+                                <i class="fa fa-spinner fa-spin fa-2x"></i><br><br>
+                                Memuat riwayat penyusutan...
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Riwayat -->
+<div class="modal fade" id="modal-detail-riwayat" tabindex="-1" role="dialog" aria-labelledby="modalDetailLabel">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content" style="border-radius: 6px; overflow: hidden;">
+            <div class="modal-header bg-primary" style="color: white; border-bottom: none;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.8;"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalDetailLabel"><i class="fa fa-list-alt"></i> Detail Hasil Kalkulasi Penyusutan</h4>
+            </div>
+            <div class="modal-body" id="modal-detail-body" style="max-height: 480px; overflow-y: auto; padding: 20px;">
+                <!-- Content injected via AJAX -->
+            </div>
+            <div class="modal-footer" style="background-color: #f7f7f7; border-top: 1px solid #e3e3e3;">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Specific JS -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+        // Tab transition log loader
+        $('#tab-riwayat-btn').on('click', function() {
+            loadRiwayatLog();
+        });
+
+        // Load Riwayat Log Table
+        function loadRiwayatLog() {
+            $('#riwayat-container').html('<div class="text-center" style="padding:40px;"><i class="fa fa-spinner fa-spin fa-2x"></i><br><br>Memuat riwayat penyusutan...</div>');
+            $.ajax({
+                url: '{?=url(ADMIN."/logistik_non_medis/riwayatpenyusutan")?}',
+                type: 'POST',
+                success: function(response) {
+                    $('#riwayat-container').html(response);
+                },
+                error: function() {
+                    $('#riwayat-container').html('<div class="alert alert-danger">Gagal memuat riwayat data!</div>');
+                }
+            });
+        }
+
+        // Action: Hitung & Preview
+        $('#btn-preview-depr').on('click', function(e) {
+            e.preventDefault();
+            var bulan = $('#depr_bulan').val();
+            var tahun = $('#depr_tahun').val();
+
+            $('#kalkulasi-container').html('<div class="text-center" style="padding: 50px;"><i class="fa fa-spinner fa-spin fa-3x text-primary"></i><br><br>Sedang menghitung simulasi penyusutan aset...</div>');
+            $('#btn-proses-depr').prop('disabled', true);
+
+            $.ajax({
+                url: '{?=url(ADMIN."/logistik_non_medis/displayasetpenyusutan")?}',
+                type: 'POST',
+                data: {
+                    bulan: bulan,
+                    tahun: tahun
+                },
+                success: function(html) {
+                    $('#kalkulasi-container').html(html);
+                    
+                    // Enable/Disable execution button based on state
+                    var isProcessed = $('#is-processed-indicator').val();
+                    if(isProcessed === '1' || $('#empty-assets-indicator').val() === '1') {
+                        $('#btn-proses-depr').prop('disabled', true);
+                    } else {
+                        $('#btn-proses-depr').prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    $('#kalkulasi-container').html('<div class="alert alert-danger text-center">Gagal memproses perhitungan simulasi!</div>');
+                    $('#btn-proses-depr').prop('disabled', true);
+                }
+            });
+        });
+
+        // Action: Proses & Post Jurnal
+        $('#btn-proses-depr').on('click', function(e) {
+            e.preventDefault();
+            var bulan = $('#depr_bulan').val();
+            var tahun = $('#depr_tahun').val();
+
+            if(!confirm('Apakah Anda yakin ingin memproses dan memposting jurnal penyusutan untuk periode ' + bulan + '-' + tahun + '?\nTindakan ini akan mengupdate nilai buku seluruh aset aktif dan membuat entri jurnal otomatis di Keuangan.')) {
+                return;
+            }
+
+            $('#btn-preview-depr').prop('disabled', true);
+            $('#btn-proses-depr').html('<i class="fa fa-spinner fa-spin"></i> Memproses...').prop('disabled', true);
+
+            $.ajax({
+                url: '{?=url(ADMIN."/logistik_non_medis/prosespenyusutan")?}',
+                type: 'POST',
+                data: {
+                    bulan: bulan,
+                    tahun: tahun
+                },
+                dataType: 'json',
+                success: function(res) {
+                    if(res.status === 'success') {
+                        alert('Selamat! Penyusutan aset periode ' + bulan + '-' + tahun + ' berhasil diproses dan jurnal otomatis berhasil terposting.');
+                        $('#btn-preview-depr').prop('disabled', false);
+                        $('#btn-proses-depr').html('<i class="fa fa-check-circle"></i> Proses & Post Jurnal').prop('disabled', true);
+                        $('#btn-preview-depr').trigger('click'); // Reload preview
+                    } else {
+                        alert('Kesalahan: ' + res.message);
+                        $('#btn-preview-depr').prop('disabled', false);
+                        $('#btn-proses-depr').html('<i class="fa fa-check-circle"></i> Proses & Post Jurnal').prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    alert('Gagal memposting data ke server. Pastikan pemetaan COA dan koneksi server Anda stabil.');
+                    $('#btn-preview-depr').prop('disabled', false);
+                    $('#btn-proses-depr').html('<i class="fa fa-check-circle"></i> Proses & Post Jurnal').prop('disabled', false);
+                }
+            });
+        });
+
+        // Action: Simpan Settings Masa Manfaat
+        $('#form-settings-manfaat').on('submit', function(e) {
+            e.preventDefault();
+            var data = $(this).serialize();
+
+            $.ajax({
+                url: '{?=url(ADMIN."/logistik_non_medis/savepenyusutansettings")?}',
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                success: function(res) {
+                    if(res.status === 'success') {
+                        alert('Default konfigurasi masa manfaat berhasil disimpan.');
+                    } else {
+                        alert('Gagal menyimpan pengaturan: ' + res.message);
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan koneksi server saat menyimpan.');
+                }
+            });
+        });
+
+        // Action: Simpan Settings COA
+        $('#form-settings-coa').on('submit', function(e) {
+            e.preventDefault();
+            var data = $(this).serialize();
+
+            $.ajax({
+                url: '{?=url(ADMIN."/logistik_non_medis/savepenyusutansettings")?}',
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                success: function(res) {
+                    if(res.status === 'success') {
+                        alert('Pemetaan rekening COA akuntansi berhasil disimpan.');
+                    } else {
+                        alert('Gagal menyimpan pemetaan COA: ' + res.message);
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan koneksi server saat menyimpan.');
+                }
+            });
+        });
+
+        // Dynamic delegation for Rollback button in Riwayat tab
+        $(document).on('click', '.btn-rollback-depr', function(e) {
+            e.preventDefault();
+            var periode = $(this).attr('data-periode');
+
+            if(!confirm('PERINGATAN: Apakah Anda yakin ingin membatalkan (ROLLBACK) penyusutan periode ' + periode + '?\nTindakan ini akan mengembalikan nilai buku aset ke kondisi awal sebelum penyusutan periode ini dijalankan dan MENGHAPUS entri jurnal terkait dari keuangan.')) {
+                return;
+            }
+
+            var btn = $(this);
+            btn.html('<i class="fa fa-spinner fa-spin"></i> Rollback...').prop('disabled', true);
+
+            $.ajax({
+                url: '{?=url(ADMIN."/logistik_non_medis/rollbackpenyusutan")?}',
+                type: 'POST',
+                data: {
+                    periode: periode
+                },
+                dataType: 'json',
+                success: function(res) {
+                    if(res.status === 'success') {
+                        alert('Penyusutan periode ' + periode + ' berhasil dibatalkan dan jurnal keuangan dibersihkan.');
+                        loadRiwayatLog();
+                    } else {
+                        alert('Gagal melakukan rollback: ' + res.message);
+                        btn.html('<i class="fa fa-undo"></i> Rollback').prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan koneksi saat memproses rollback.');
+                    btn.html('<i class="fa fa-undo"></i> Rollback').prop('disabled', false);
+                }
+            });
+        });
+
+        // Dynamic delegation for View Detail button in Riwayat tab
+        $(document).on('click', '.btn-detail-riwayat', function(e) {
+            e.preventDefault();
+            var periode = $(this).attr('data-periode');
+
+            $('#modal-detail-body').html('<div class="text-center" style="padding: 40px;"><i class="fa fa-spinner fa-spin fa-2x"></i><br><br>Memuat rincian aset...</div>');
+            $('#modal-detail-riwayat').modal('show');
+
+            $.ajax({
+                url: '{?=url(ADMIN."/logistik_non_medis/detailriwayatpenyusutan")?}',
+                type: 'POST',
+                data: {
+                    periode: periode
+                },
+                success: function(html) {
+                    $('#modal-detail-body').html(html);
+                },
+                error: function() {
+                    $('#modal-detail-body').html('<div class="alert alert-danger">Gagal memuat rincian data untuk periode ' + periode + '!</div>');
+                }
+            });
+        });
+
+    });
+</script>

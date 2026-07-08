@@ -1,0 +1,229 @@
+<div class="modal-header bg-primary">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">{$mode_title} Data Manajemen Vendor</h4>
+</div>
+<form id="form-save-manajemen" method="POST" action="javascript:void(0);" enctype="multipart/form-data">
+    <input type="hidden" name="id" value="{$data.id}">
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Vendor</label>
+                    <select class="form-control select2" name="kode_vendor" id="form-kode-vendor" required style="width: 100%;">
+                        <option value="">-- Pilih Vendor --</option>
+                        {loop: $vendors}
+                        <option value="{$value.kode_vendor}" {if: $value.kode_vendor == $data.kode_vendor}selected{/if}>{$value.nama_vendor}</option>
+                        {/loop}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jenis Record</label>
+                    <select class="form-control" name="jenis_record" id="jenis_record" required>
+                        <option value="Evaluasi" {if: $data.jenis_record == 'Evaluasi'}selected{/if}>Evaluasi Kinerja</option>
+                        <option value="Kontrak" {if: $data.jenis_record == 'Kontrak'}selected{/if}>Kontrak Jangka Panjang (DPH)</option>
+                        <option value="Seleksi" {if: $data.jenis_record == 'Seleksi'}selected{/if}>Hasil Seleksi & Registrasi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Record</label>
+                    <input type="text" class="form-control datepicker" name="tgl_record" value="{$data.tgl_record}" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor Dokumen (Kontrak/Ref)</label>
+                    <input type="text" class="form-control" name="nomor_dokumen" value="{$data.nomor_dokumen}">
+                </div>
+                <div class="form-group">
+                    <label>Upload Lampiran (PDF/Gambar)</label>
+                    <input type="file" class="form-control" name="file_lampiran" accept=".jpg,.jpeg,.png,.pdf">
+                    {if: !empty($data.file_lampiran)}
+                    <p class="help-block text-success"><i class="fa fa-check"></i> File sudah ada: {$data.file_lampiran}</p>
+                    {/if}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Section Evaluasi -->
+                <div id="section-evaluasi" style="display: {if: $data.jenis_record == 'Evaluasi'}block{else}none{/if};">
+                    <div class="panel panel-success">
+                        <div class="panel-heading"><h3 class="panel-title">Skor Penilaian (0 - 100)</h3></div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label>Kualitas Barang</label>
+                                <input type="number" class="form-control score-input" name="skor_kualitas" value="{$data.skor_kualitas}" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Ketepatan Waktu</label>
+                                <input type="number" class="form-control score-input" name="skor_waktu" value="{$data.skor_waktu}" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Harga</label>
+                                <input type="number" class="form-control score-input" name="skor_harga" value="{$data.skor_harga}" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Respon Layanan</label>
+                                <input type="number" class="form-control score-input" name="skor_respon" value="{$data.skor_respon}" min="0" max="100">
+                            </div>
+                            <hr>
+                            <div class="text-center">
+                                <label>RATA-RATA SKOR</label>
+                                <h2 id="avg-score-display" class="text-success">{$data.total_skor}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Kontrak -->
+                <div id="section-kontrak" style="display: {if: $data.jenis_record == 'Kontrak'}block{else}none{/if};">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"><h3 class="panel-title">Detail Kontrak</h3></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tgl Mulai</label>
+                                        <input type="text" class="form-control datepicker" name="tgl_mulai" value="{$data.tgl_mulai}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tgl Selesai</label>
+                                        <input type="text" class="form-control datepicker" name="tgl_selesai" value="{$data.tgl_selesai}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Nilai Kontrak</label>
+                                <input type="text" class="form-control currency" name="nilai_nominal" value="{$nilai_nominal_formatted}">
+                            </div>
+                            <hr>
+                            <label>Daftar Plafon Harga (DPH)</label>
+                            <div id="dph-container">
+                                <div class="row" style="margin-bottom: 10px;">
+                                    <div class="col-md-6" style="padding-right: 5px;">
+                                        <select class="form-control select2" id="temp-barang" style="width: 100%;">
+                                            <option value="">-- Pilih Barang --</option>
+                                            {loop: $barang}
+                                            <option value="{$value.kode_item}" data-nama="{$value.nama_barang}">{$value.nama_barang}</option>
+                                            {/loop}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4" style="padding-left: 5px; padding-right: 5px;">
+                                        <input type="text" class="form-control currency" id="temp-harga" placeholder="Harga Rp">
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 5px;">
+                                        <button type="button" class="btn btn-info btn-block" id="btn-add-dph" title="Tambah DPH"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <table class="table table-bordered table-condensed" id="table-dph">
+                                    <thead><tr><th>Barang</th><th>Harga</th><th width="10%">#</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                                <input type="hidden" name="data_dph" id="data_dph" value='{$data.data_dph}'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Keterangan / Catatan</label>
+            <textarea class="form-control" name="keterangan" rows="3">{$data.keterangan}</textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-manajemen">Simpan Data</button>
+    </div>
+</form>
+
+<script>
+$(document).ready(function() {
+    // Safe initialization
+    try {
+        $('.datepicker').datetimepicker({ format: 'YYYY-MM-DD', locale: 'id' });
+    } catch(e) { console.warn('Datetimepicker init failed', e); }
+    
+    try {
+        $('#modal-manajemen .select2').select2({ dropdownParent: $('#modal-manajemen') });
+    } catch(e) { console.warn('Select2 init failed', e); }
+
+    // Toggle sections based on record type
+    $('#jenis_record').off('change').on('change', function() {
+        if($(this).val() == 'Evaluasi') {
+            $('#section-evaluasi').fadeIn();
+            $('#section-kontrak').hide();
+        } else if($(this).val() == 'Kontrak') {
+            $('#section-kontrak').fadeIn();
+            $('#section-evaluasi').hide();
+        } else {
+            $('#section-evaluasi').hide();
+            $('#section-kontrak').hide();
+        }
+    });
+
+    // Score calculation
+    $('.score-input').off('input').on('input', function() {
+        var q = parseInt($('input[name="skor_kualitas"]').val()) || 0;
+        var t = parseInt($('input[name="skor_waktu"]').val()) || 0;
+        var p = parseInt($('input[name="skor_harga"]').val()) || 0;
+        var s = parseInt($('input[name="skor_respon"]').val()) || 0;
+        var avg = (q + t + p + s) / 4;
+        $('#avg-score-display').text(avg.toFixed(2));
+    });
+
+    // DPH Manager Logic
+    var dphData = [];
+    try {
+        dphData = JSON.parse($('#data_dph').val() || '[]');
+    } catch(e) {
+        dphData = [];
+    }
+    
+    function renderDPH() {
+        var tbody = $('#table-dph tbody');
+        tbody.empty();
+        dphData.forEach(function(item, index) {
+            tbody.append('<tr><td>'+item.nama_barang+'</td><td class="text-right">Rp. '+parseInt(item.harga).toLocaleString('id-ID')+'</td><td class="text-center"><button type="button" class="btn btn-danger btn-xs btn-del-dph" data-index="'+index+'"><i class="fa fa-times"></i></button></td></tr>');
+        });
+        $('#data_dph').val(JSON.stringify(dphData));
+    }
+    
+    renderDPH();
+
+    // Fix button bindings by using document delegation to avoid multiple bindings or lost bindings
+    $(document).off('click', '#btn-add-dph').on('click', '#btn-add-dph', function(e) {
+        e.preventDefault();
+        var barang = $('#temp-barang').val();
+        var nama = $('#temp-barang option:selected').data('nama');
+        var hargaRaw = $('#temp-harga').val() || '0';
+        var harga = hargaRaw.replace(/[^0-9]/g, '');
+        
+        if(barang && harga && harga !== '0') {
+            dphData.push({kode_item: barang, nama_barang: nama, harga: parseInt(harga)});
+            renderDPH();
+            // Reset input fields securely
+            try { $('#temp-barang').val('').trigger('change'); } catch(e) {}
+            $('#temp-harga').val('');
+        } else {
+            alert('Pilih barang dan masukkan harga yang valid (tidak boleh kosong atau 0).');
+        }
+    });
+
+    $(document).off('click', '.btn-del-dph').on('click', '.btn-del-dph', function(e) {
+        e.preventDefault();
+        var index = $(this).data('index');
+        dphData.splice(index, 1);
+        renderDPH();
+    });
+
+    // Save form
+    $(document).off('submit', '#form-save-manajemen').on('submit', '#form-save-manajemen', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        if(typeof mlite.logistik_non_medis !== 'undefined') {
+            mlite.logistik_non_medis.saveManajemen(formData);
+        } else {
+            alert('Error: Sistem modul logistik tidak dimuat dengan benar.');
+        }
+    });
+});
+</script>

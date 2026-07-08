@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Purchase Order (PO)</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h2 { margin: 0; font-size: 18px; }
+        .header h3 { margin: 5px 0 0; font-size: 14px; font-weight: normal; }
+        .po-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; text-decoration: underline; }
+        .info-table { width: 100%; margin-bottom: 20px; }
+        .info-table td { padding: 3px; vertical-align: top; }
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .item-table th, .item-table td { border: 1px solid #000; padding: 5px; }
+        .item-table th { background-color: #f0f0f0; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .footer-sig { width: 100%; margin-top: 50px; }
+        .footer-sig td { text-align: center; width: 33%; vertical-align: bottom; }
+        .sig-space { height: 80px; }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <h2>RSU NURUSSYIFA</h2>
+        <h3>Jl. Raya Kudus - Pati No.KM. 10, Kauman, Klaling, Kec. Jekulo, Kabupaten Kudus, Jawa Tengah 59382, Telp: (0291) 6948064</h3>
+    </div>
+    
+    <div class="po-title">PURCHASE ORDER</div>
+    
+    <table class="info-table">
+        <tr>
+            <td width="15%"><b>No. PO</b></td>
+            <td width="2%">:</td>
+            <td width="33%">{?= $po['no_po'] ?}</td>
+            <td width="15%"><b>Kepada Yth.</b></td>
+            <td width="2%">:</td>
+            <td width="33%">{?= $vendor['nama_vendor'] ?}</td>
+        </tr>
+        <tr>
+            <td><b>Tanggal PO</b></td>
+            <td>:</td>
+            <td>{?= $po['tgl_po'] ?}</td>
+            <td><b>Alamat</b></td>
+            <td>:</td>
+            <td>{?= $vendor['alamat'] ?}</td>
+        </tr>
+        <tr>
+            <td><b>Status</b></td>
+            <td>:</td>
+            <td>{?= $po['status'] ?}</td>
+            <td><b>Kontak</b></td>
+            <td>:</td>
+            <td>{?= $vendor['no_telp'] ?} / {?= $vendor['pic_nama'] ?}</td>
+        </tr>
+    </table>
+    
+    <p>Bersama surat ini kami sampaikan pesanan barang/jasa sebagai berikut:</p>
+    
+    <table class="item-table">
+        <thead>
+            <tr>
+                <th width="5%">No</th>
+                <th width="40%">Deskripsi Barang</th>
+                <th width="10%">Qty</th>
+                <th width="20%">Harga Satuan</th>
+                <th width="25%">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {loop: $items as $row}
+            <tr>
+                <td class="text-center">{?= $index + 1 ?}</td>
+                <td>{$row.nama_barang} <br><small>Ref PR: {$row.no_pr}</small></td>
+                <td class="text-center">{$row.qty_pesan}</td>
+                <td class="text-right">Rp. {?= number_format($row['harga_satuan'], 0, ',', '.') ?}</td>
+                <td class="text-right">Rp. {?= number_format($row['subtotal'], 0, ',', '.') ?}</td>
+            </tr>
+            {/loop}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4" class="text-right">Total Nilai</th>
+                <th class="text-right">Rp. {?= number_format($po['total_nilai'], 0, ',', '.') ?}</th>
+            </tr>
+            <tr>
+                <th colspan="4" class="text-right">Diskon</th>
+                <th class="text-right">Rp. {?= number_format($po['diskon'], 0, ',', '.') ?}</th>
+            </tr>
+            <tr>
+                <th colspan="4" class="text-right">PPN</th>
+                <th class="text-right">Rp. {?= number_format($po['ppn'], 0, ',', '.') ?}</th>
+            </tr>
+            <tr>
+                <th colspan="4" class="text-right">Grand Total</th>
+                <th class="text-right">Rp. {?= number_format($po['grand_total'], 0, ',', '.') ?}</th>
+            </tr>
+        </tfoot>
+    </table>
+    
+    {if: !empty($po['catatan'])}
+    <p><b>Catatan Khusus:</b><br>
+    {?= nl2br($po['catatan']) ?}</p>
+    {/if}
+    
+    <table class="footer-sig">
+        <tr>
+            <td>
+                Dibuat Oleh,<br>
+                Bagian Logistik/Pengadaan
+                <div class="sig-space"></div>
+                (_________________________)
+            </td>
+            <td>
+                Disetujui Oleh,<br>
+                Manajer Keuangan/Direktur
+                <div class="sig-space"></div>
+                (_________________________)
+            </td>
+            <td>
+                Disepakati Oleh,<br>
+                Pihak Vendor
+                <div class="sig-space"></div>
+                (_________________________)
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

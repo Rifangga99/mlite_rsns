@@ -1,0 +1,35 @@
+/* Logistik Non Medis Styles */
+.panel-title {
+    font-weight: bold;
+}
+
+/* Fix Select2 Offside / Overlapping Text */
+.select2-container--default .select2-selection--single {
+    height: auto !important;
+    min-height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-bottom: 2px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    line-height: 1.4 !important;
+    padding-right: 25px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    overflow: visible !important; /* Mencegah teks offside keluar kotak */
+    display: block !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    top: 0 !important;
+}
+
+/* Khusus untuk tampilan Kartu Stok agar kotak memanjang mengikuti teks */
+#mutasi-item + .select2-container, 
+#mutasi-lokasi + .select2-container {
+    width: 100% !important;
+}

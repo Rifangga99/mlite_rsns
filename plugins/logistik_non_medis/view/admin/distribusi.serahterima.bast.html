@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BAST - {$st.no_serah_terima}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; line-height: 1.6; color: #000; background: #fff; margin: 0; padding: 20px; }
+        .document-container { max-width: 800px; margin: 0 auto; border: 1px solid #ddd; padding: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .header { display: flex; align-items: center; border-bottom: 3px double #333; padding-bottom: 15px; margin-bottom: 30px; }
+        .header img { height: 70px; margin-right: 20px; }
+        .header-text { flex: 1; text-align: center; }
+        .header-text h2 { margin: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .header-text p { margin: 2px 0; font-size: 12px; color: #555; }
+        .title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .subtitle { text-align: center; font-size: 14px; margin-bottom: 30px; }
+        .info-table { width: 100%; margin-bottom: 25px; border-collapse: collapse; }
+        .info-table td { vertical-align: top; padding: 4px; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .items-table th, .items-table td { border: 1px solid #444; padding: 8px 10px; text-align: left; }
+        .items-table th { background: #f4f4f4; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        .content { margin-bottom: 20px; text-align: justify; }
+        .footer-table { width: 100%; margin-top: 40px; page-break-inside: avoid; }
+        .footer-table td { text-align: center; width: 50%; vertical-align: bottom; }
+        .sig-box { height: 120px; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .sig-box img { max-height: 100px; max-width: 250px; border-bottom: 1px dotted #ccc; }
+        .foto-box { margin-top: 40px; border: 1px solid #ddd; padding: 15px; text-align: center; page-break-inside: avoid; background: #fcfcfc; border-radius: 4px; }
+        .foto-box img { max-width: 100%; max-height: 400px; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .foto-title { font-weight: bold; font-size: 14px; margin-bottom: 15px; text-transform: uppercase; color: #444; }
+        @media print {
+            body { padding: 0; background: none; }
+            .document-container { border: none; padding: 0; box-shadow: none; max-width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="document-container">
+        <div class="header">
+            <img src="{$logo}" alt="Logo">
+            <div class="header-text">
+                <h2>{$nama_rs}</h2>
+                <p>{$alamat_rs}, {$kota_rs}</p>
+                <p>Telp: {$kontak_rs}</p>
+            </div>
+        </div>
+
+        <div class="title">BERITA ACARA SERAH TERIMA INTERNAL</div>
+        <div class="subtitle">Nomor: {$st.no_serah_terima}</div>
+
+        <div class="content">
+            Pada hari ini, <strong>{?= date('d/m/Y', strtotime($st.tanggal_serah)) ?}</strong>, pukul <strong>{?= date('H:i', strtotime($st.tanggal_serah)) ?}</strong>, telah dilakukan serah terima barang non-medis dari Bagian Logistik kepada <strong>{$sppb.nama_unit}</strong> dengan rincian sebagai berikut:
+        </div>
+
+        <table class="info-table">
+            <tr>
+                <td width="20%">No. SPPB</td><td width="2%">:</td><td><strong>{$st.no_sppb}</strong></td>
+            </tr>
+            <tr>
+                <td>Pihak Pertama (Pengirim)</td><td>:</td><td>{$st.petugas_pengirim}</td>
+            </tr>
+            <tr>
+                <td>Pihak Kedua (Penerima)</td><td>:</td><td>{$st.penerima_nama} {if: !empty($st.penerima_nip)}(NIP: {$st.penerima_nip}){/if}</td>
+            </tr>
+        </table>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th width="5%" style="text-align: center;">No</th>
+                    <th width="45%">Nama Barang / Spesifikasi</th>
+                    <th width="15%" style="text-align: center;">Jumlah</th>
+                    <th width="15%">Satuan</th>
+                    <th width="20%">Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loop: $items}
+                    <tr>
+                        <td align="center">{?= $index + 1 ?}</td>
+                        <td><strong>{$value.nama_barang}</strong></td>
+                        <td align="center" style="font-weight: bold; font-size: 14px;">{$value.jumlah_disetujui}</td>
+                        <td>{$value.satuan}</td>
+                        <td>{$value.keterangan}</td>
+                    </tr>
+                {/loop}
+            </tbody>
+        </table>
+
+        <div class="content">
+            Demikian Berita Acara ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya. Barang telah diperiksa dan diterima dalam keadaan baik dan sesuai pesanan.
+            <br><br>
+            <strong>Catatan Tambahan:</strong><br>
+            {if: !empty($st.keterangan)}{$st.keterangan}{else}<em>Tidak ada catatan khusus.</em>{/if}
+        </div>
+
+        <table class="footer-table">
+            <tr>
+                <td>
+                    <strong>Pihak Pertama</strong><br>
+                    Yang Menyerahkan,
+                </td>
+                <td>
+                    <strong>Pihak Kedua</strong><br>
+                    Yang Menerima,
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-top: 10px;">
+                    <div class="sig-box">
+                        <!-- Tanda tangan fisik petugas pengirim jika diperlukan -->
+                    </div>
+                    ( <strong><u>{$st.petugas_pengirim}</u></strong> )<br>
+                    Staf Gudang Logistik
+                </td>
+                <td style="padding-top: 10px;">
+                    <div class="sig-box">
+                        {if: !empty($st.tanda_terima)}
+                            <img src="{$st.tanda_terima}" alt="Signature">
+                        {/if}
+                    </div>
+                    ( <strong><u>{$st.penerima_nama}</u></strong> )<br>
+                    Perwakilan Unit Peminta
+                </td>
+            </tr>
+        </table>
+
+        <div class="foto-box">
+            <div class="foto-title"><i class="fa fa-camera"></i> Dokumentasi Fisik Barang Saat Diserahkan</div>
+            {if: !empty($st.foto_kondisi)}
+                <img src="{$foto_url}" alt="Foto Kondisi Barang">
+                <p style="font-size: 11px; color: #666; margin-top: 10px;">Diambil pada: {?= date('d/m/Y H:i', strtotime($st.tanggal_serah)) ?}</p>
+            {else}
+                <p style="padding: 30px; border: 1px dashed #ccc; color: #888;"><em>(Foto dokumentasi tidak tersedia)</em></p>
+            {/if}
+        </div>
+
+        <div class="no-print" style="margin-top: 40px; text-align: center; border-top: 1px dashed #ccc; padding-top: 20px;">
+            <button onclick="window.print()" style="padding: 10px 25px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">Cetak Dokumen</button>
+            <button onclick="window.close()" style="padding: 10px 25px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Tutup Jendela</button>
+        </div>
+    </div>
+</body>
+</html>

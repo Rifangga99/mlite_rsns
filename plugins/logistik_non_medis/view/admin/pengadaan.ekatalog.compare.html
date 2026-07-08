@@ -1,0 +1,48 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">Perbandingan Harga: "{$nama_cari}"</h4>
+</div>
+<div class="modal-body">
+    {if: !empty($produk)}
+    <div class="alert alert-success">
+        <i class="fa fa-info-circle"></i> Menampilkan <strong>{?=count($produk)?}</strong> pilihan harga dari penyedia berbeda.
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="active">
+                    <th>Penyedia / Vendor</th>
+                    <th>Merk / Tipe</th>
+                    <th>Harga Katalog</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loop: $produk}
+                <tr>
+                    <td><strong>{$value.penyedia}</strong></td>
+                    <td>{$value.merk}</td>
+                    <td class="text-right">
+                        <strong>Rp. {?=number_format($value.harga_katalog, 0, ',', '.')?}</strong>
+                    </td>
+                    <td>
+                        {if: $key == 0}
+                        <span class="label label-success"><i class="fa fa-star"></i> Harga Termurah</span>
+                        {else}
+                        <span class="label label-warning">+{?=number_format($value.harga_katalog - $min_price, 0, ',', '.')?}</span>
+                        {/if}
+                    </td>
+                </tr>
+                {/loop}
+            </tbody>
+        </table>
+    </div>
+    {else}
+    <div class="alert alert-warning text-center">
+        Data produk serupa tidak ditemukan di dalam database katalog lokal.
+    </div>
+    {/if}
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+</div>

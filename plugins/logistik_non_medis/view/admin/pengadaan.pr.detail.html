@@ -1,0 +1,75 @@
+<div class="modal-header bg-info">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-info-circle"></i> Detail Permintaan Pembelian (PR)</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-condensed" style="border: none;">
+                <tr><th width="150">No. PR</th><td>: <b>{$pr.no_pr}</b></td></tr>
+                <tr><th>Tanggal Pengajuan</th><td>: {$pr.tgl_pr}</td></tr>
+                <tr><th>Unit / Departemen</th><td>: {$pr.nama_unit}</td></tr>
+                <tr><th>User Peminta</th><td>: {$pr.user_input}</td></tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-condensed" style="border: none;">
+                <tr><th width="150">Status Saat Ini</th><td>: 
+                    {if: $pr.status == 'Draft'}
+                        <span class="label label-default">Draft</span>
+                    {elseif: $pr.status == 'Diajukan'}
+                        <span class="label label-warning">Diajukan</span>
+                    {elseif: $pr.status == 'Selesai'}
+                        <span class="label label-success">Selesai / Diberikan</span>
+                    {else}
+                        <span class="label label-info">{$pr.status}</span>
+                    {/if}
+                </td></tr>
+                <tr><th>Justifikasi</th><td>: {$pr.justifikasi}</td></tr>
+                {if: !empty($pr.file_justifikasi)}
+                <tr><th>Lampiran</th><td>: <a href="{url: ['uploads', 'logistik_non_medis', 'pr', $pr.file_justifikasi]}" target="_blank" class="btn btn-xs btn-default"><i class="fa fa-paperclip"></i> Lihat File</a></td></tr>
+                {/if}
+            </table>
+        </div>
+    </div>
+
+    {if: $pr.status == 'Selesai'}
+    <div class="alert alert-success" style="margin-top: 10px; margin-bottom: 10px;">
+        <i class="fa fa-check-circle"></i> Permintaan ini telah di-ACC dan barang telah diberikan oleh <b>{$pr.petugas_logistik}</b> pada tanggal <b>{$pr.tgl_acc}</b>.
+    </div>
+    {/if}
+
+    <hr style="margin: 10px 0;">
+    
+    <div class="well well-sm" style="margin-bottom: 10px;">
+        <h5 style="margin: 0;"><i class="fa fa-list"></i> Rincian Barang</h5>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr class="bg-info">
+                    <th width="50">No</th>
+                    <th>Kode Barang</th>
+                    <th>Nama Barang</th>
+                    <th class="text-center">Jumlah</th>
+                    <th class="text-center">Satuan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loop: $items as $i => $row}
+                <tr>
+                    <td>{$row.no}</td>
+                    <td>{$row.kode_item}</td>
+                    <td>{$row.nama_barang}</td>
+                    <td class="text-center">{$row.jumlah}</td>
+                    <td class="text-center">{$row.satuan}</td>
+                </tr>
+                {/loop}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+</div>

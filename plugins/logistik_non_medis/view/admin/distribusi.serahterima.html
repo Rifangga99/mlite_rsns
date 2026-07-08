@@ -1,0 +1,82 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-truck"></i> Serah Terima Barang (Handover)</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row clearfix" style="margin-bottom: 20px;">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" id="cari_serahterima" class="form-control" placeholder="Cari No. SPPB atau Nama Unit...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="button" onclick="loadSerahTerima()"><i class="fa fa-search"></i> Cari</button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <span class="text-muted" style="font-size:12px; margin-top:10px; display:inline-block;"><i class="fa fa-info-circle"></i> Daftar barang yang telah selesai di-packing dan siap diserahkan ke unit peminta.</span>
+                    </div>
+                </div>
+                
+                <div class="table-responsive no-margin" id="display_serahterima">
+                    <!-- Content loaded via ajax -->
+                    <div class="text-center" style="padding:40px; color:#999;"><i class="fa fa-spinner fa-spin fa-2x"></i><br>Memuat data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<div class="modal fade" id="modalSerahTerima" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="form_serahterima_content"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+$(document).ready(function() {
+    loadSerahTerima();
+    
+    // Auto search on enter
+    $('#cari_serahterima').keypress(function(e){
+        if(e.which == 13) {
+            loadSerahTerima();
+        }
+    });
+});
+
+// Re-initialize signature pad when modal is fully shown
+$(document).on('shown.bs.modal', '#modalSerahTerima', function () {
+    if (typeof initSignaturePad === "function") { 
+        initSignaturePad();
+    }
+});
+
+function loadSerahTerima(halaman = 1) {
+    var cari = $('#cari_serahterima').val();
+    $('#display_serahterima').html('<div class="text-center" style="padding:40px; color:#999;"><i class="fa fa-spinner fa-spin fa-2x"></i><br>Memuat data...</div>');
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayserahterima")?}', {
+        halaman: halaman,
+        cari: cari
+    }, function(data) {
+        $('#display_serahterima').html(data);
+    });
+}
+
+function prosesSerahTerima(no_sppb) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formserahterima")?}', {
+        no_sppb: no_sppb
+    }, function(data) {
+        $('#form_serahterima_content').html(data);
+        $('#modalSerahTerima').modal('show');
+    });
+}
+
+function cetakBAST(no_sppb) {
+    window.open('{?=url(ADMIN."/logistik_non_medis/cetakbastserahterima")?}&no_sppb=' + encodeURIComponent(no_sppb), '_blank');
+}
+</script>

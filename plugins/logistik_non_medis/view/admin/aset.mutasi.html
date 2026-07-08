@@ -1,0 +1,190 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-exchange"></i> Mutasi & Relokasi Aset Non-Medis
+                </h3>
+            </div>
+            <div class="panel-body">
+                <!-- Nav Tabs -->
+                <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 20px;">
+                    <li role="presentation" class="active">
+                        <a href="#diajukan" aria-controls="diajukan" role="tab" data-toggle="tab" onclick="setTabStatus('Diajukan')">
+                            <i class="fa fa-paper-plane text-primary"></i> Menunggu Approval Asal
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#disetujui-asal" aria-controls="disetujui-asal" role="tab" data-toggle="tab" onclick="setTabStatus('Disetujui Asal')">
+                            <i class="fa fa-check-circle-o text-warning"></i> Menunggu Approval Tujuan
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#selesai" aria-controls="selesai" role="tab" data-toggle="tab" onclick="setTabStatus('Selesai')">
+                            <i class="fa fa-check-circle text-success"></i> Selesai (Mutated)
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#ditolak" aria-controls="ditolak" role="tab" data-toggle="tab" onclick="setTabStatus('Ditolak')">
+                            <i class="fa fa-times-circle text-danger"></i> Ditolak
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#draft" aria-controls="draft" role="tab" data-toggle="tab" onclick="setTabStatus('Draft')">
+                            <i class="fa fa-pencil text-muted"></i> Draft
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#semua" aria-controls="semua" role="tab" data-toggle="tab" onclick="setTabStatus('semua')">
+                            <i class="fa fa-list text-info"></i> Semua
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Action Controls -->
+                <div class="row" style="margin-bottom: 20px;">
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" onclick="tambahMutasi()">
+                            <i class="fa fa-plus-circle"></i> Buat Pengajuan Mutasi
+                        </button>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <div class="form-inline">
+                            <div class="input-group">
+                                <input type="text" id="cari-mutasi" class="form-control" placeholder="Cari No. Mutasi / Kode Aset...">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" id="btn-cari-mutasi"><i class="fa fa-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div id="display-mutasi" style="min-height: 250px; position: relative;">
+                    <div class="text-center" style="padding: 80px 0;">
+                        <i class="fa fa-spinner fa-spin fa-3x text-muted" style="margin-bottom: 15px;"></i>
+                        <p class="text-muted">Memuat data mutasi...</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Dialogs for Add/Edit/Detail -->
+<div class="modal fade" id="modalMutasi" role="dialog" aria-labelledby="modalMutasiLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <!-- Dynamic Content Loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<script>
+var activeStatus = 'Diajukan';
+
+$(document).ready(function() {
+    loadMutasiList();
+
+    $('#btn-cari-mutasi').click(function() {
+        loadMutasiList();
+    });
+
+    $('#cari-mutasi').keypress(function(e) {
+        if(e.which == 13) {
+            loadMutasiList();
+        }
+    });
+});
+
+function setTabStatus(status) {
+    activeStatus = status;
+    loadMutasiList(1);
+}
+
+function loadMutasiList(page = 1) {
+    var cari = $('#cari-mutasi').val();
+    $('#display-mutasi').html('<div class="text-center" style="padding: 80px 0;"><i class="fa fa-spinner fa-spin fa-3x text-muted"></i><p class="text-muted" style="margin-top:15px;">Mengambil data dari server...</p></div>');
+    
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayasetmutasi")?}', {
+        halaman: page,
+        cari: cari,
+        status: activeStatus
+    }, function(data) {
+        $('#display-mutasi').html(data);
+    }).fail(function() {
+        $('#display-mutasi').html('<div class="alert alert-danger" style="margin: 20px;"><i class="fa fa-exclamation-triangle"></i> Gagal terhubung ke server. Silakan muat ulang halaman.</div>');
+    });
+}
+
+function tambahMutasi() {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formasetmutasi")?}', { mode: 'add' }, function(data) {
+        $('#modalMutasi .modal-content').html(data);
+        $('#modalMutasi').modal('show');
+    });
+}
+
+function editMutasi(no) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formasetmutasi")?}', { mode: 'edit', no_mutasi: no }, function(data) {
+        $('#modalMutasi .modal-content').html(data);
+        $('#modalMutasi').modal('show');
+    });
+}
+
+function detailMutasi(no) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/detailasetmutasi")?}', { no_mutasi: no }, function(data) {
+        $('#modalMutasi .modal-content').html(data);
+        $('#modalMutasi').modal('show');
+    });
+}
+
+// Keep core script functions identically functional
+function hapusMutasi(no) {
+    if(confirm('Apakah Anda yakin ingin menghapus pengajuan mutasi ' + no + ' ini?')) {
+        $.post('{?=url(ADMIN."/logistik_non_medis/deleteasetmutasi")?}', { no_mutasi: no }, function(res) {
+            var data = JSON.parse(res);
+            if(data.status == 'success') {
+                loadMutasiList(1);
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+function approveMutasi(no, role) {
+    var roleLabel = (role == 'asal') ? 'Kepala Unit Asal' : 'Kepala Unit Tujuan';
+    if(confirm('Setujui pengajuan mutasi ' + no + ' sebagai ' + roleLabel + '?')) {
+        $.post('{?=url(ADMIN."/logistik_non_medis/approveasetmutasi")?}', { no_mutasi: no, role_type: role }, function(res) {
+            var data = JSON.parse(res);
+            if(data.status == 'success') {
+                loadMutasiList();
+                if($('#modalMutasi').hasClass('in')) $('#modalMutasi').modal('hide');
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+function rejectMutasi(no) {
+    var alasan = prompt('Masukkan alasan penolakan mutasi ' + no + ':');
+    if(alasan === null) return;
+    if(alasan.trim() === '') {
+        alert('Alasan penolakan wajib diisi!');
+        return;
+    }
+
+    $.post('{?=url(ADMIN."/logistik_non_medis/rejectasetmutasi")?}', { no_mutasi: no, alasan_penolakan: alasan }, function(res) {
+        var data = JSON.parse(res);
+        if(data.status == 'success') {
+            loadMutasiList();
+            if($('#modalMutasi').hasClass('in')) $('#modalMutasi').modal('hide');
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>

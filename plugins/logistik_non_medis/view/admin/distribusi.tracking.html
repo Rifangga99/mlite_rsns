@@ -1,0 +1,108 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Tracking Pengiriman Barang</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs" id="trackingTabs">
+                    <li class="active"><a data-toggle="tab" href="#tracking" onclick="loadTracking('tracking')">Daftar Pengiriman</a></li>
+                    <li><a data-toggle="tab" href="#laporan" onclick="loadTracking('laporan')">Laporan Ketepatan Waktu (SLA)</a></li>
+                </ul>
+
+                <div class="tab-content" style="padding-top: 15px;">
+                    <div id="tracking" class="tab-pane fade in active">
+                        <div class="well well-sm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-primary" onclick="showManifestForm()"><i class="fa fa-truck"></i> Buat Manifest Pengiriman</button>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="searchTracking" placeholder="Cari SPPB, Unit, atau Manifest..." onkeypress="if(event.keyCode==13){loadTracking('tracking', 1);}">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" onclick="loadTracking('tracking', 1)"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="trackingData"></div>
+                    </div>
+                    
+                    <div id="laporan" class="tab-pane fade">
+                        <div id="laporanData"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Form Manifest -->
+<div class="modal fade" id="formManifestModal" tabindex="-1" role="dialog" aria-labelledby="formManifestModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="formManifestModalLabel">Buat Manifest Pengiriman</h4>
+            </div>
+            <div class="modal-body" id="formManifestData">
+                <div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi -->
+<div class="modal fade" id="formKonfirmasiModal" tabindex="-1" role="dialog" aria-labelledby="formKonfirmasiModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="formKonfirmasiModalLabel">Konfirmasi Penerimaan Barang</h4>
+            </div>
+            <div class="modal-body" id="formKonfirmasiData">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var currentTab = 'tracking';
+
+    function loadTracking(tab = 'tracking', halaman = 1) {
+        currentTab = tab;
+        var cari = $('#searchTracking').val();
+        
+        if (tab === 'tracking') {
+            $('#trackingData').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i> Memuat data...</div>');
+            $.post('{?=url(ADMIN."/logistik_non_medis/displaytracking")?}', {halaman: halaman, cari: cari, tab: tab}, function(data) {
+                $('#trackingData').html(data);
+            });
+        } else if (tab === 'laporan') {
+            $('#laporanData').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i> Memuat Laporan...</div>');
+            $.post('{?=url(ADMIN."/logistik_non_medis/laporansla")?}', {halaman: halaman}, function(data) {
+                $('#laporanData').html(data);
+            });
+        }
+    }
+
+    function showManifestForm() {
+        $('#formManifestModal').modal('show');
+        $.post('{?=url(ADMIN."/logistik_non_medis/formmanifest")?}&_ts=' + new Date().getTime(), function(data) {
+            $('#formManifestData').html(data);
+        });
+    }
+
+    function showKonfirmasi(no_sppb) {
+        $('#formKonfirmasiModal').modal('show');
+        $.post('{?=url(ADMIN."/logistik_non_medis/formkonfirmasi")?}', {no_sppb: no_sppb}, function(data) {
+            $('#formKonfirmasiData').html(data);
+        });
+    }
+
+    $(document).ready(function() {
+        loadTracking('tracking');
+    });
+</script>

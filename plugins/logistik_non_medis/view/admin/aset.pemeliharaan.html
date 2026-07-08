@@ -1,0 +1,353 @@
+<style>
+    /* Custom Styling Aset Pemeliharaan - Tema Mengikuti Sistem */
+    .pm-widget {
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+        border-radius: 4px;
+        border: 1px solid transparent;
+    }
+    .pm-widget:hover {
+        transform: translateY(-3px);
+    }
+    .pm-widget .icon-bg {
+        position: absolute;
+        right: 15px;
+        bottom: 10px;
+        font-size: 60px;
+        opacity: 0.15;
+    }
+    .pm-widget h4 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0;
+        margin-bottom: 8px;
+    }
+    .pm-widget h2 {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0;
+    }
+    .ui-autocomplete {
+        z-index: 2150000000 !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-wrench"></i> Pemeliharaan & Perbaikan Aset</h3>
+                <ul class="nav nav-tabs pull-right panel-options" role="tablist">
+                    <li role="presentation" class="active"><a href="#dashboard-tab" aria-controls="dashboard-tab" role="tab" data-toggle="tab" onclick="loadDashboard()"><i class="fa fa-dashboard"></i> Dashboard & Alert</a></li>
+                    <li role="presentation"><a href="#jadwal-tab" aria-controls="jadwal-tab" role="tab" data-toggle="tab" onclick="loadJadwal()"><i class="fa fa-calendar"></i> Jadwal PM</a></li>
+                    <li role="presentation"><a href="#wo-tab" aria-controls="wo-tab" role="tab" data-toggle="tab" onclick="loadWO()"><i class="fa fa-clipboard"></i> Surat Perintah Kerja (WO)</a></li>
+                    <li role="presentation"><a href="#vendor-tab" aria-controls="vendor-tab" role="tab" data-toggle="tab" onclick="loadVendor()"><i class="fa fa-truck"></i> Vendor & Teknisi</a></li>
+                    <li role="presentation"><a href="#histori-tab" aria-controls="histori-tab" role="tab" data-toggle="tab" onclick="loadHistori()"><i class="fa fa-history"></i> Histori & Biaya</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: DASHBOARD -->
+                    <div role="tabpanel" class="tab-pane active" id="dashboard-tab">
+                        <div id="container-dashboard">
+                            <div class="text-center" style="padding: 40px;"><i class="fa fa-spinner fa-spin fa-2x"></i> Memuat dashboard...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- TAB 2: JADWAL PM -->
+                    <div role="tabpanel" class="tab-pane" id="jadwal-tab">
+                        <div class="well well-sm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-primary" onclick="formJadwal()"><i class="fa fa-plus-circle"></i> Tambah Jadwal PM Baru</button>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="text" id="cari_jadwal" class="form-control" placeholder="Cari nama kegiatan, aset, atau kode...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" onclick="loadJadwal()"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="container-jadwal"></div>
+                    </div>
+                    
+                    <!-- TAB 3: WORK ORDERS -->
+                    <div role="tabpanel" class="tab-pane" id="wo-tab">
+                        <div class="well well-sm">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary" onclick="formWO()"><i class="fa fa-plus-circle"></i> Terbitkan WO Baru</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <select id="status_wo_filter" class="form-control" onchange="loadWO()">
+                                        <option value="Aktif">WO Berjalan (Menunggu / Diproses)</option>
+                                        <option value="Selesai">WO Selesai (Histori)</option>
+                                        <option value="Dibatalkan">WO Dibatalkan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="text" id="cari_wo" class="form-control" placeholder="Cari no WO, keluhan, atau nama aset...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" onclick="loadWO()"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="container-wo"></div>
+                    </div>
+                    
+                    <!-- TAB 4: VENDOR & TEKNISI -->
+                    <div role="tabpanel" class="tab-pane" id="vendor-tab">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-truck"></i> Daftar Rekanan & Jasa Teknisi Terdaftar
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px;" class="text-center">No</th>
+                                                <th style="width: 120px;">Kode Vendor</th>
+                                                <th>Nama Perusahaan</th>
+                                                <th>Jenis Layanan</th>
+                                                <th>Kontak / PIC</th>
+                                                <th>Nomor Kontrak</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {if: !empty($rekanan)}
+                                                {loop: $rekanan}
+                                                <tr>
+                                                    <td class="text-center">{?= $key + 1 ?}</td>
+                                                    <td><code>{$value.kode_rekanan}</code></td>
+                                                    <td><strong>{$value.nama_rekanan}</strong><br><small class="text-muted"><i class="fa fa-map-marker"></i> {$value.alamat}</small></td>
+                                                    <td><span class="label label-primary">{$value.jenis_layanan}</span></td>
+                                                    <td><strong>{$value.pic}</strong><br><small><i class="fa fa-phone"></i> {$value.pic_kontak}</small></td>
+                                                    <td>{?= $value['nomor_kontrak'] ?? '-' ?}<br><small class="text-success">Nilai: Rp. {?= number_format($value['nilai_kontrak'] ?? 0, 0, ',', '.') ?}</small></td>
+                                                    <td><span class="label label-success">{$value.status}</span></td>
+                                                </tr>
+                                                {/loop}
+                                            {else}
+                                                <tr>
+                                                    <td colspan="7" class="text-center text-muted" style="padding: 20px;">Tidak ada vendor rekanan jasa yang aktif terdaftar. Mendaftarkannya dapat dilakukan di menu Master Rekanan.</td>
+                                                </tr>
+                                            {/if}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TAB 5: RIWAYAT & BIAYA -->
+                    <div role="tabpanel" class="tab-pane" id="histori-tab">
+                        <div id="container-histori"></div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UMUM JADWAL PM -->
+<div class="modal fade" id="jadwalModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="form-jadwal-body"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UMUM WORK ORDER -->
+<div class="modal fade" id="woModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="form-wo-body"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PENYELESAIAN WORK ORDER -->
+<div class="modal fade" id="completeModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div id="form-complete-body"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    loadDashboard();
+});
+
+// Load Dashboard Tab
+function loadDashboard() {
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayasetpemeliharaandashboard")?}', {}, function(data) {
+        $('#container-dashboard').html(data);
+    });
+}
+
+// Load Jadwal PM Tab
+function loadJadwal() {
+    var cari = $('#cari_jadwal').val();
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayjadwalpm")?}', {cari: cari}, function(data) {
+        $('#container-jadwal').html(data);
+    });
+}
+
+// Load Work Orders Tab
+function loadWO() {
+    var cari = $('#cari_wo').val();
+    var status = $('#status_wo_filter').val();
+    $.post('{?=url(ADMIN."/logistik_non_medis/displayasetwo")?}', {cari: cari, status: status}, function(data) {
+        $('#container-wo').html(data);
+    });
+}
+
+// Load Histori & Biaya Tab
+function loadHistori() {
+    $.post('{?=url(ADMIN."/logistik_non_medis/displaybiayahistori")?}', {}, function(data) {
+        $('#container-histori').html(data);
+    });
+}
+
+// Helper Vendor Tab Reload (Static reload, no fetch needed)
+function loadVendor() {
+    // static tab - loaded through template array
+}
+
+// Open Form Jadwal PM Modal
+function formJadwal(id = '') {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formjadwalpm")?}', {id: id}, function(data) {
+        $('#form-jadwal-body').html(data);
+        $('#jadwalModal').modal('show');
+    });
+}
+
+// Save Jadwal PM Action
+function saveJadwal() {
+    var data = $('#jadwalForm').serialize();
+    $.post('{?=url(ADMIN."/logistik_non_medis/savejadwalpm")?}', data, function(response) {
+        var res = JSON.parse(response);
+        if (res.status == 'success') {
+            $('#jadwalModal').modal('hide');
+            loadJadwal();
+            bootbox.alert({
+                message: '<i class="fa fa-check-circle text-success fa-2x"></i> &nbsp;<strong>Jadwal Pemeliharaan berhasil disimpan!</strong>',
+                buttons: { ok: { label: 'OK', className: 'btn-success' } }
+            });
+        } else {
+            bootbox.alert({
+                message: '<i class="fa fa-times-circle text-danger fa-2x"></i> &nbsp;<strong>Gagal:</strong> ' + res.message,
+                buttons: { ok: { label: 'OK', className: 'btn-danger' } }
+            });
+        }
+    });
+}
+
+// Delete Jadwal PM Action
+function hapusJadwal(id) {
+    bootbox.confirm('Apakah Anda yakin ingin menghapus jadwal pemeliharaan ini?', function(res) {
+        if (res) {
+            $.post('{?=url(ADMIN."/logistik_non_medis/hapusjadwalpm")?}', {id: id}, function(response) {
+                var res = JSON.parse(response);
+                if (res.status == 'success') {
+                    loadJadwal();
+                } else {
+                    bootbox.alert(res.message);
+                }
+            });
+        }
+    });
+}
+
+// Open Form Work Order Modal (Optionally referencing a PM Schedule)
+function formWO(id = '', jadwal_id = '') {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formasetwo")?}', {id: id, jadwal_id: jadwal_id}, function(data) {
+        $('#form-wo-body').html(data);
+        $('#woModal').modal('show');
+    });
+}
+
+// Save Work Order Action
+function saveWO() {
+    var data = $('#woForm').serialize();
+    $.post('{?=url(ADMIN."/logistik_non_medis/saveasetwo")?}', data, function(response) {
+        var res = JSON.parse(response);
+        if (res.status == 'success') {
+            $('#woModal').modal('hide');
+            loadWO();
+            loadDashboard(); // reload dashboard alert values
+            bootbox.alert({
+                message: '<i class="fa fa-check-circle text-success fa-2x"></i> &nbsp;<strong>Surat Perintah Kerja (WO) berhasil diterbitkan!</strong>',
+                buttons: { ok: { label: 'OK', className: 'btn-success' } }
+            });
+        } else {
+            bootbox.alert({
+                message: '<i class="fa fa-times-circle text-danger fa-2x"></i> &nbsp;<strong>Gagal:</strong> ' + res.message,
+                buttons: { ok: { label: 'OK', className: 'btn-danger' } }
+            });
+        }
+    });
+}
+
+// Delete Work Order Action
+function hapusWO(id) {
+    bootbox.confirm('Apakah Anda yakin ingin menghapus Surat Perintah Kerja ini?', function(res) {
+        if (res) {
+            $.post('{?=url(ADMIN."/logistik_non_medis/hapusasetwo")?}', {id: id}, function(response) {
+                var res = JSON.parse(response);
+                if (res.status == 'success') {
+                    loadWO();
+                } else {
+                    bootbox.alert(res.message);
+                }
+            });
+        }
+    });
+}
+
+// Open Form Complete Work Order Modal
+function formSelesaikanWO(id) {
+    $.post('{?=url(ADMIN."/logistik_non_medis/formselesaikanasetwo")?}', {id: id}, function(data) {
+        $('#form-complete-body').html(data);
+        $('#completeModal').modal('show');
+    });
+}
+
+// Save WO Completion (with spareparts JSON array structure)
+function saveCompleteWO() {
+    var data = $('#completeWOForm').serialize();
+    $.post('{?=url(ADMIN."/logistik_non_medis/selesaikanasetwo")?}', data, function(response) {
+        var res = JSON.parse(response);
+        if (res.status == 'success') {
+            $('#completeModal').modal('hide');
+            loadWO();
+            loadDashboard();
+            bootbox.alert({
+                message: '<i class="fa fa-check-circle text-success fa-2x"></i> &nbsp;<strong>Pekerjaan perbaikan telah diselesaikan & ditutup!</strong>',
+                buttons: { ok: { label: 'OK', className: 'btn-success' } }
+            });
+        } else {
+            bootbox.alert({
+                message: '<i class="fa fa-times-circle text-danger fa-2x"></i> &nbsp;<strong>Gagal:</strong> ' + res.message,
+                buttons: { ok: { label: 'OK', className: 'btn-danger' } }
+            });
+        }
+    });
+}
+</script>

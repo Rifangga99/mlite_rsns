@@ -1,0 +1,187 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> {if: $mode == 'add'}Tambah Pengajuan Mutasi Aset{else}Ubah Pengajuan Mutasi Aset{/if}</h4>
+</div>
+<form id="formAsetMutasi" onsubmit="event.preventDefault(); simpanMutasi();" style="margin-bottom: 0;">
+    <input type="hidden" name="mode" value="{$mode}">
+    <input type="hidden" name="no_mutasi" value="{$mutasi.no_mutasi}">
+    
+    <div class="modal-body">
+        <!-- STEP 1: PILIH & CARI ASET -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group" style="position: relative;">
+                    <label>Cari Aset Non-Medis (Ketik Nama / Kode / S/N) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-barcode"></i></span>
+                        <input type="text" id="autocomplete-aset" class="form-control" value="{if: !empty($mutasi.kode_aset)}[{$mutasi.kode_aset}] {$mutasi.nama_aset}{/if}" placeholder="Masukkan kata kunci pencarian aset..." required {if: $mode == 'edit'}readonly{/if}>
+                        <input type="hidden" name="kode_aset" id="kode_aset" value="{$mutasi.kode_aset}">
+                    </div>
+                    {if: $mode == 'add'}
+                        <p class="help-block" style="font-size: 11px; margin-top: 5px;"><i class="fa fa-info-circle"></i> Cari minimal 2 karakter untuk menampilkan daftar saran aset aktif.</p>
+                    {/if}
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: DETAIL ASET SAAT INI (READ-ONLY) -->
+        <div class="panel panel-default" id="panel-detail-asal" style="margin-bottom: 20px; {if: empty($mutasi.kode_aset)}display:none;{/if}">
+            <div class="panel-heading">
+                <i class="fa fa-info-circle"></i> Status Kepemilikan & Lokasi Terkini Aset
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-striped" style="margin-bottom: 0;">
+                            <tr>
+                                <td width="35%"><strong>Nama Aset</strong></td>
+                                <td width="65%" id="disp-nama-aset">{$mutasi.nama_aset}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Serial Number</strong></td>
+                                <td id="disp-sn-aset">{$mutasi.serial_number}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-striped" style="margin-bottom: 0;">
+                            <tr>
+                                <td width="35%"><strong>Unit Pemakai</strong></td>
+                                <td width="65%" id="disp-unit-asal">{$mutasi.nama_unit_asal}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lokasi Ruangan</strong></td>
+                                <td id="disp-lok-asal">{$mutasi.nama_lokasi_asal}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PIC Penanggung Jawab</strong></td>
+                                <td id="disp-pic-asal">{$mutasi.pic_asal}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: LOKASI & UNIT TUJUAN MUTASI -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Unit Pemakai Baru <span class="text-danger">*</span></label>
+                    <select name="kode_unit_tujuan" class="form-control select-tujuan" style="width: 100%;" required>
+                        <option value="">-- Pilih Unit Pemakai Tujuan --</option>
+                        {loop: $units}
+                        <option value="{$value.kode_unit}" {if: $value.kode_unit == $mutasi.kode_unit_tujuan}selected{/if}>{$value.nama_unit}</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Lokasi Ruangan/Gedung Baru <span class="text-danger">*</span></label>
+                    <select name="kode_lokasi_tujuan" class="form-control select-tujuan" style="width: 100%;" required>
+                        <option value="">-- Pilih Ruang/Gedung Tujuan --</option>
+                        {loop: $lokasi}
+                        <option value="{$value.kode_lokasi}" {if: $value.kode_lokasi == $mutasi.kode_lokasi_tujuan}selected{/if}>{$value.nama_lokasi}</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>PIC Penerima Aset <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" class="form-control" name="pic_tujuan" value="{$mutasi.pic_tujuan}" placeholder="Nama PIC Penanggung Jawab Baru" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Tanggal Rencana Mutasi <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" class="form-control datepicker" name="tanggal_mutasi" value="{if: !empty($mutasi.tanggal_mutasi)}{$mutasi.tanggal_mutasi}{else}{?=date('Y-m-d')?}{/if}" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Alasan / Keterangan Mutasi <span class="text-danger">*</span></label>
+                    <textarea class="form-control" name="keterangan" rows="3" placeholder="Jelaskan alasan pemindahan aset..." required>{$mutasi.keterangan}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Opsi Pengajuan</label>
+                    <select name="status" class="form-control">
+                        <option value="Diajukan" {if: $mutasi.status == 'Diajukan'}selected{/if}>Kirim Langsung (Ajukan Persetujuan)</option>
+                        <option value="Draft" {if: $mutasi.status == 'Draft'}selected{/if}>Simpan sebagai Draft</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Simpan & Kirim</button>
+    </div>
+</form>
+
+<script>
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+
+    $('.select-tujuan').select2({
+        dropdownParent: $('#modalMutasi')
+    });
+
+    {if: $mode == 'add'}
+    $('#autocomplete-aset').autocomplete({
+        source: '{?=url(ADMIN."/logistik_non_medis/searchasetautocomplete")?}',
+        minLength: 2,
+        select: function(event, ui) {
+            $('#kode_aset').val(ui.item.kode_aset);
+            $('#disp-nama-aset').text(ui.item.value);
+            $('#disp-sn-aset').text(ui.item.serial_number || '-');
+            $('#disp-unit-asal').text(ui.item.nama_unit);
+            $('#disp-lok-asal').text(ui.item.nama_lokasi);
+            $('#disp-pic-asal').text(ui.item.pic);
+            $('#panel-detail-asal').slideDown(200);
+        }
+    });
+    {/if}
+});
+
+function simpanMutasi() {
+    if(!$('#kode_aset').val()) {
+        alert('Silakan cari dan pilih aset yang terdaftar terlebih dahulu!');
+        return;
+    }
+
+    var formData = $('#formAsetMutasi').serialize();
+    
+    $.post('{?=url(ADMIN."/logistik_non_medis/saveasetmutasi")?}', formData, function(res) {
+        var data = JSON.parse(res);
+        if(data.status == 'success') {
+            $('#modalMutasi').modal('hide');
+            loadMutasiList(1);
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>

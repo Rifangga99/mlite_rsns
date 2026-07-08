@@ -1,0 +1,417 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-search"></i> Detail Spesifikasi & Riwayat Aset</h4>
+</div>
+
+<div class="modal-body" style="padding: 0;">
+    
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs nav-justified" style="margin-bottom: 0;">
+        <li class="active">
+            <a href="#tab-spesifikasi" data-toggle="tab" style="border-radius:0; border-top:none; border-left:none; border-right:none;"><i class="fa fa-file-text-o"></i> Spesifikasi & Informasi</a>
+        </li>
+        <li>
+            <a href="#tab-foto" data-toggle="tab" style="border-radius:0; border-top:none; border-left:none; border-right:none;"><i class="fa fa-camera"></i> Dokumentasi Foto</a>
+        </li>
+        <li>
+            <a href="#tab-riwayat" data-toggle="tab" style="border-radius:0; border-top:none; border-left:none; border-right:none;"><i class="fa fa-history"></i> Riwayat Mutasi Unit</a>
+        </li>
+        {if: !empty($aset.kib_jenis)}
+        <li>
+            <a href="#tab-kib" data-toggle="tab" style="border-radius:0; border-top:none; border-left:none; border-right:none;"><i class="fa fa-info-circle"></i> Informasi KIB (Kartu Inventaris)</a>
+        </li>
+        {/if}
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" style="padding: 20px;">
+        
+        <!-- Tab 1: Spesifikasi -->
+        <div class="tab-pane fade in active" id="tab-spesifikasi">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-striped" style="font-size: 13px;">
+                        <tr>
+                            <td style="width: 140px; font-weight: bold;">Kode Aset</td>
+                            <td style="font-weight: bold; font-family: monospace;">{$aset.kode_aset}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Serial Number (S/N)</td>
+                            <td style="font-family: monospace; font-size:12px;">{if: !empty($aset.serial_number)}{$aset.serial_number}{else}<span class="text-muted">-</span>{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Katalog Item</td>
+                            <td><span class="label label-default" style="font-size: 11px;">{$aset.kode_item}</span> {$aset.nama_item}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nama Aset</td>
+                            <td style="font-weight: bold;">{$aset.nama_aset}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Kondisi Aset</td>
+                            <td>
+                                {if: $aset.status_kondisi == 'Baik'}
+                                <span class="label label-success"><i class="fa fa-check-circle"></i> Baik</span>
+                                {elseif: $aset.status_kondisi == 'Rusak Ringan'}
+                                <span class="label label-warning"><i class="fa fa-warning"></i> Rusak Ringan</span>
+                                {else}
+                                <span class="label label-danger"><i class="fa fa-times-circle"></i> Rusak Berat</span>
+                                {/if}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="col-md-6">
+                    <table class="table table-striped" style="font-size: 13px;">
+                        <tr>
+                            <td style="width: 140px; font-weight: bold;">Unit Penugasan</td>
+                            <td>{$aset.nama_unit}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Person In Charge (PIC)</td>
+                            <td>{$aset.pic}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Tanggal Perolehan</td>
+                            <td>{?=date('d F Y', strtotime($aset.tanggal_perolehan))?}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Sumber Perolehan</td>
+                            <td><span class="label label-info">{$aset.sumber_perolehan}</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Harga Beli / Nilai</td>
+                            <td style="font-weight: bold; font-size:15px;">Rp. {?=number_format($aset.harga_beli,0,',','.')?}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Spesifikasi Teknis Box -->
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-wrench"></i> Spesifikasi & Informasi Teknis Lengkap
+                        </div>
+                        <div class="panel-body">
+                            {if: !empty($aset.spesifikasi)}
+                            <pre style="background: transparent; border: none; padding: 0; font-family: monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; margin:0;">{$aset.spesifikasi}</pre>
+                            {else}
+                            <span class="text-muted"><em>Spesifikasi teknis lengkap belum ditambahkan.</em></span>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab 2: Dokumentasi Foto (Ganda) -->
+        <div class="tab-pane fade" id="tab-foto">
+            <div class="row">
+                
+                <!-- Foto Tampak Depan -->
+                <div class="col-md-6">
+                    <div class="panel panel-default text-center">
+                        <div class="panel-heading">
+                            Foto Tampak Depan
+                        </div>
+                        <div class="panel-body" style="height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            {if: !empty($aset.foto_depan)}
+                            <a href="{?=url('uploads/logistik_non_medis/aset/' . $aset.foto_depan)?}" target="_blank" title="Klik untuk memperbesar">
+                                <img src="{?=url('uploads/logistik_non_medis/aset/' . $aset.foto_depan)?}" class="img-responsive img-thumbnail img-zoom" style="max-height: 240px; transition: transform 0.3s ease; cursor: zoom-in;" alt="Foto Tampak Depan">
+                            </a>
+                            {else}
+                            <div class="text-muted" style="padding: 20px;">
+                                <i class="fa fa-image fa-4x" style="color: #cbd5e1; margin-bottom: 10px;"></i>
+                                <p style="font-size:12px;">Foto tampak depan belum diunggah.</p>
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Foto Detail -->
+                <div class="col-md-6">
+                    <div class="panel panel-default text-center">
+                        <div class="panel-heading">
+                            Foto Detail (Close-Up / Stiker Pabrik)
+                        </div>
+                        <div class="panel-body" style="height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            {if: !empty($aset.foto_detail)}
+                            <a href="{?=url('uploads/logistik_non_medis/aset/' . $aset.foto_detail)?}" target="_blank" title="Klik untuk memperbesar">
+                                <img src="{?=url('uploads/logistik_non_medis/aset/' . $aset.foto_detail)?}" class="img-responsive img-thumbnail img-zoom" style="max-height: 240px; transition: transform 0.3s ease; cursor: zoom-in;" alt="Foto Detail">
+                            </a>
+                            {else}
+                            <div class="text-muted" style="padding: 20px;">
+                                <i class="fa fa-image fa-4x" style="color: #cbd5e1; margin-bottom: 10px;"></i>
+                                <p style="font-size:12px;">Foto detail belum diunggah.</p>
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <style>
+                .img-zoom:hover {
+                    transform: scale(1.05);
+                }
+            </style>
+        </div>
+        
+        <!-- Tab 3: Timeline Mutasi -->
+        <div class="tab-pane fade" id="tab-riwayat">
+            {if: !empty($mutasi)}
+            <div style="position: relative; padding-left: 30px; margin-top: 10px;">
+                <!-- Vertical Line -->
+                <div style="position: absolute; left: 10px; top: 5px; bottom: 5px; width: 2px; background-color: #ddd;"></div>
+                
+                {loop: $mutasi}
+                <div style="position: relative; margin-bottom: 25px;">
+                    <!-- Bullet Point -->
+                    <div style="position: absolute; left: -25px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background-color: #999; border: 2px solid #fff; box-shadow: 0 0 0 2px #ddd;"></div>
+                    
+                    <div style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: #fff;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-weight: bold; font-size:12px;"><i class="fa fa-calendar"></i> {?=date('d-m-Y H:i', strtotime($value.tanggal_mutasi))?}</span>
+                            <span class="label label-default" style="font-size: 10px; padding: 3px 6px;">Oleh: {$value.user_mutasi}</span>
+                        </div>
+                        
+                        <p style="font-size: 13px; margin-bottom: 6px;">
+                            <strong>Keterangan:</strong> {$value.keterangan}
+                        </p>
+                        
+                        <div class="row" style="background-color: #f9f9f9; border-radius: 4px; padding: 8px 0; margin: 0; font-size: 11px;">
+                            <div class="col-xs-6" style="border-right: 1px solid #ddd;">
+                                <span class="text-muted" style="font-weight:bold; display:block; text-transform:uppercase;">Asal (Sebelumnya)</span>
+                                <div><strong>Unit:</strong> {if: !empty($value.kode_unit_asal)}{$value.nama_unit_asal} ({$value.kode_unit_asal}){else}<span class="text-muted">-</span>{/if}</div>
+                                <div><strong>PIC:</strong> {if: !empty($value.pic_asal)}{$value.pic_asal}{else}<span class="text-muted">-</span>{/if}</div>
+                            </div>
+                            <div class="col-xs-6">
+                                <span class="text-success" style="font-weight:bold; display:block; text-transform:uppercase;">Tujuan (Baru)</span>
+                                <div><strong>Unit:</strong> {$value.nama_unit_tujuan} ({$value.kode_unit_tujuan})</div>
+                                <div><strong>PIC:</strong> {$value.pic_tujuan}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/loop}
+            </div>
+            {else}
+            <div class="text-center" style="padding: 40px; color: #888;">
+                <i class="fa fa-history fa-3x" style="color: #cbd5e1; margin-bottom: 10px;"></i>
+                <p>Belum ada riwayat mutasi penugasan untuk aset ini.</p>
+            </div>
+            {/if}
+        </div>
+
+        <!-- Tab 4: KIB Details -->
+        {if: !empty($aset.kib_jenis)}
+        <div class="tab-pane fade" id="tab-kib">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <strong>
+                        {if: $aset.kib_jenis == 'A'}<i class="fa fa-map"></i> Golongan KIB A — Tanah
+                        {elseif: $aset.kib_jenis == 'B'}<i class="fa fa-cogs"></i> Golongan KIB B — Peralatan & Mesin
+                        {elseif: $aset.kib_jenis == 'C'}<i class="fa fa-building-o"></i> Golongan KIB C — Gedung & Bangunan
+                        {elseif: $aset.kib_jenis == 'D'}<i class="fa fa-road"></i> Golongan KIB D — Jalan, Irigasi, Jaringan
+                        {elseif: $aset.kib_jenis == 'E'}<i class="fa fa-book"></i> Golongan KIB E — Aset Tetap Lainnya
+                        {elseif: $aset.kib_jenis == 'F'}<i class="fa fa-gavel"></i> Golongan KIB F — Konstruksi Dalam Pengerjaan
+                        {/if}
+                    </strong>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped" style="font-size: 13px; margin-bottom: 0;">
+                        {if: $aset.kib_jenis == 'A'}
+                        <tr>
+                            <td style="width: 200px; font-weight: bold;">Luas Tanah</td>
+                            <td>{$aset.kib_luas} m²</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Hak Tanah</td>
+                            <td>{$aset.kib_hak}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor Sertifikat</td>
+                            <td style="font-family: monospace;">{$aset.kib_no_sertifikat}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Tanggal Sertifikat</td>
+                            <td>{if: !empty($aset.kib_tgl_sertifikat)}{?=date('d F Y', strtotime($aset.kib_tgl_sertifikat))?}{else}-{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Peruntukan Penggunaan</td>
+                            <td>{$aset.kib_penggunaan}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Lokasi / Alamat</td>
+                            <td>{$aset.kib_alamat}</td>
+                        </tr>
+                        {elseif: $aset.kib_jenis == 'B'}
+                        <tr>
+                            <td style="width: 200px; font-weight: bold;">Merk / Tipe</td>
+                            <td>{$aset.kib_merk}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Ukuran / Kapasitas</td>
+                            <td>{$aset.kib_ukuran}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Bahan Pembuat</td>
+                            <td>{$aset.kib_bahan}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor Seri Pabrik</td>
+                            <td style="font-family: monospace;">{$aset.kib_no_pabrik}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor Rangka</td>
+                            <td style="font-family: monospace;">{$aset.kib_no_rangka}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor Mesin</td>
+                            <td style="font-family: monospace;">{$aset.kib_no_mesin}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor Polisi (Plat)</td>
+                            <td style="font-weight: bold; font-family: monospace;">{$aset.kib_no_polisi}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor BPKB</td>
+                            <td style="font-family: monospace;">{$aset.kib_no_bpkb}</td>
+                        </tr>
+                        {elseif: $aset.kib_jenis == 'C'}
+                        <tr>
+                            <td style="width: 200px; font-weight: bold;">Apakah Bertingkat?</td>
+                            <td>{$aset.kib_bertingkat}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Konstruksi Beton?</td>
+                            <td>{if: $aset.kib_beton == 'Ya'}Ya (Beton Permanen){else}Tidak{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Luas Lantai</td>
+                            <td>{$aset.kib_luas} m²</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Status Kepemilikan Tanah</td>
+                            <td>{$aset.kib_status_tanah}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor Dokumen Gedung / IMB</td>
+                            <td style="font-family: monospace;">{$aset.kib_no_sertifikat}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Tanggal Dokumen / IMB</td>
+                            <td>{if: !empty($aset.kib_tgl_sertifikat)}{?=date('d F Y', strtotime($aset.kib_tgl_sertifikat))?}{else}-{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Lokasi / Alamat Gedung</td>
+                            <td>{$aset.kib_alamat}</td>
+                        </tr>
+                        {elseif: $aset.kib_jenis == 'D'}
+                        <tr>
+                            <td style="width: 200px; font-weight: bold;">Jenis Konstruksi</td>
+                            <td>{$aset.kib_konstruksi}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Panjang Jaringan/Jalan</td>
+                            <td>{$aset.kib_panjang} meter</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Lebar Jaringan/Jalan</td>
+                            <td>{$aset.kib_lebar} meter</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Total Luas Jaringan/Jalan</td>
+                            <td>{$aset.kib_luas} m²</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Nomor Dokumen</td>
+                            <td style="font-family: monospace;">{$aset.kib_no_sertifikat}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Tanggal Dokumen</td>
+                            <td>{if: !empty($aset.kib_tgl_sertifikat)}{?=date('d F Y', strtotime($aset.kib_tgl_sertifikat))?}{else}-{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Status Kepemilikan Tanah</td>
+                            <td>{$aset.kib_status_tanah}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Lokasi Jaringan</td>
+                            <td>{$aset.kib_alamat}</td>
+                        </tr>
+                        {elseif: $aset.kib_jenis == 'E'}
+                        <tr>
+                            <td style="width: 200px; font-weight: bold;">Judul / Nama Spesies</td>
+                            <td>{$aset.kib_judul}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Pencipta / Penerbit</td>
+                            <td>{$aset.kib_pencipta}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Bahan Pembuat</td>
+                            <td>{$aset.kib_bahan}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Ukuran / Dimensi</td>
+                            <td>{$aset.kib_ukuran}</td>
+                        </tr>
+                        {elseif: $aset.kib_jenis == 'F'}
+                        <tr>
+                            <td style="width: 200px; font-weight: bold;">Jenis Bangunan Proyek</td>
+                            <td>{$aset.kib_proyek_bangunan}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Konstruksi Bertingkat?</td>
+                            <td>{$aset.kib_bertingkat}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Konstruksi Beton?</td>
+                            <td>{if: $aset.kib_beton == 'Ya'}Ya (Beton Permanen){else}Tidak{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Rencana Luas Lantai</td>
+                            <td>{$aset.kib_luas} m²</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Tanggal Mulai Proyek</td>
+                            <td>{if: !empty($aset.kib_tgl_mulai)}{?=date('d F Y', strtotime($aset.kib_tgl_mulai))?}{else}-{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Rencana Tanggal Selesai</td>
+                            <td>{if: !empty($aset.kib_tgl_rencana_selesai)}{?=date('d F Y', strtotime($aset.kib_tgl_rencana_selesai))?}{else}-{/if}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Progres Fisik (%)</td>
+                            <td>
+                                <div class="progress" style="margin-bottom: 0; height: 16px; box-shadow: none; border-radius: 2px;">
+                                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{$aset.kib_progress_persen}" aria-valuemin="0" aria-valuemax="100" style="width: {$aset.kib_progress_persen}%; line-height: 16px; font-weight: bold; font-size: 10px;">
+                                        {$aset.kib_progress_persen}% Selesai
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Lokasi Proyek</td>
+                            <td>{$aset.kib_alamat}</td>
+                        </tr>
+                        {/if}
+                    </table>
+                </div>
+            </div>
+        </div>
+        {/if}
+        
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary btn-print-aset" data-kode="{$aset.kode_aset}"><i class="fa fa-print"></i> Cetak Label Fisik</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-check-circle"></i> Selesai</button>
+</div>

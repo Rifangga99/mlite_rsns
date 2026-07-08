@@ -1,0 +1,96 @@
+<style>
+    .select2-container--open {
+        z-index: 9999 !important;
+    }
+</style>
+<div id="display">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Penanganan Barang Rusak</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="rowAction" style="margin-bottom:10px;">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <button type="button" class="btn btn-primary" id="tambah"><i class="fa fa-plus"></i> Tambah Data Rusak/Karantina</button>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="input-group">
+                                    <input type="text" id="cari" class="form-control" placeholder="Cari No. Transaksi / Nama Barang...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" id="btn-cari"><i class="fa fa-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="konten"></div>
+
+                    <div class="row clearfix" style="margin-top: 15px;">
+                        <div class="col-md-12 text-right">
+                            <ul class="pagination pagination-sm pagination-rusak" style="margin:0;">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="form-container" style="display:none;"></div>
+<div id="modal-detail-container"></div>
+
+<div class="modal fade" id="modal-detail" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="detail-content">
+            <!-- Content loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    loadData();
+
+    $('#tambah').click(function() {
+        $.post('{?=url([ADMIN, "logistik_non_medis", "formgudangrusak"])?}', function(data) {
+            $('#display').hide();
+            $('#form-container').html(data).fadeIn();
+        });
+    });
+
+    $('#btn-cari').click(function() {
+        loadData();
+    });
+
+    $('#cari').keyup(function(e) {
+        if(e.keyCode == 13) loadData();
+    });
+
+    $(document).on('click', '.detail-rusak', function() {
+        let id = $(this).data('id');
+        $.post('{?=url([ADMIN, "logistik_non_medis", "detailgudangrusak"])?}', {no_transaksi: id}, function(data) {
+            $('#detail-content').html(data);
+            $('#modal-detail').modal('show');
+        });
+    });
+
+    $('#modal-detail').on('shown.bs.modal', function () {
+        $('.datepicker-modal').datetimepicker({ format: 'YYYY-MM-DD', locale: 'id' });
+    });
+});
+
+function loadData(halaman = 1) {
+    let cari = $('#cari').val();
+    $.post('{?=url([ADMIN, "logistik_non_medis", "displaygudangrusak"])?}', {
+        halaman: halaman,
+        cari: cari
+    }, function(data) {
+        $('#konten').html(data);
+    });
+}
+</script>

@@ -1,0 +1,113 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Penerimaan & Verifikasi Barang</h3>
+                <ul class="nav nav-tabs pull-right panel-options">
+                    <li class="active"><a data-toggle="tab" href="#penerimaan-list"><i class="fa fa-table"></i> Daftar Penerimaan</a></li>
+                    <li><a data-toggle="tab" href="#penerimaan-form" id="btn-add-penerimaan"><i class="fa fa-plus"></i> Tambah Penerimaan</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                <div class="tab-content">
+                    <!-- Tab List -->
+                    <div id="penerimaan-list" class="tab-pane fade in active">
+                        <div class="row" style="margin-bottom: 15px;">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <input type="text" id="cari_penerimaan" class="form-control" placeholder="Cari No Penerimaan / PO / Vendor...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="button" id="btn-cari-penerimaan"><i class="fa fa-search"></i> Cari</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="display-penerimaan"></div>
+                    </div>
+                    
+                    <!-- Tab Form -->
+                    <div id="penerimaan-form" class="tab-pane fade">
+                        <div id="form-penerimaan"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        loadPenerimaan();
+
+        function loadPenerimaan(halaman = 1) {
+            var cari = $('#cari_penerimaan').val();
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "displaypenerimaan"])?}',
+                type: 'POST',
+                data: { halaman: halaman, cari: cari },
+                success: function(response) {
+                    $('#display-penerimaan').html(response);
+                }
+            });
+        }
+
+        $('#btn-cari-penerimaan').click(function() {
+            loadPenerimaan(1);
+        });
+
+        $('#cari_penerimaan').keypress(function(e) {
+            if(e.which == 13) {
+                loadPenerimaan(1);
+            }
+        });
+
+        $(document).on('click', '.pagination-penerimaan a', function(e) {
+            e.preventDefault();
+            var halaman = $(this).attr('data-hal');
+            loadPenerimaan(halaman);
+        });
+
+        $('#btn-add-penerimaan').click(function() {
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "formpenerimaan"])?}',
+                type: 'POST',
+                success: function(response) {
+                    $('#form-penerimaan').html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-penerimaan', function() {
+            var no_penerimaan = $(this).data('no');
+            $.ajax({
+                url: '{?=url([ADMIN, "logistik_non_medis", "formpenerimaan"])?}',
+                type: 'POST',
+                data: { no_penerimaan: no_penerimaan },
+                success: function(response) {
+                    $('#form-penerimaan').html(response);
+                    $('.nav-tabs a[href="#penerimaan-form"]').tab('show');
+                }
+            });
+        });
+
+        $(document).on('click', '.delete-penerimaan', function() {
+            var no_penerimaan = $(this).data('no');
+            if(confirm('Yakin ingin menghapus data penerimaan ini?')) {
+                $.ajax({
+                    url: '{?=url([ADMIN, "logistik_non_medis", "hapuspenerimaan"])?}',
+                    type: 'POST',
+                    data: { no_penerimaan: no_penerimaan },
+                    dataType: 'json',
+                    success: function(res) {
+                        if(res.status == 'success') {
+                            alert('Data berhasil dihapus');
+                            loadPenerimaan();
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>

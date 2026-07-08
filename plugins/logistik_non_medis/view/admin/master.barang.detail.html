@@ -1,0 +1,66 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Detail Barang: {$barang.nama_barang}</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-striped">
+                <tr><th width="150">Kode Item</th><td>: {$barang.kode_item}</td></tr>
+                <tr><th>Barcode</th><td>: {$barang.barcode}</td></tr>
+                <tr><th>Nama Barang</th><td>: {$barang.nama_barang}</td></tr>
+                <tr><th>Kategori</th><td>: {$barang.kategori} ({$barang.sub_kategori})</td></tr>
+                <tr><th>Satuan</th><td>: {$barang.satuan_dasar} (Konversi: {$barang.satuan_konversi})</td></tr>
+                <tr><th>Harga Referensi</th><td>: Rp. {?=number_format($barang.harga_referensi,0,',','.')?}</td></tr>
+                <tr><th>Status</th><td>: 
+                    {if: $barang.status == 'Aktif'}
+                    <span class="label label-success">Aktif</span>
+                    {else}
+                    <span class="label label-danger">Tidak Aktif</span>
+                    {/if}
+                </td></tr>
+            </table>
+            <div class="well" style="margin-top: 10px;">
+                <strong>Deskripsi:</strong><br>
+                {?=nl2br($barang.deskripsi)?}<br><br>
+                <strong>Spesifikasi:</strong><br>
+                {?=nl2br($barang.spesifikasi)?}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">Foto Barang</div>
+                <div class="panel-body text-center">
+                    {if: $barang.foto}
+                    <a href="{?=url('uploads/logistik_non_medis/foto/'.$barang.foto)?}" target="_blank" title="Klik untuk memperbesar">
+                        <img src="{?=url('uploads/logistik_non_medis/foto/'.$barang.foto)?}" class="img-responsive img-thumbnail" style="max-height: 250px; cursor: zoom-in;">
+                    </a>
+                    {else}
+                    <div class="alert alert-warning">Tidak ada foto.</div>
+                    {/if}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Dokumen Teknis</div>
+                <div class="panel-body">
+                    {if: $barang.dokumen}
+                    <div class="text-center">
+                        <i class="fa fa-file-text fa-4x text-primary"></i><br><br>
+                        <a href="{?=url('uploads/logistik_non_medis/dokumen/'.$barang.dokumen)?}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-download"></i> Lihat/Download Dokumen</a>
+                        <p class="small text-muted" style="margin-top: 10px;">File: {$barang.dokumen}</p>
+                    </div>
+                    {if: strtolower(pathinfo($barang.dokumen, PATHINFO_EXTENSION)) == 'pdf'}
+                    <hr>
+                    <iframe src="{?=url('uploads/logistik_non_medis/dokumen/'.$barang.dokumen)?}" width="100%" height="200px" style="border:none;"></iframe>
+                    {/if}
+                    {else}
+                    <div class="alert alert-warning">Tidak ada dokumen.</div>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+</div>

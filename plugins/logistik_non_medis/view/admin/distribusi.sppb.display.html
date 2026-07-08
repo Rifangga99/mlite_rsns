@@ -1,0 +1,74 @@
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th width="50">No</th>
+                <th width="120">Tgl. SPPB</th>
+                <th width="150">No. SPPB</th>
+                <th>Unit Pengaju</th>
+                <th>Daftar Barang</th>
+                <th width="120">Status</th>
+                <th width="150" class="text-center">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if: !empty($sppb)}
+                {loop: $sppb}
+                    <tr>
+                        <td>{$value.no}</td>
+                        <td>{$value.tgl_sppb}</td>
+                        <td><a href="javascript:void(0)" onclick="detailSPPB('{$value.no_sppb}')"><strong>{$value.no_sppb}</strong></a></td>
+                        <td>{$value.nama_unit}</td>
+                        <td>
+                            <small class="text-muted">{$value.jml_item} items: {$value.daftar_barang}</small>
+                        </td>
+                        <td>
+                            {if: $value.status == 'Draft'}
+                                <span class="label label-default">Draft</span>
+                            {elseif: $value.status == 'Diajukan'}
+                                <span class="label label-info">Diajukan</span>
+                            {elseif: $value.status == 'Disetujui Unit'}
+                                <span class="label label-primary">Disetujui Unit</span>
+                            {elseif: $value.status == 'Terverifikasi'}
+                                <span class="label label-success">Terverifikasi</span>
+                            {elseif: $value.status == 'Selesai'}
+                                <span class="label label-success"><i class="fa fa-check"></i> Selesai</span>
+                            {elseif: $value.status == 'Ditolak'}
+                                <span class="label label-danger">Ditolak</span>
+                            {/if}
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                {if: $value.status == 'Draft' || $value.status == 'Diajukan'}
+                                    <button class="btn btn-xs btn-default" onclick="editSPPB('{$value.no_sppb}')" title="Edit"><i class="fa fa-pencil"></i></button>
+                                    <button class="btn btn-xs btn-danger" onclick="hapusSPPB('{$value.no_sppb}')" title="Hapus"><i class="fa fa-trash"></i></button>
+                                    {if: $value.status == 'Diajukan'}
+                                        <button class="btn btn-xs btn-primary" onclick="approveUnit('{$value.no_sppb}')" title="Setujui Unit"><i class="fa fa-check-circle"></i></button>
+                                    {/if}
+                                {/if}
+                                {if: $value.status == 'Disetujui Unit'}
+                                    <button class="btn btn-xs btn-success" onclick="verifikasiLogistik('{$value.no_sppb}')" title="Verifikasi Logistik"><i class="fa fa-shield"></i></button>
+                                {/if}
+                                <button class="btn btn-xs btn-info" onclick="detailSPPB('{$value.no_sppb}')" title="Detail"><i class="fa fa-eye"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                {/loop}
+            {else}
+                <tr>
+                    <td colspan="7" class="text-center">Tidak ada data ditemukan.</td>
+                </tr>
+            {/if}
+        </tbody>
+    </table>
+</div>
+
+{if: $jml_halaman > 1}
+    <nav class="text-center">
+        <ul class="pagination">
+            {loop: $pages}
+                <li class="{if: $value == $halaman}active{/if}"><a href="javascript:void(0)" onclick="loadDisplay('{$value}')">{$value}</a></li>
+            {/loop}
+        </ul>
+    </nav>
+{/if}

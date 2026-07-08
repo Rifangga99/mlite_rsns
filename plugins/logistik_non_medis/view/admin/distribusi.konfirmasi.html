@@ -1,0 +1,48 @@
+<form id="formKonfirmasi" onsubmit="return false;">
+    <input type="hidden" name="no_sppb" value="{?= $sppb['no_sppb'] ?}">
+    
+    <div class="alert alert-info">
+        <p><strong>Info Pengiriman:</strong></p>
+        <p>No. Manifest: {?= $pengiriman['no_manifest'] ?}</p>
+        <p>Kurir: {?= $pengiriman['kurir'] ?} ({?= $pengiriman['kendaraan'] ?})</p>
+        <p>Unit Tujuan: <strong>{?= $sppb['nama_unit'] ?}</strong></p>
+    </div>
+
+    <div class="form-group">
+        <label>Nama Penerima (Personil Unit)</label>
+        <input type="text" class="form-control" name="penerima" required placeholder="Siapa yang menerima barang ini?">
+        <small class="text-muted">Pastikan barang yang diterima sesuai dengan fisik dan surat jalan.</small>
+    </div>
+
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-md-12 text-right">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Konfirmasi Barang Diterima</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    $('#formKonfirmasi').submit(function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '{?=url(ADMIN."/logistik_non_medis/savekonfirmasi")?}&t=' + mlite.token,
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#formKonfirmasiModal').modal('hide');
+                    bootbox.alert("Penerimaan barang berhasil dikonfirmasi.");
+                    loadTracking('tracking');
+                } else {
+                    bootbox.alert(response.message);
+                }
+            },
+            error: function() {
+                bootbox.alert('Terjadi kesalahan pada server.');
+            }
+        });
+    });
+</script>

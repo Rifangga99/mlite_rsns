@@ -1,0 +1,85 @@
+<article class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Data Vendor & Supplier</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="col-md-6">
+                        <a href="#" class="btn btn-primary" id="btn-tambah-vendor"><i class="fa fa-plus"></i> Tambah Vendor</a>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" id="cari-vendor" class="form-control" placeholder="Cari Kode atau Nama Vendor...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="btn-cari-vendor"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="display-vendor">
+                    <!-- Data akan dimuat di sini via AJAX -->
+                    <div class="text-center">
+                        <i class="fa fa-spinner fa-spin fa-3x"></i>
+                        <p>Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Modal Form Vendor -->
+<div class="modal fade" id="modal-vendor" tabindex="-1" role="dialog" aria-labelledby="modal-vendor-title">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form id="form-vendor" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-vendor-title">Form Vendor</h4>
+                </div>
+                <div class="modal-body" id="form-content-vendor">
+                    <!-- Form akan dimuat di sini via AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="btn-simpan-vendor">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Vendor -->
+<div class="modal fade" id="modal-detail-vendor" tabindex="-1" role="dialog" aria-labelledby="modal-detail-title">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modal-detail-title">Detail Profile Vendor</h4>
+            </div>
+            <div class="modal-body" id="detail-content-vendor">
+                <!-- Detail akan dimuat di sini via AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Preview Dokumen -->
+<div class="modal fade" id="modal-preview-vendor" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Preview Dokumen</h4>
+            </div>
+            <div class="modal-body text-center" id="preview-content-vendor" style="min-height: 500px; padding: 0;">
+                <!-- Content dimuat via JS -->
+            </div>
+        </div>
+    </div>
+</div>

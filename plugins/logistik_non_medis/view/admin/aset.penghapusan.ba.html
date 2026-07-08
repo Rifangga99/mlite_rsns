@@ -1,0 +1,50 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><i class="fa fa-clipboard"></i> Berita Acara & Eksekusi Penghapusan</h4>
+</div>
+<form id="baForm" enctype="multipart/form-data" onsubmit="event.preventDefault(); saveBA();">
+    <input type="hidden" name="id" value="{$pengajuan.id}">
+    <div class="modal-body">
+        
+        <div class="alert alert-danger" style="background-color: #f2dede; border-color: #ebccd1; color: #a94442;">
+            <i class="fa fa-exclamation-circle fa-2x pull-left"></i>
+            <strong>PERHATIAN - FASE AKHIR PENGHAPUSAN:</strong><br>
+            Menyimpan Berita Acara (BA) akan menutup pengajuan ini secara permanen. Status inventaris aset <strong>{$pengajuan.nama_aset}</strong> (Kode: <code>{$pengajuan.kode_aset}</code>) akan segera diubah menjadi <strong>Dihapuskan (Non-Aktif)</strong> di dalam sistem.
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Nomor Berita Acara (BA) <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="no_ba" value="{$pengajuan.no_ba}" placeholder="Contoh: BAP-DIR/081/LOG/2026" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Tanggal Eksekusi Lapangan <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" name="tgl_ba" value="{$pengajuan.tgl_ba}" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Unggah File Scan Berita Acara Resmi (Signed BAP)</label>
+            <input type="file" class="form-control" name="file_ba" accept="application/pdf,image/*">
+            {if: !empty($pengajuan['file_ba'])}
+                <p class="help-block text-success"><i class="fa fa-paperclip"></i> Dokumen BA terunggah: <a href="{?=url($pengajuan['file_ba'])?}" target="_blank">Unduh Dokumen</a></p>
+            {else}
+                <p class="help-block">Disarankan format PDF dengan tanda tangan basah / stempel resmi. Maksimal 2MB.</p>
+            {/if}
+        </div>
+
+        <div class="form-group">
+            <label>Keterangan & Catatan Eksekusi Akhir</label>
+            <textarea class="form-control" name="keterangan_eksekusi" rows="3" placeholder="Masukkan ringkasan jalannya serah terima lelang/hibah atau proses pemusnahan barang...">{$pengajuan.keterangan_eksekusi}</textarea>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
+        <button type="submit" class="btn btn-danger"><i class="fa fa-check-circle"></i> Selesaikan & Hapus Aset dari Inventaris</button>
+    </div>
+</form>

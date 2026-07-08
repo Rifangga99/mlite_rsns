@@ -1,0 +1,172 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{if: $mode == 'edit'}Edit{else}Tambah{/if} Permintaan Barang (SPPB)</h3>
+    </div>
+    <div class="panel-body">
+        <form id="form-sppb">
+            <input type="hidden" name="no_sppb" value="{$sppb.no_sppb}">
+            <input type="hidden" name="status" id="status-submit" value="{$sppb.status}">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Tgl. SPPB</label>
+                        <input type="text" name="tgl_sppb" class="form-control datepicker" value="{$sppb.tgl_sppb}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Unit Pengaju</label>
+                        <select name="kode_unit" id="kode_unit" class="form-control select2" required {if: $mode == 'edit'}disabled{/if}>
+                            <option value="">-- Pilih Unit --</option>
+                            {loop: $units}
+                                <option value="{$value.kode_unit}" {if: $sppb.kode_unit == $value.kode_unit}selected{/if}>{$value.kode_unit} - {$value.nama_unit}</option>
+                            {/loop}
+                        </select>
+                        {if: $mode == 'edit'}<input type="hidden" name="kode_unit" value="{$sppb.kode_unit}">{/if}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Keterangan Umum</label>
+                        <textarea name="keterangan_umum" class="form-control" rows="2">{$sppb.keterangan}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <h4>Daftar Barang</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="table-items">
+                    <thead>
+                        <tr class="active">
+                            <th width="300">Pilih Barang</th>
+                            <th width="120">Jumlah</th>
+                            <th width="120">Satuan</th>
+                            <th>Keterangan Item</th>
+                            <th width="50"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="item-rows">
+                        {if: !empty($sppb.items)}
+                            {loop: $sppb.items}
+                                <tr>
+                                    <td>
+                                        <select name="kode_item[]" class="form-control select-item" required>
+                                            <option value="{$value.kode_item}" selected>{$value.kode_item}</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="number" step="any" name="jumlah[]" class="form-control" value="{$value.jumlah}" required></td>
+                                    <td><input type="text" name="satuan[]" class="form-control" value="{$value.satuan}" readonly></td>
+                                    <td><input type="text" name="keterangan_item[]" class="form-control" value="{$value.keterangan_item}"></td>
+                                    <td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-times"></i></button></td>
+                                </tr>
+                            {/loop}
+                        {/if}
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-default" id="btn-add-row"><i class="fa fa-plus"></i> Tambah Baris</button>
+
+            <hr>
+            <div class="pull-right">
+                <button type="button" class="btn btn-default" id="btn-cancel">Batal</button>
+                <button type="submit" class="btn btn-warning" id="btn-draft">Simpan Draft</button>
+                <button type="submit" class="btn btn-success" id="btn-submit">Ajukan Permintaan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        locale: 'id'
+    });
+
+    $('.select2').select2({ width: '100%' });
+
+    initSelect2Item($('.select-item'));
+
+    $('#btn-add-row').click(function() {
+        addRow();
+    });
+
+    $('#item-rows').on('click', '.btn-remove', function() {
+        $(this).closest('tr').remove();
+    });
+
+    $('#btn-cancel').click(function() {
+        $('#form-container').hide();
+        $('#display').show();
+    });
+
+    $('#btn-draft').click(function() {
+        $('#status-submit').val('Draft');
+    });
+
+    $('#btn-submit').click(function() {
+        $('#status-submit').val('Diajukan');
+    });
+
+    $('#form-sppb').submit(function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        $.post('{?=url(ADMIN.'/logistik_non_medis/savesppb')?}', formData, function(data) {
+            var res = JSON.parse(data);
+            if(res.status == 'success') {
+                $('#form-container').hide();
+                $('#display').show();
+                loadDisplay();
+            } else {
+                alert(res.message);
+            }
+        });
+    });
+
+    if($('#item-rows tr').length == 0) addRow();
+});
+
+function addRow() {
+    var html = '<tr>' +
+               '<td><select name="kode_item[]" class="form-control select-item" required></select></td>' +
+               '<td><input type="number" step="any" name="jumlah[]" class="form-control" value="1" required></td>' +
+               '<td><input type="text" name="satuan[]" class="form-control" readonly></td>' +
+               '<td><input type="text" name="keterangan_item[]" class="form-control"></td>' +
+               '<td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-times"></i></button></td>' +
+               '</tr>';
+    var $row = $(html);
+    $('#item-rows').append($row);
+    initSelect2Item($row.find('.select-item'));
+}
+
+function initSelect2Item($el) {
+    $el.select2({
+        width: '100%',
+        placeholder: '-- Pilih Barang --',
+        ajax: {
+            url: '{?=url(ADMIN.'/logistik_non_medis/ajaxmasterbarang')?}',
+            dataType: 'json',
+            delay: 250,
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item.kode_item + ' - ' + item.nama_barang,
+                            id: item.kode_item,
+                            satuan: item.satuan_dasar
+                        }
+                    })
+                };
+            },
+            cache: true
+        }
+    }).on('select2:select', function (e) {
+        var data = e.params.data;
+        $(this).closest('tr').find('input[name="satuan[]"]').val(data.satuan);
+    });
+}
+</script>
