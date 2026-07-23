@@ -3,9 +3,10 @@
         <thead>
             <tr>
                 <th width="50">No</th>
-                <th width="120">Tgl. SPPB</th>
-                <th width="150">No. SPPB</th>
+                <th width="110">Tgl. SPPB</th>
+                <th width="140">No. SPPB</th>
                 <th>Unit Pengaju</th>
+                <th width="110">Jenis</th>
                 <th>Daftar Barang</th>
                 <th width="120">Status</th>
                 <th width="150" class="text-center">Aksi</th>
@@ -19,6 +20,13 @@
                         <td>{$value.tgl_sppb}</td>
                         <td><a href="javascript:void(0)" onclick="detailSPPB('{$value.no_sppb}')"><strong>{$value.no_sppb}</strong></a></td>
                         <td>{$value.nama_unit}</td>
+                        <td>
+                            {if: $value.jenis_permintaan == 'Rutin'}
+                                <span class="label label-info"><i class="fa fa-refresh"></i> Rutin</span>
+                            {else}
+                                <span class="label label-warning"><i class="fa fa-star"></i> Non-Rutin</span>
+                            {/if}
+                        </td>
                         <td>
                             <small class="text-muted">{$value.jml_item} items: {$value.daftar_barang}</small>
                         </td>

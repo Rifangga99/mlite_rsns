@@ -9,6 +9,13 @@
                 <tr><th width="150">No. SPPB</th><td>: <strong>{$sppb.no_sppb}</strong></td></tr>
                 <tr><th>Tgl. Permintaan</th><td>: {?=date('d/m/Y', strtotime($sppb.tgl_sppb))?}</td></tr>
                 <tr><th>Unit Pengaju</th><td>: {$sppb.nama_unit}</td></tr>
+                <tr><th>Jenis Permintaan</th><td>: 
+                    {if: $sppb.jenis_permintaan == 'Rutin'}
+                        <span class="label label-info"><i class="fa fa-refresh"></i> Rutin (Rutin Mingguan)</span>
+                    {else}
+                        <span class="label label-warning"><i class="fa fa-star"></i> Non-Rutin (Insidental)</span>
+                    {/if}
+                </td></tr>
             </table>
         </div>
         <div class="col-md-6">

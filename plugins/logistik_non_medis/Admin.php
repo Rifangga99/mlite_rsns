@@ -5621,6 +5621,11 @@ $(document).ready(function() {
           $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_sppb` ADD `alasan_penolakan` text DEFAULT NULL AFTER `keterangan` ");
       }
 
+      $check_jenis = $this->db()->pdo()->query("SHOW COLUMNS FROM `rsns_custom_logistik_non_medis_sppb` LIKE 'jenis_permintaan'")->fetch();
+      if (!$check_jenis) {
+          $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_sppb` ADD `jenis_permintaan` enum('Rutin','Non Rutin') NOT NULL DEFAULT 'Rutin' AFTER `kode_unit` ");
+      }
+
       $check_ka_unit = $this->db()->pdo()->query("SHOW COLUMNS FROM `rsns_custom_logistik_non_medis_sppb` LIKE 'user_approve_ka_unit'")->fetch();
       if (!$check_ka_unit) {
           $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_sppb` 
@@ -6007,6 +6012,7 @@ $(document).ready(function() {
       $halaman = isset($_POST['halaman']) ? (int)$_POST['halaman'] : 1;
       $cari = isset($_POST['cari']) ? $_POST['cari'] : '';
       $status = isset($_POST['status']) ? $_POST['status'] : '';
+      $jenis = isset($_POST['jenis']) ? $_POST['jenis'] : '';
       
       $_offset = ($halaman - 1) * $perpage;
 
@@ -6016,7 +6022,7 @@ $(document).ready(function() {
       $user_kode_unit = $userRoleData['kode_unit'] ?? null;
       
       $sql = "
-          SELECT s.no_sppb, s.tgl_sppb, s.kode_unit, u.nama_unit, s.status, s.keterangan,
+          SELECT s.no_sppb, s.tgl_sppb, s.kode_unit, u.nama_unit, s.jenis_permintaan, s.status, s.keterangan,
                  COUNT(s.kode_item) as jml_item,
                  GROUP_CONCAT(b.nama_barang SEPARATOR ', ') as daftar_barang
           FROM rsns_custom_logistik_non_medis_sppb s
@@ -6038,12 +6044,17 @@ $(document).ready(function() {
           $params[] = $status;
       }
 
+      if (!empty($jenis)) {
+          $sql .= " AND s.jenis_permintaan = ? ";
+          $params[] = $jenis;
+      }
+
       if (in_array($role, ['unit', 'kepala_unit', 'kepala_sie', 'kepala_bidang']) && !empty($user_kode_unit)) {
           $sql .= " AND s.kode_unit = ? ";
           $params[] = $user_kode_unit;
       }
 
-      $sql .= " GROUP BY s.no_sppb, s.tgl_sppb, s.kode_unit, u.nama_unit, s.status, s.keterangan 
+      $sql .= " GROUP BY s.no_sppb, s.tgl_sppb, s.kode_unit, u.nama_unit, s.jenis_permintaan, s.status, s.keterangan 
                 ORDER BY s.tgl_input DESC, s.no_sppb DESC ";
 
       $stmt = $this->db()->pdo()->prepare($sql);
@@ -6094,6 +6105,7 @@ $(document).ready(function() {
               'no_sppb' => '',
               'tgl_sppb' => date('Y-m-d'),
               'kode_unit' => ($role === 'unit' && !empty($user_kode_unit)) ? $user_kode_unit : '',
+              'jenis_permintaan' => 'Rutin',
               'status' => 'Draft',
               'items' => []
           ];
@@ -6136,8 +6148,17 @@ $(document).ready(function() {
   {
       $no_sppb = $_POST['no_sppb'] ?? '';
       $kode_unit = $_POST['kode_unit'] ?? '';
+      $jenis_permintaan = $_POST['jenis_permintaan'] ?? 'Rutin';
       $status = $_POST['status'] ?? 'Diajukan';
       $user = $this->core->getUserInfo('username', null, true);
+
+      if ($status === 'Diajukan') {
+          if ($jenis_permintaan === 'Rutin') {
+              $status = 'Disetujui Unit';
+          } else {
+              $status = 'Diajukan';
+          }
+      }
 
       $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $user)->oneArray();
       $role = $userRoleData['role'] ?? 'unit';
@@ -6165,7 +6186,7 @@ $(document).ready(function() {
       }
 
       // Check Quota
-      if ($status == 'Diajukan') {
+      if ($status == 'Diajukan' || $status == 'Disetujui Unit') {
           $tgl_sppb = $_POST['tgl_sppb'] ?? date('Y-m-d');
           $tahun = date('Y', strtotime($tgl_sppb));
           $bulan = (int)date('m', strtotime($tgl_sppb));
@@ -6212,6 +6233,7 @@ $(document).ready(function() {
                   'no_sppb' => $no_sppb,
                   'tgl_sppb' => $_POST['tgl_sppb'] ?? date('Y-m-d'),
                   'kode_unit' => $kode_unit,
+                  'jenis_permintaan' => $jenis_permintaan,
                   'kode_item' => $kode_item,
                   'jumlah' => $_POST['jumlah'][$key] ?? 0,
                   'satuan' => $_POST['satuan'][$key] ?? '',

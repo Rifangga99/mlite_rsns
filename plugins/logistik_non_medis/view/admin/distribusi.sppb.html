@@ -20,6 +20,13 @@
                                 </div>
                             </div>
                             <div class="col-md-3">
+                                <select id="filter-jenis" class="form-control">
+                                    <option value="">-- Semua Jenis --</option>
+                                    <option value="Rutin">Rutin (Mingguan)</option>
+                                    <option value="Non Rutin">Non-Rutin</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
                                 <select id="filter-status" class="form-control">
                                     <option value="">-- Semua Status --</option>
                                     <option value="Draft">Draft</option>
@@ -63,7 +70,7 @@ $(document).ready(function() {
         if(e.which == 13) loadDisplay();
     });
 
-    $('#filter-status').change(function() {
+    $('#filter-status, #filter-jenis').change(function() {
         loadDisplay();
     });
 
@@ -78,9 +85,11 @@ $(document).ready(function() {
 function loadDisplay(halaman = 1) {
     var cari = $('#cari').val();
     var status = $('#filter-status').val();
+    var jenis = $('#filter-jenis').val();
     $.post('{?=url(ADMIN."/logistik_non_medis/displaysppb")?}', {
         cari: cari,
         status: status,
+        jenis: jenis,
         halaman: halaman
     }, function(data) {
         $('#sppb-list').html(data);

@@ -13,7 +13,7 @@
                         <input type="text" name="tgl_sppb" class="form-control datepicker" value="{$sppb.tgl_sppb}" required>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <div class="form-group">
                         <label>Unit Pengaju</label>
                         <select name="kode_unit" id="kode_unit" class="form-control select2" required {if: $mode == 'edit' || ($role == 'unit' && !empty($user_kode_unit))}disabled{/if}>
@@ -23,6 +23,16 @@
                             {/loop}
                         </select>
                         {if: $mode == 'edit' || ($role == 'unit' && !empty($user_kode_unit))}<input type="hidden" name="kode_unit" value="{$sppb.kode_unit}">{/if}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Jenis Permintaan</label>
+                        <select name="jenis_permintaan" id="jenis_permintaan" class="form-control" required {if: $mode == 'edit'}disabled{/if}>
+                            <option value="Rutin" {if: $sppb.jenis_permintaan == 'Rutin'}selected{/if}>Rutin (Rutin Mingguan - Langsung Logistik)</option>
+                            <option value="Non Rutin" {if: $sppb.jenis_permintaan == 'Non Rutin'}selected{/if}>Non-Rutin (Pengajuan Insidental - Approval Kanit/Kasie/Kabid)</option>
+                        </select>
+                        {if: $mode == 'edit'}<input type="hidden" name="jenis_permintaan" value="{$sppb.jenis_permintaan}">{/if}
                     </div>
                 </div>
             </div>
