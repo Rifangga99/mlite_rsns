@@ -130,9 +130,19 @@ $(document).ready(function() {
     $(document).on('click', '.btn-hapus-barang', function() {
         var kode_item = $(this).data('id');
         if(confirm('Yakin ingin menghapus data ini?')) {
-            $.post(baseURL + '/logistik_non_medis/hapusmasterbarang?t=' + mlite.token, {kode_item: kode_item}, function() {
-                loadMasterBarang();
-                alert('Data berhasil dihapus!');
+            $.post(baseURL + '/logistik_non_medis/hapusmasterbarang?t=' + mlite.token, {kode_item: kode_item}, function(res) {
+                try {
+                    var data = (typeof res === 'object') ? res : JSON.parse(res);
+                    if(data.status === 'success') {
+                        loadMasterBarang();
+                        alert('Data berhasil dihapus!');
+                    } else {
+                        alert(data.message || 'Gagal menghapus data.');
+                    }
+                } catch(e) {
+                    loadMasterBarang();
+                    alert('Data berhasil dihapus!');
+                }
             });
         }
     });

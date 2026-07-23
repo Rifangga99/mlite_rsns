@@ -783,35 +783,53 @@ class Admin extends AdminModule
   {
       $kode_item = $_POST['kode_item'] ?? '';
       $cek = $this->db('rsns_custom_logistik_non_medis_master_barang')->where('kode_item', $kode_item)->oneArray();
-      if($cek) {
-          // Logging
-          $user = $this->core->getUserInfo('username', null, true);
-          $tanggal_log = date('Y-m-d H:i:s');
-          $ip = $_SERVER['REMOTE_ADDR'];
-          $cek_hostname = $this->db('rsns_custom_hostsname_pc')->where('ip', $ip)->oneArray();
-          $hostname = $cek_hostname['hostname'] ?? 'Unknown';
-          $log_lokasi = ''.$hostname.' | '.$ip.'';
-          $logdata = ''.$cek['kode_item'].' | '.$cek['nama_barang'].' | '.$user.'';
-
-          $this->db('mlite_tracksql')->save([
-              'log_id' => NULL,
-              'log_modul' => 'logistik_non_medis_master_barang',
-              'log_waktu' => $tanggal_log,
-              'log_location' => $log_lokasi,
-              'log_data' => $logdata,
-              'log_status' => 'D',
-              'log_username' => $user
-          ]);
-
-          $upload_dir = UPLOADS . '/logistik_non_medis';
-          if(!empty($cek['foto']) && file_exists($upload_dir . '/foto/' . $cek['foto'])) {
-              unlink($upload_dir . '/foto/' . $cek['foto']);
-          }
-          if(!empty($cek['dokumen']) && file_exists($upload_dir . '/dokumen/' . $cek['dokumen'])) {
-              unlink($upload_dir . '/dokumen/' . $cek['dokumen']);
-          }
-          $this->db('rsns_custom_logistik_non_medis_master_barang')->where('kode_item', $kode_item)->delete();
+      if(!$cek) {
+          echo json_encode(['status' => 'error', 'message' => 'Data barang tidak ditemukan.']);
+          exit();
       }
+
+      // Check transaction usage
+      $cek_sppb = $this->db('rsns_custom_logistik_non_medis_sppb')->where('kode_item', $kode_item)->oneArray();
+      $cek_po   = $this->db('rsns_custom_logistik_non_medis_po')->where('kode_item', $kode_item)->oneArray();
+      $cek_pnm  = $this->db('rsns_custom_logistik_non_medis_penerimaan')->where('kode_item', $kode_item)->oneArray();
+
+      if ($cek_sppb || $cek_po || $cek_pnm) {
+          echo json_encode(['status' => 'error', 'message' => 'Barang "'.$cek['nama_barang'].'" tidak dapat dihapus karena telah memiliki histori transaksi (SPPB / PO / Penerimaan). Anda dapat mengubah statusnya menjadi Tidak Aktif.']);
+          exit();
+      }
+
+      // Logging
+      $user = $this->core->getUserInfo('username', null, true);
+      $tanggal_log = date('Y-m-d H:i:s');
+      $ip = $_SERVER['REMOTE_ADDR'];
+      $cek_hostname = $this->db('rsns_custom_hostsname_pc')->where('ip', $ip)->oneArray();
+      $hostname = $cek_hostname['hostname'] ?? 'Unknown';
+      $log_lokasi = ''.$hostname.' | '.$ip.'';
+      $logdata = ''.$cek['kode_item'].' | '.$cek['nama_barang'].' | '.$user.'';
+
+      $this->db('mlite_tracksql')->save([
+          'log_id' => NULL,
+          'log_modul' => 'logistik_non_medis_master_barang',
+          'log_waktu' => $tanggal_log,
+          'log_location' => $log_lokasi,
+          'log_data' => $logdata,
+          'log_status' => 'D',
+          'log_username' => $user
+      ]);
+
+      $upload_dir = UPLOADS . '/logistik_non_medis';
+      if(!empty($cek['foto']) && file_exists($upload_dir . '/foto/' . $cek['foto'])) {
+          unlink($upload_dir . '/foto/' . $cek['foto']);
+      }
+      if(!empty($cek['dokumen']) && file_exists($upload_dir . '/dokumen/' . $cek['dokumen'])) {
+          unlink($upload_dir . '/dokumen/' . $cek['dokumen']);
+      }
+
+      // Delete stock records if any
+      $this->db('rsns_custom_logistik_non_medis_stok')->where('kode_item', $kode_item)->delete();
+      $this->db('rsns_custom_logistik_non_medis_master_barang')->where('kode_item', $kode_item)->delete();
+
+      echo json_encode(['status' => 'success']);
       exit();
   }
 
