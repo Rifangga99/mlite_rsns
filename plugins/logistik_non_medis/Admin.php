@@ -115,7 +115,8 @@ class Admin extends AdminModule
   private function _getPermissionKeyForMethod($method)
   {
       $method = strtolower($method);
-      if (strpos($method, 'masterbarang') !== false || strpos($method, 'ajaxmasterbarang') !== false) return 'masterbarang';
+      if (strpos($method, 'ajaxmasterbarang') !== false) return 'distribusisppb';
+      if (strpos($method, 'masterbarang') !== false) return 'masterbarang';
       if (strpos($method, 'mastervendor') !== false) return 'mastervendor';
       if (strpos($method, 'masterunit') !== false) return 'masterunit';
       if (strpos($method, 'masterlokasi') !== false) return 'masterlokasi';
@@ -540,6 +541,11 @@ class Admin extends AdminModule
           $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_master_barang` ADD `default_kode_lokasi` varchar(50) DEFAULT NULL AFTER `dokumen` ");
       }
 
+      $check_jenis = $this->db()->pdo()->query("SHOW COLUMNS FROM `rsns_custom_logistik_non_medis_master_barang` LIKE 'jenis_item'")->fetch();
+      if (!$check_jenis) {
+          $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_master_barang` ADD `jenis_item` enum('Rutin','Non Rutin') NOT NULL DEFAULT 'Rutin' AFTER `kategori` ");
+      }
+
       $upload_dir = UPLOADS . '/logistik_non_medis';
       if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
       if (!is_dir($upload_dir . '/foto')) mkdir($upload_dir . '/foto', 0777, true);
@@ -640,6 +646,7 @@ class Admin extends AdminModule
               'deskripsi' => '',
               'spesifikasi' => '',
               'kategori' => '',
+              'jenis_item' => 'Rutin',
               'sub_kategori' => '',
               'satuan_dasar' => '',
               'satuan_konversi' => '',
@@ -672,6 +679,7 @@ class Admin extends AdminModule
           'deskripsi' => $_POST['deskripsi'] ?? '',
           'spesifikasi' => $_POST['spesifikasi'] ?? '',
           'kategori' => $_POST['kategori'] ?? '',
+          'jenis_item' => $_POST['jenis_item'] ?? 'Rutin',
           'sub_kategori' => $_POST['sub_kategori'] ?? '',
           'satuan_dasar' => $_POST['satuan_dasar'] ?? '',
           'satuan_konversi' => $_POST['satuan_konversi'] ?? '',
@@ -6148,9 +6156,21 @@ $(document).ready(function() {
   {
       $no_sppb = $_POST['no_sppb'] ?? '';
       $kode_unit = $_POST['kode_unit'] ?? '';
-      $jenis_permintaan = $_POST['jenis_permintaan'] ?? 'Rutin';
       $status = $_POST['status'] ?? 'Diajukan';
       $user = $this->core->getUserInfo('username', null, true);
+
+      // Determine jenis_permintaan automatically from items in request
+      $this->_initDataBarang();
+      $jenis_permintaan = 'Rutin';
+      if (isset($_POST['kode_item']) && is_array($_POST['kode_item'])) {
+          foreach ($_POST['kode_item'] as $k_item) {
+              $item_info = $this->db('rsns_custom_logistik_non_medis_master_barang')->where('kode_item', $k_item)->oneArray();
+              if (($item_info['jenis_item'] ?? 'Rutin') === 'Non Rutin') {
+                  $jenis_permintaan = 'Non Rutin';
+                  break;
+              }
+          }
+      }
 
       if ($status === 'Diajukan') {
           if ($jenis_permintaan === 'Rutin') {

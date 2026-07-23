@@ -28,11 +28,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Jenis Permintaan</label>
-                        <select name="jenis_permintaan" id="jenis_permintaan" class="form-control" required {if: $mode == 'edit'}disabled{/if}>
-                            <option value="Rutin" {if: $sppb.jenis_permintaan == 'Rutin'}selected{/if}>Rutin (Rutin Mingguan - Langsung Logistik)</option>
-                            <option value="Non Rutin" {if: $sppb.jenis_permintaan == 'Non Rutin'}selected{/if}>Non-Rutin (Pengajuan Insidental - Approval Kanit/Kasie/Kabid)</option>
-                        </select>
-                        {if: $mode == 'edit'}<input type="hidden" name="jenis_permintaan" value="{$sppb.jenis_permintaan}">{/if}
+                        <input type="text" class="form-control" value="Otomatis (Berdasarkan Item Barang)" readonly style="background-color: #f9f9f9;">
                     </div>
                 </div>
             </div>

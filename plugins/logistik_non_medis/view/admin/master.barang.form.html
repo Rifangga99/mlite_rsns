@@ -24,6 +24,13 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label>Jenis Pengadaan / Permintaan</label>
+                    <select name="jenis_item" class="form-control">
+                        <option value="Rutin" {if: $barang.jenis_item == 'Rutin'}selected{/if}>Rutin (Rutin Mingguan / Langsung Logistik)</option>
+                        <option value="Non Rutin" {if: $barang.jenis_item == 'Non Rutin'}selected{/if}>Non-Rutin (Pengajuan Insidental / Approval Kanit/Kasie/Kabid)</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Satuan Dasar</label>
                     <select name="satuan_dasar" class="form-control select2" style="width:100%" id="select-satuan-dasar" required>
                         <option value="">-- Pilih Satuan --</option>
