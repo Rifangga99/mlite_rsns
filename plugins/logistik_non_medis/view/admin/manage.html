@@ -9,13 +9,15 @@
       </div>
       <div class="panel-body">
         
-        <div class="row">
+        {if: $has_master}
+<div class="row">
           <div class="col-md-12">
             <h4><i class="fa fa-database"></i> Master Data</h4>
             <hr style="margin-top: 5px; margin-bottom: 15px;">
             <ul class="modules" style="padding:0;margin:0;">
                 
-                <li class="module">
+                {if: in_array('masterbarang', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','masterbarang'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -26,8 +28,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
                 
-                <li class="module">
+                {if: in_array('mastervendor', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','mastervendor'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -38,8 +42,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
                 
-                <li class="module">
+                {if: in_array('masterunit', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','masterunit'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -50,8 +56,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('masterlokasi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','masterlokasi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -62,8 +70,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('mastersatuan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','mastersatuan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -74,8 +84,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('masterkategori', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','masterkategori'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -86,8 +98,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('masterrekanan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','masterrekanan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -98,8 +112,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('mastercoa', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','mastercoa'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -110,18 +126,22 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
             </ul>
           </div>
         </div>
+{/if}
 
-        <div class="row" style="margin-top: 25px;">
+        {if: $has_pengadaan}
+<div class="row" style="margin-top: 25px;">
           <div class="col-md-12">
             <h4><i class="fa fa-shopping-cart"></i> Pengadaan</h4>
             <hr style="margin-top: 5px; margin-bottom: 15px;">
             <ul class="modules" style="padding:0;margin:0;">
                 
-                <li class="module">
+                {if: in_array('pengadaanperencanaan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanperencanaan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -132,8 +152,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('pengadaanpr', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanpr'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -144,8 +166,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('pengadaanvendor', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanvendor'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -156,8 +180,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('pengadaanpo', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanpo'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -168,8 +194,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('pengadaanekatalog', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanekatalog'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -180,8 +208,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('pengadaanpenerimaan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','pengadaanpenerimaan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -192,8 +222,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('pengadaankontrak', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','pengadaankontrak'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -204,18 +236,22 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
             </ul>
           </div>
         </div>
+{/if}
 
-        <div class="row" style="margin-top: 25px;">
+        {if: $has_gudang}
+<div class="row" style="margin-top: 25px;">
           <div class="col-md-12">
             <h4><i class="fa fa-home"></i> Manajemen Gudang</h4>
             <hr style="margin-top: 5px; margin-bottom: 15px;">
             <ul class="modules" style="padding:0;margin:0;">
                 
-                <li class="module">
+                {if: in_array('gudangpenerimaan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','gudangpenerimaan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -226,8 +262,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
                 
-                <li class="module">
+                {if: in_array('gudanglokasi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','gudanglokasi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -238,8 +276,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
                 
-                <li class="module">
+                {if: in_array('gudangstok', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','gudangstok'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -250,8 +290,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('gudangopname', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','gudangopname'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -262,8 +304,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('gudangmetode', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','gudangmetode'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -274,8 +318,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('gudangrusak', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','gudangrusak'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -286,8 +332,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('gudangmutasi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','gudangmutasi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -298,16 +346,20 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
             </ul>
           </div>
         </div>
-        <div class="row" style="margin-top: 25px;">
+{/if}
+        {if: $has_distribusi}
+<div class="row" style="margin-top: 25px;">
           <div class="col-md-12">
             <h4><i class="fa fa-share-alt"></i> Distribusi</h4>
             <hr style="margin-top: 5px; margin-bottom: 15px;">
             <ul class="modules" style="padding:0;margin:0;">
-                <li class="module">
+                {if: in_array('distribusisppb', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','distribusisppb'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -318,7 +370,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('distribusiverifikasi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','distribusiverifikasi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -329,7 +383,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('distribusipacking', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','distribusipacking'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -340,7 +396,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('distribusiserahterima', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','distribusiserahterima'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -351,7 +409,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('distribusitracking', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','distribusitracking'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -373,8 +433,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('distribusikuota', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','distribusikuota'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -385,16 +447,20 @@
                         </a>
                     </div>
                 </li>
+{/if}
             </ul>
           </div>
         </div>
+{/if}
 
-        <div class="row" style="margin-top: 25px;">
+        {if: $has_aset}
+<div class="row" style="margin-top: 25px;">
           <div class="col-md-12">
             <h4><i class="fa fa-cubes"></i> Aset</h4>
             <hr style="margin-top: 5px; margin-bottom: 15px;">
             <ul class="modules" style="padding:0;margin:0;">
-                <li class="module">
+                {if: in_array('asetregistrasi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','asetregistrasi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -405,7 +471,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('asetkib', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','asetkib'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -416,7 +484,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('asetpenyusutan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','asetpenyusutan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -427,7 +497,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('asetpemeliharaan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','asetpemeliharaan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -438,7 +510,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('asetmutasi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','asetmutasi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -449,7 +523,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('asetpenghapusan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','asetpenghapusan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -460,7 +536,9 @@
                         </a>
                     </div>
                 </li>
-                <li class="module">
+{/if}
+                {if: in_array('asetsensus', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','asetsensus'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -471,17 +549,21 @@
                         </a>
                     </div>
                 </li>
+{/if}
             </ul>
           </div>
         </div>
+{/if}
 
-        <div class="row" style="margin-top: 25px;">
+        {if: $has_laporan}
+<div class="row" style="margin-top: 25px;">
           <div class="col-md-12">
             <h4><i class="fa fa-line-chart"></i> Laporan & Audit</h4>
             <hr style="margin-top: 5px; margin-bottom: 15px;">
             <ul class="modules" style="padding:0;margin:0;">
                 
-                <li class="module">
+                {if: in_array('laporanstokmutasi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','laporanstokmutasi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -492,8 +574,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
                 
-                <li class="module">
+                {if: in_array('laporanpengadaan', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','laporanpengadaan'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -504,8 +588,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
                 
-                <li class="module">
+                {if: in_array('laporandistribusi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','laporandistribusi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -516,8 +602,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('laporanaset', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','laporanaset'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -528,8 +616,10 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
-                <li class="module">
+                {if: in_array('laporandashboardkpi', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','laporandashboardkpi'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -540,9 +630,11 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
 
-                <li class="module">
+                {if: in_array('laporaneksporcetak', $permissions)}
+<li class="module">
                     <div class="panel panel-default">
                         <a href="{?=url([ADMIN,'logistik_non_medis','laporaneksporcetak'])?}" class="panel-body text-center">
                             <div class="panel-thumb">
@@ -553,10 +645,36 @@
                         </a>
                     </div>
                 </li>
+{/if}
 
             </ul>
           </div>
         </div>
+{/if}
+
+        {if: $hakakses_access}
+        <div class="row" style="margin-top: 25px;">
+          <div class="col-md-12">
+            <h4><i class="fa fa-key"></i> Pengaturan</h4>
+            <hr style="margin-top: 5px; margin-bottom: 15px;">
+            <ul class="modules" style="padding:0;margin:0;">
+                {if: in_array('hakakses', $permissions)}
+<li class="module">
+                    <div class="panel panel-default">
+                        <a href="{?=url([ADMIN,'logistik_non_medis','hakakses'])?}" class="panel-body text-center">
+                            <div class="panel-thumb">
+                                <i class="fa fa-lock"></i>
+                                <div class="desc">Pengaturan Hak Akses &amp; Role Unit</div>
+                            </div>
+                            <h4><b>Hak Akses</b></h4>
+                        </a>
+                    </div>
+                </li>
+{/if}
+            </ul>
+          </div>
+        </div>
+        {/if}
 
       </div>
     </div>

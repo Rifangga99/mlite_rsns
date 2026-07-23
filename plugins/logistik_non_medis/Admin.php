@@ -7,57 +7,460 @@ use Systems\AdminModule;
 class Admin extends AdminModule
 {
 
+  public function init()
+  {
+      $this->_initUserRoles();
+      $this->_checkAccessControl();
+  }
+
+  private function _initUserRoles()
+  {
+      $this->db()->pdo()->exec("CREATE TABLE IF NOT EXISTS `rsns_custom_logistik_non_medis_user_roles` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `username` varchar(100) NOT NULL,
+        `role` varchar(50) NOT NULL,
+        `kode_unit` varchar(50) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `username` (`username`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
+
+      $this->db()->pdo()->exec("CREATE TABLE IF NOT EXISTS `rsns_custom_logistik_non_medis_role_permissions` (
+        `role` varchar(50) NOT NULL,
+        `permissions` text DEFAULT NULL,
+        PRIMARY KEY (`role`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
+
+      // Check if roles exist
+      $check = $this->db('rsns_custom_logistik_non_medis_role_permissions')->count();
+      if ($check == 0) {
+          $default_roles = [
+              'admin' => 'manage,masterbarang,mastervendor,masterunit,masterlokasi,mastersatuan,masterkategori,masterrekanan,mastercoa,pengadaanperencanaan,pengadaanpr,pengadaanvendor,pengadaanpo,pengadaanekatalog,pengadaanpenerimaan,pengadaankontrak,gudangmanage,gudangpenerimaan,gudanglokasi,gudangstok,gudangopname,gudangmetode,gudangrusak,gudangmutasi,distribusisppb,distribusiverifikasi,distribusipacking,distribusiserahterima,distribusitracking,distribusiretur,distribusikuota,asetregistrasi,asetkib,asetpenyusutan,asetpemeliharaan,asetmutasi,asetpenghapusan,asetsensus,laporanstokmutasi,laporanpengadaan,laporandistribusi,laporanaset,laporandashboardkpi,laporaneksporcetak,hakakses',
+              'logistik' => 'manage,masterbarang,mastervendor,masterunit,masterlokasi,mastersatuan,masterkategori,masterrekanan,mastercoa,pengadaanperencanaan,pengadaanpr,pengadaanvendor,pengadaanpo,pengadaanekatalog,pengadaanpenerimaan,pengadaankontrak,gudangmanage,gudangpenerimaan,gudanglokasi,gudangstok,gudangopname,gudangmetode,gudangrusak,gudangmutasi,distribusisppb,distribusiverifikasi,distribusipacking,distribusiserahterima,distribusitracking,distribusiretur,distribusikuota,asetregistrasi,asetkib,asetpenyusutan,asetpemeliharaan,asetmutasi,asetpenghapusan,asetsensus,laporanstokmutasi,laporanpengadaan,laporandistribusi,laporanaset,laporandashboardkpi,laporaneksporcetak',
+              'gudang' => 'manage,gudangmanage,gudangpenerimaan,gudanglokasi,gudangstok,gudangopname,gudangmetode,gudangrusak,gudangmutasi,distribusisppb,distribusiverifikasi,distribusipacking,distribusiserahterima,distribusitracking,distribusiretur',
+              'aset' => 'manage,asetregistrasi,asetkib,asetpenyusutan,asetpemeliharaan,asetmutasi,asetpenghapusan,asetsensus',
+              'unit' => 'manage,distribusisppb,distribusiretur,distribusikuota'
+          ];
+          foreach ($default_roles as $role => $permissions) {
+              $this->db('rsns_custom_logistik_non_medis_role_permissions')->save(['role' => $role, 'permissions' => $permissions]);
+          }
+      }
+
+      $roles_to_check = [
+          'kepala_unit' => 'manage,distribusisppb,distribusikuota',
+          'kepala_sie' => 'manage,distribusisppb,distribusikuota',
+          'kepala_bidang' => 'manage,distribusisppb,distribusikuota'
+      ];
+      foreach ($roles_to_check as $r => $perms) {
+          $exists = $this->db('rsns_custom_logistik_non_medis_role_permissions')->where('role', $r)->oneArray();
+          if (!$exists) {
+              $this->db('rsns_custom_logistik_non_medis_role_permissions')->save(['role' => $r, 'permissions' => $perms]);
+          }
+      }
+
+      // Check current user role assignment
+      $username = $this->core->getUserInfo('username', null, true);
+      if ($username) {
+          $exists = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+          if (!$exists) {
+              // If current user is an admin in mlite, assign them as admin in logistik
+              $mlite_role = $this->core->getUserInfo('role', null, true);
+              $role = ($mlite_role == 'admin') ? 'admin' : 'unit';
+              $this->db('rsns_custom_logistik_non_medis_user_roles')->save([
+                  'username' => $username,
+                  'role' => $role,
+                  'kode_unit' => null
+              ]);
+          }
+      }
+  }
+
+  private function _checkAccessControl()
+  {
+      if (parseURL(1) === 'logistik_non_medis') {
+          $method = parseURL(2);
+          if (empty($method)) {
+              $method = 'manage';
+          }
+
+          if (in_array($method, ['css', 'javascript'])) {
+              return;
+          }
+
+          $username = $this->core->getUserInfo('username', null, true);
+          if (!$username) {
+              return;
+          }
+
+          $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+          $role = $userRoleData['role'] ?? 'unit';
+
+          $permsData = $this->db('rsns_custom_logistik_non_medis_role_permissions')->where('role', $role)->oneArray();
+          $permissions = explode(',', $permsData['permissions'] ?? 'manage');
+
+          $permKey = $this->_getPermissionKeyForMethod($method);
+
+          if (!empty($permKey) && !in_array($permKey, $permissions)) {
+              if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                  header('Content-Type: application/json');
+                  echo json_encode(['status' => 'error', 'message' => 'Anda tidak memiliki hak akses untuk tindakan ini!']);
+                  exit();
+              } else {
+                  $this->core->setNotify('failure', 'Akses Ditolak: Anda tidak memiliki hak akses ke menu tersebut.');
+                  redirect(url([ADMIN, 'logistik_non_medis', 'manage']));
+              }
+          }
+      }
+  }
+
+  private function _getPermissionKeyForMethod($method)
+  {
+      $method = strtolower($method);
+      if (strpos($method, 'masterbarang') !== false || strpos($method, 'ajaxmasterbarang') !== false) return 'masterbarang';
+      if (strpos($method, 'mastervendor') !== false) return 'mastervendor';
+      if (strpos($method, 'masterunit') !== false) return 'masterunit';
+      if (strpos($method, 'masterlokasi') !== false) return 'masterlokasi';
+      if (strpos($method, 'mastersatuan') !== false) return 'mastersatuan';
+      if (strpos($method, 'masterkategori') !== false) return 'masterkategori';
+      if (strpos($method, 'masterrekanan') !== false) return 'masterrekanan';
+      if (strpos($method, 'mastercoa') !== false) return 'mastercoa';
+      if (strpos($method, 'perencanaan') !== false) return 'pengadaanperencanaan';
+      if (strpos($method, 'pr') !== false) return 'pengadaanpr';
+      if (strpos($method, 'manajemenvendor') !== false) return 'pengadaanvendor';
+      if (strpos($method, 'po') !== false) return 'pengadaanpo';
+      if (strpos($method, 'ekatalog') !== false) return 'pengadaanekatalog';
+      if (strpos($method, 'pengadaanpenerimaan') !== false || strpos($method, 'printpenerimaan') !== false || strpos($method, 'printlabel') !== false) return 'pengadaanpenerimaan';
+      if (strpos($method, 'pengadaankontrak') !== false) return 'pengadaankontrak';
+      if (strpos($method, 'gudangmanage') !== false) return 'gudangmanage';
+      if (strpos($method, 'gudangpenerimaan') !== false) return 'gudangpenerimaan';
+      if (strpos($method, 'gudanglokasi') !== false || strpos($method, 'relokasi') !== false) return 'gudanglokasi';
+      if (strpos($method, 'gudangstok') !== false) return 'gudangstok';
+      if (strpos($method, 'gudangmutasi') !== false || strpos($method, 'printmutasi') !== false) return 'gudangmutasi';
+      if (strpos($method, 'gudangopname') !== false || strpos($method, 'printopname') !== false || strpos($method, 'printrekapopname') !== false) return 'gudangopname';
+      if (strpos($method, 'gudangmetode') !== false) return 'gudangmetode';
+      if (strpos($method, 'gudangrusak') !== false || strpos($method, 'printbap') !== false || strpos($method, 'suratretur') !== false) return 'gudangrusak';
+      if (strpos($method, 'sppb') !== false) return 'distribusisppb';
+      if (strpos($method, 'distribusiverifikasi') !== false) return 'distribusiverifikasi';
+      if (strpos($method, 'distribusipacking') !== false || strpos($method, 'packinglabel') !== false) return 'distribusipacking';
+      if (strpos($method, 'distribusiserahterima') !== false || strpos($method, 'printbast') !== false) return 'distribusiserahterima';
+      if (strpos($method, 'distribusitracking') !== false) return 'distribusitracking';
+      if (strpos($method, 'distribusiretur') !== false || strpos($method, 'retur') !== false) return 'distribusiretur';
+      if (strpos($method, 'distribusikuota') !== false || strpos($method, 'monitoringkuota') !== false) return 'distribusikuota';
+      if (strpos($method, 'asetregistrasi') !== false) return 'asetregistrasi';
+      if (strpos($method, 'asetkib') !== false || strpos($method, 'asetprintlabel') !== false) return 'asetkib';
+      if (strpos($method, 'asetpenyusutan') !== false) return 'asetpenyusutan';
+      if (strpos($method, 'asetpemeliharaan') !== false) return 'asetpemeliharaan';
+      if (strpos($method, 'asetmutasi') !== false || strpos($method, 'printasetmutasi') !== false) return 'asetmutasi';
+      if (strpos($method, 'asetpenghapusan') !== false) return 'asetpenghapusan';
+      if (strpos($method, 'asetsensus') !== false) return 'asetsensus';
+      if (strpos($method, 'laporanstokmutasi') !== false) return 'laporanstokmutasi';
+      if (strpos($method, 'laporanpengadaan') !== false) return 'laporanpengadaan';
+      if (strpos($method, 'laporandistribusi') !== false) return 'laporandistribusi';
+      if (strpos($method, 'laporanaset') !== false) return 'laporanaset';
+      if (strpos($method, 'laporandashboardkpi') !== false) return 'laporandashboardkpi';
+      if (strpos($method, 'laporaneksporcetak') !== false) return 'laporaneksporcetak';
+      if (strpos($method, 'hakakses') !== false) return 'hakakses';
+      return '';
+  }
+
   public function navigation()
   {
-    return [
-      'Dashboard'           => 'manage',
-      'Data Barang'         => 'masterbarang',
-      'Data Vendor'         => 'mastervendor',
-      'Data Unit'           => 'masterunit',
-      'Lokasi Gudang'       => 'masterlokasi',
-      'Satuan Barang'       => 'mastersatuan',
-      'Kategori & Klasifikasi' => 'masterkategori',
-      'Data Rekanan Jasa'   => 'masterrekanan',
-      'Kode Akun (COA)'     => 'mastercoa',
-      'Perencanaan'         => 'pengadaanperencanaan',
-      'Permintaan (PR)'     => 'pengadaanpr',
-      'Manajemen Vendor'    => 'pengadaanvendor',
-      'Purchase Order (PO)' => 'pengadaanpo',
-      'E-Katalog'           => 'pengadaanekatalog',
-      'Penerimaan'          => 'pengadaanpenerimaan',
-      'Manajemen Kontrak'   => 'pengadaankontrak',
-      '--- GUDANG ---'      => 'gudangmanage',
-      'Barang Masuk'        => 'gudangpenerimaan',
-      'Manajemen Lokasi'    => 'gudanglokasi',
-      'Pengelolaan Stok'    => 'gudangstok',
-      'Stock Opname'        => 'gudangopname',
-      'Metode FIFO / FEFO'  => 'gudangmetode',
-      'Barang Rusak'        => 'gudangrusak',
-      'Mutasi Antar Gudang' => 'gudangmutasi',
-      '--- DISTRIBUSI ---'  => '#',
-      'Permintaan Barang (SPPB)' => 'distribusisppb',
-      'Verifikasi & Approval' => 'distribusiverifikasi',
-      'Picking & Packing'   => 'distribusipacking',
-      'Serah Terima Barang' => 'distribusiserahterima',
-      'Tracking Pengiriman' => 'distribusitracking',
-      'Retur Barang dari Unit' => 'distribusiretur',
-      'Kuota & Alokasi Unit' => 'distribusikuota',
-      '--- ASET ---'        => '#',
-      'Registrasi Aset'     => 'asetregistrasi',
-      'Kartu Inventaris (KIB)' => 'asetkib',
-      'Penyusutan Aset'     => 'asetpenyusutan',
-      'Pemeliharaan Aset'   => 'asetpemeliharaan',
-      'Mutasi Aset'         => 'asetmutasi',
-      'Penghapusan Aset'    => 'asetpenghapusan',
-      'Sensus & Verifikasi Aset' => 'asetsensus',
-      '--- LAPORAN & AUDIT ---' => '#',
-      'Laporan Stok & Mutasi' => 'laporanstokmutasi',
-      'Laporan Pengadaan'    => 'laporanpengadaan',
-      'Laporan Distribusi'  => 'laporandistribusi',
-      'Laporan Aset'        => 'laporanaset',
-      'Dashboard & KPI'     => 'laporandashboardkpi',
-      'Ekspor & Cetak Laporan' => 'laporaneksporcetak',
-    ];
+      $username = $this->core->getUserInfo('username', null, true);
+      $role = 'unit';
+      if ($username) {
+          $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+          if ($userRoleData) {
+              $role = $userRoleData['role'];
+          } else {
+              $mlite_role = $this->core->getUserInfo('role', null, true);
+              $role = ($mlite_role == 'admin') ? 'admin' : 'unit';
+          }
+      }
+
+      $permsData = $this->db('rsns_custom_logistik_non_medis_role_permissions')->where('role', $role)->oneArray();
+      $permissions = explode(',', $permsData['permissions'] ?? 'manage');
+
+      $menus = [
+        'Dashboard'           => 'manage',
+        'Data Barang'         => 'masterbarang',
+        'Data Vendor'         => 'mastervendor',
+        'Data Unit'           => 'masterunit',
+        'Lokasi Gudang'       => 'masterlokasi',
+        'Satuan Barang'       => 'mastersatuan',
+        'Kategori & Klasifikasi' => 'masterkategori',
+        'Data Rekanan Jasa'   => 'masterrekanan',
+        'Kode Akun (COA)'     => 'mastercoa',
+        'Perencanaan'         => 'pengadaanperencanaan',
+        'Permintaan (PR)'     => 'pengadaanpr',
+        'Manajemen Vendor'    => 'pengadaanvendor',
+        'Purchase Order (PO)' => 'pengadaanpo',
+        'E-Katalog'           => 'pengadaanekatalog',
+        'Penerimaan'          => 'pengadaanpenerimaan',
+        'Manajemen Kontrak'   => 'pengadaankontrak',
+        '--- GUDANG ---'      => 'gudangmanage',
+        'Barang Masuk'        => 'gudangpenerimaan',
+        'Manajemen Lokasi'    => 'gudanglokasi',
+        'Pengelolaan Stok'    => 'gudangstok',
+        'Stock Opname'        => 'gudangopname',
+        'Metode FIFO / FEFO'  => 'gudangmetode',
+        'Barang Rusak'        => 'gudangrusak',
+        'Mutasi Antar Gudang' => 'gudangmutasi',
+        '--- DISTRIBUSI ---'  => '#',
+        'Permintaan Barang (SPPB)' => 'distribusisppb',
+        'Verifikasi & Approval' => 'distribusiverifikasi',
+        'Picking & Packing'   => 'distribusipacking',
+        'Serah Terima Barang' => 'distribusiserahterima',
+        'Tracking Pengiriman' => 'distribusitracking',
+        'Retur Barang dari Unit' => 'distribusiretur',
+        'Kuota & Alokasi Unit' => 'distribusikuota',
+        '--- ASET ---'        => '#',
+        'Registrasi Aset'     => 'asetregistrasi',
+        'Kartu Inventaris (KIB)' => 'asetkib',
+        'Penyusutan Aset'     => 'asetpenyusutan',
+        'Pemeliharaan Aset'   => 'asetpemeliharaan',
+        'Mutasi Aset'         => 'asetmutasi',
+        'Penghapusan Aset'    => 'asetpenghapusan',
+        'Sensus & Verifikasi Aset' => 'asetsensus',
+        '--- LAPORAN & AUDIT ---' => '#',
+        'Laporan Stok & Mutasi' => 'laporanstokmutasi',
+        'Laporan Pengadaan'    => 'laporanpengadaan',
+        'Laporan Distribusi'  => 'laporandistribusi',
+        'Laporan Aset'        => 'laporanaset',
+        'Dashboard & KPI'     => 'laporandashboardkpi',
+        'Ekspor & Cetak Laporan' => 'laporaneksporcetak',
+      ];
+
+      if (in_array('hakakses', $permissions)) {
+          $menus['Hak Akses'] = 'hakakses';
+      }
+
+      $filtered = [];
+      foreach ($menus as $title => $slug) {
+          if (strpos($title, '---') === 0) {
+              $filtered[$title] = $slug;
+              continue;
+          }
+
+          if (in_array($slug, $permissions)) {
+              $filtered[$title] = $slug;
+          }
+      }
+
+      $cleanNav = [];
+      $lastHeader = null;
+      foreach ($filtered as $title => $slug) {
+          if (strpos($title, '---') === 0) {
+              $lastHeader = $title;
+          } else {
+              if ($lastHeader !== null) {
+                  $cleanNav[$lastHeader] = $filtered[$lastHeader];
+                  $lastHeader = null;
+              }
+              $cleanNav[$title] = $slug;
+          }
+      }
+
+      return $cleanNav;
+  }
+
+  public function getHakakses()
+  {
+      $this->_addHeaderFiles();
+      $this->_initUserRoles();
+
+      $users = $this->db('mlite_users')->toArray();
+
+      foreach ($users as &$user) {
+          $roleData = $this->db('rsns_custom_logistik_non_medis_user_roles')
+                           ->where('username', $user['username'])
+                           ->oneArray();
+          $user['logistik_role'] = $roleData['role'] ?? 'unit';
+          $user['logistik_kode_unit'] = $roleData['kode_unit'] ?? null;
+
+          if (!empty($user['logistik_kode_unit'])) {
+              $unitInfo = $this->db('rsns_custom_logistik_non_medis_unit')
+                               ->where('kode_unit', $user['logistik_kode_unit'])
+                               ->oneArray();
+              $user['nama_unit'] = $unitInfo['nama_unit'] ?? 'Unit Tidak Ditemukan';
+          } else {
+              $user['nama_unit'] = 'Semua Unit / Logistik';
+          }
+      }
+
+      $roles = ['admin', 'logistik', 'gudang', 'aset', 'unit', 'kepala_unit', 'kepala_sie', 'kepala_bidang'];
+      $rolePermissions = [];
+      foreach ($roles as $r) {
+          $pData = $this->db('rsns_custom_logistik_non_medis_role_permissions')
+                        ->where('role', $r)
+                        ->oneArray();
+          $rolePermissions[$r] = explode(',', $pData['permissions'] ?? '');
+      }
+
+      $availableMenus = [
+        'masterbarang' => 'Data Barang',
+        'mastervendor' => 'Data Vendor',
+        'masterunit' => 'Data Unit',
+        'masterlokasi' => 'Lokasi Gudang',
+        'mastersatuan' => 'Satuan Barang',
+        'masterkategori' => 'Kategori & Klasifikasi',
+        'masterrekanan' => 'Data Rekanan Jasa',
+        'mastercoa' => 'Kode Akun (COA)',
+        'pengadaanperencanaan' => 'Perencanaan Pengadaan',
+        'pengadaanpr' => 'Permintaan (PR)',
+        'pengadaanvendor' => 'Manajemen Vendor',
+        'pengadaanpo' => 'Purchase Order (PO)',
+        'pengadaanekatalog' => 'E-Katalog',
+        'pengadaanpenerimaan' => 'Penerimaan Pengadaan',
+        'pengadaankontrak' => 'Manajemen Kontrak',
+        'gudangmanage' => 'Gudang Manage',
+        'gudangpenerimaan' => 'Barang Masuk Gudang',
+        'gudanglokasi' => 'Manajemen Lokasi',
+        'gudangstok' => 'Pengelolaan Stok',
+        'gudangopname' => 'Stock Opname',
+        'gudangmetode' => 'Metode FIFO/FEFO',
+        'gudangrusak' => 'Barang Rusak',
+        'gudangmutasi' => 'Mutasi Antar Gudang',
+        'distribusisppb' => 'Permintaan Barang (SPPB)',
+        'distribusiverifikasi' => 'Verifikasi & Approval',
+        'distribusipacking' => 'Picking & Packing',
+        'distribusiserahterima' => 'Serah Terima Barang',
+        'distribusitracking' => 'Tracking Pengiriman',
+        'distribusiretur' => 'Retur Barang dari Unit',
+        'distribusikuota' => 'Kuota & Alokasi Unit',
+        'asetregistrasi' => 'Registrasi Aset',
+        'asetkib' => 'Kartu Inventaris (KIB)',
+        'asetpenyusutan' => 'Penyusutan Aset',
+        'asetpemeliharaan' => 'Pemeliharaan Aset',
+        'asetmutasi' => 'Mutasi Aset',
+        'asetpenghapusan' => 'Penghapusan Aset',
+        'asetsensus' => 'Sensus & Verifikasi Aset',
+        'laporanstokmutasi' => 'Laporan Stok & Mutasi',
+        'laporanpengadaan' => 'Laporan Pengadaan',
+        'laporandistribusi' => 'Laporan Distribusi',
+        'laporanaset' => 'Laporan Aset',
+        'laporandashboardkpi' => 'Dashboard & KPI',
+        'laporaneksporcetak' => 'Ekspor & Cetak Laporan',
+        'hakakses' => 'Hak Akses Logistik'
+      ];
+
+      $matrix = [];
+      foreach ($availableMenus as $menuKey => $menuLabel) {
+          $roleItems = [];
+          foreach ($roles as $r) {
+              $hasPerm = in_array($menuKey, $rolePermissions[$r] ?? []);
+              $roleItems[] = [
+                  'role' => $r,
+                  'menuKey' => $menuKey,
+                  'checked' => $hasPerm,
+                  'isManage' => ($menuKey === 'manage')
+              ];
+          }
+          $matrix[] = [
+              'key' => $menuKey,
+              'label' => $menuLabel,
+              'roles' => $roleItems
+          ];
+      }
+
+      return $this->draw('hakakses.html', [
+          'users' => $users,
+          'rolePermissions' => $rolePermissions,
+          'availableMenus' => $availableMenus,
+          'roles' => $roles,
+          'matrix' => $matrix
+      ]);
+  }
+
+  public function anyFormHakakses()
+  {
+      $username = $_POST['username'] ?? '';
+      if (empty($username)) {
+          exit('User tidak ditemukan.');
+      }
+
+      $user = $this->db('mlite_users')->where('username', $username)->oneArray();
+      if (!$user) {
+          exit('User tidak ditemukan di sistem.');
+      }
+
+      $roleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $user['logistik_role'] = $roleData['role'] ?? 'unit';
+      $user['logistik_kode_unit'] = $roleData['kode_unit'] ?? '';
+
+      $units = $this->db('rsns_custom_logistik_non_medis_unit')->where('status', 'Aktif')->toArray();
+      $roles = ['admin' => 'Admin Logistik', 'logistik' => 'Staf Logistik', 'gudang' => 'Staf Gudang', 'aset' => 'Staf Aset', 'unit' => 'Unit', 'kepala_unit' => 'Kepala Unit', 'kepala_sie' => 'Kepala Sie', 'kepala_bidang' => 'Kepala Bidang'];
+
+      echo $this->draw('hakakses.form.html', [
+          'user' => $user,
+          'units' => $units,
+          'roles' => $roles
+      ]);
+      exit();
+  }
+
+  public function postSaveHakakses()
+  {
+      $username = $_POST['username'] ?? '';
+      $role = $_POST['role'] ?? 'unit';
+      $kode_unit = $_POST['kode_unit'] ?? null;
+      if (empty($kode_unit)) {
+          $kode_unit = null;
+      }
+
+      if (empty($username)) {
+          echo json_encode(['status' => 'error', 'message' => 'Username tidak valid!']);
+          exit();
+      }
+
+      $exists = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      if ($exists) {
+          $res = $this->db('rsns_custom_logistik_non_medis_user_roles')
+                      ->where('username', $username)
+                      ->save([
+                          'role' => $role,
+                          'kode_unit' => $kode_unit
+                      ]);
+      } else {
+          $res = $this->db('rsns_custom_logistik_non_medis_user_roles')
+                      ->save([
+                          'username' => $username,
+                          'role' => $role,
+                          'kode_unit' => $kode_unit
+                      ]);
+      }
+
+      if ($res) {
+          echo json_encode(['status' => 'success', 'message' => 'Hak akses user berhasil disimpan.']);
+      } else {
+          echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan hak akses user!']);
+      }
+      exit();
+  }
+
+  public function postSaveRolePermissions()
+  {
+      $permissions = $_POST['permissions'] ?? [];
+
+      $roles = ['admin', 'logistik', 'gudang', 'aset', 'unit', 'kepala_unit', 'kepala_sie', 'kepala_bidang'];
+      foreach ($roles as $r) {
+          $rolePerms = isset($permissions[$r]) ? implode(',', $permissions[$r]) : 'manage';
+
+          if (strpos($rolePerms, 'manage') === false) {
+              $rolePerms = 'manage,' . $rolePerms;
+          }
+
+          $exists = $this->db('rsns_custom_logistik_non_medis_role_permissions')->where('role', $r)->oneArray();
+          if ($exists) {
+              $this->db('rsns_custom_logistik_non_medis_role_permissions')
+                   ->where('role', $r)
+                   ->save(['permissions' => $rolePerms]);
+          } else {
+              $this->db('rsns_custom_logistik_non_medis_role_permissions')
+                   ->save(['role' => $r, 'permissions' => $rolePerms]);
+          }
+      }
+
+      $this->core->setNotify('success', 'Pengaturan izin role berhasil diperbarui.');
+      redirect(url([ADMIN, 'logistik_non_medis', 'hakakses']));
   }
 
   public function getManage()
@@ -67,12 +470,35 @@ class Admin extends AdminModule
     $this->_initPacking();
     $this->_initKuota();
     
+    $username = $this->core->getUserInfo('username', null, true);
+    $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+    $role = $userRoleData['role'] ?? 'unit';
+    
+    $permsData = $this->db('rsns_custom_logistik_non_medis_role_permissions')->where('role', $role)->oneArray();
+    $permissions = explode(',', $permsData['permissions'] ?? 'manage');
+    $hakakses_access = in_array('hakakses', $permissions);
+    
+    $has_master = count(array_intersect(['masterbarang', 'mastervendor', 'masterunit', 'masterlokasi', 'mastersatuan', 'masterkategori', 'masterrekanan', 'mastercoa'], $permissions)) > 0;
+    $has_pengadaan = count(array_intersect(['pengadaanperencanaan', 'pengadaanpr', 'pengadaanvendor', 'pengadaanpo', 'pengadaanekatalog', 'pengadaanpenerimaan', 'pengadaankontrak'], $permissions)) > 0;
+    $has_gudang = count(array_intersect(['gudangpenerimaan', 'gudanglokasi', 'gudangstok', 'gudangopname', 'gudangmetode', 'gudangrusak', 'gudangmutasi'], $permissions)) > 0;
+    $has_distribusi = count(array_intersect(['distribusisppb', 'distribusiverifikasi', 'distribusipacking', 'distribusiserahterima', 'distribusitracking', 'distribusiretur', 'distribusikuota'], $permissions)) > 0;
+    $has_aset = count(array_intersect(['asetregistrasi', 'asetkib', 'asetpenyusutan', 'asetpemeliharaan', 'asetmutasi', 'asetpenghapusan', 'asetsensus'], $permissions)) > 0;
+    $has_laporan = count(array_intersect(['laporanstokmutasi', 'laporanpengadaan', 'laporandistribusi', 'laporanaset', 'laporandashboardkpi', 'laporaneksporcetak'], $permissions)) > 0;
+
     $count_verif = count($this->db('rsns_custom_logistik_non_medis_sppb')->where('status', 'Disetujui Unit')->group('no_sppb')->toArray());
     $count_packing = count($this->db('rsns_custom_logistik_non_medis_sppb')->where('status', 'Terverifikasi')->orWhere('status', 'Picking')->orWhere('status', 'Packing')->group('no_sppb')->toArray());
 
     return $this->draw('manage.html', [
         'count_verif' => $count_verif,
-        'count_packing' => $count_packing
+        'count_packing' => $count_packing,
+        'permissions' => $permissions,
+        'hakakses_access' => $hakakses_access,
+        'has_master' => $has_master,
+        'has_pengadaan' => $has_pengadaan,
+        'has_gudang' => $has_gudang,
+        'has_distribusi' => $has_distribusi,
+        'has_aset' => $has_aset,
+        'has_laporan' => $has_laporan
     ]);
   }
 
@@ -5164,11 +5590,17 @@ $(document).ready(function() {
         `jumlah` double NOT NULL DEFAULT 0,
         `jumlah_disetujui` double NOT NULL DEFAULT 0,
         `satuan` varchar(50) DEFAULT NULL,
-        `status` enum('Draft','Diajukan','Disetujui Unit','Terverifikasi','Picking','Packing','Ready','Dikirim','Diterima','Selesai','Ditolak') NOT NULL DEFAULT 'Draft',
+        `status` enum('Draft','Diajukan','Disetujui Ka. Unit','Disetujui Ka. Sie','Disetujui Unit','Terverifikasi','Picking','Packing','Ready','Dikirim','Diterima','Selesai','Ditolak') NOT NULL DEFAULT 'Draft',
         `keterangan` text DEFAULT NULL,
         `alasan_penolakan` text DEFAULT NULL,
         `user_input` varchar(100) DEFAULT NULL,
         `tgl_input` datetime DEFAULT NULL,
+        `user_approve_ka_unit` varchar(100) DEFAULT NULL,
+        `tgl_approve_ka_unit` datetime DEFAULT NULL,
+        `user_approve_ka_sie` varchar(100) DEFAULT NULL,
+        `tgl_approve_ka_sie` datetime DEFAULT NULL,
+        `user_approve_ka_bidang` varchar(100) DEFAULT NULL,
+        `tgl_approve_ka_bidang` datetime DEFAULT NULL,
         `user_approve_unit` varchar(100) DEFAULT NULL,
         `tgl_approve_unit` datetime DEFAULT NULL,
         `user_verifikasi` varchar(100) DEFAULT NULL,
@@ -5189,8 +5621,20 @@ $(document).ready(function() {
           $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_sppb` ADD `alasan_penolakan` text DEFAULT NULL AFTER `keterangan` ");
       }
 
+      $check_ka_unit = $this->db()->pdo()->query("SHOW COLUMNS FROM `rsns_custom_logistik_non_medis_sppb` LIKE 'user_approve_ka_unit'")->fetch();
+      if (!$check_ka_unit) {
+          $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_sppb` 
+              ADD `user_approve_ka_unit` varchar(100) DEFAULT NULL AFTER `tgl_input`,
+              ADD `tgl_approve_ka_unit` datetime DEFAULT NULL AFTER `user_approve_ka_unit`,
+              ADD `user_approve_ka_sie` varchar(100) DEFAULT NULL AFTER `tgl_approve_ka_unit`,
+              ADD `tgl_approve_ka_sie` datetime DEFAULT NULL AFTER `user_approve_ka_sie`,
+              ADD `user_approve_ka_bidang` varchar(100) DEFAULT NULL AFTER `tgl_approve_ka_sie`,
+              ADD `tgl_approve_ka_bidang` datetime DEFAULT NULL AFTER `user_approve_ka_bidang`
+          ");
+      }
+
       // Ensure enum is updated
-      $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_sppb` MODIFY `status` enum('Draft','Diajukan','Disetujui Unit','Terverifikasi','Picking','Packing','Ready','Dikirim','Diterima','Selesai','Ditolak') NOT NULL DEFAULT 'Draft'");
+      $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_sppb` MODIFY `status` enum('Draft','Diajukan','Disetujui Ka. Unit','Disetujui Ka. Sie','Disetujui Unit','Terverifikasi','Picking','Packing','Ready','Dikirim','Diterima','Selesai','Ditolak') NOT NULL DEFAULT 'Draft'");
   }
 
   private function _initPacking()
@@ -5565,6 +6009,11 @@ $(document).ready(function() {
       $status = isset($_POST['status']) ? $_POST['status'] : '';
       
       $_offset = ($halaman - 1) * $perpage;
+
+      $username = $this->core->getUserInfo('username', null, true);
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
       
       $sql = "
           SELECT s.no_sppb, s.tgl_sppb, s.kode_unit, u.nama_unit, s.status, s.keterangan,
@@ -5589,6 +6038,11 @@ $(document).ready(function() {
           $params[] = $status;
       }
 
+      if (in_array($role, ['unit', 'kepala_unit', 'kepala_sie', 'kepala_bidang']) && !empty($user_kode_unit)) {
+          $sql .= " AND s.kode_unit = ? ";
+          $params[] = $user_kode_unit;
+      }
+
       $sql .= " GROUP BY s.no_sppb, s.tgl_sppb, s.kode_unit, u.nama_unit, s.status, s.keterangan 
                 ORDER BY s.tgl_input DESC, s.no_sppb DESC ";
 
@@ -5610,7 +6064,8 @@ $(document).ready(function() {
           'halaman' => $halaman,
           'jumlah_data' => $jumlah_data,
           'jml_halaman' => $jml_halaman,
-          'admin_mode' => $this->settings->get('settings.admin_mode')
+          'admin_mode' => $this->settings->get('settings.admin_mode'),
+          'role' => $role
       ]);
       exit();
   }
@@ -5619,6 +6074,12 @@ $(document).ready(function() {
   {
       $this->_initSppb();
       $this->_initLokasi();
+
+      $username = $this->core->getUserInfo('username', null, true);
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
+
       $units = $this->db('rsns_custom_logistik_non_medis_unit')->toArray();
       $items = $this->db('rsns_custom_logistik_non_medis_master_barang')->where('status', 'Aktif')->toArray();
 
@@ -5627,16 +6088,16 @@ $(document).ready(function() {
           $rows = $this->db('rsns_custom_logistik_non_medis_sppb')->where('no_sppb', $no_sppb)->toArray();
           $sppb = $rows[0];
           $sppb['items'] = $rows;
-          echo $this->draw('distribusi.sppb.form.html', ['sppb' => $sppb, 'mode' => 'edit', 'units' => $units, 'items' => $items]);
+          echo $this->draw('distribusi.sppb.form.html', ['sppb' => $sppb, 'mode' => 'edit', 'units' => $units, 'items' => $items, 'role' => $role, 'user_kode_unit' => $user_kode_unit]);
       } else {
           $sppb = [
               'no_sppb' => '',
               'tgl_sppb' => date('Y-m-d'),
-              'kode_unit' => '',
+              'kode_unit' => ($role === 'unit' && !empty($user_kode_unit)) ? $user_kode_unit : '',
               'status' => 'Draft',
               'items' => []
           ];
-          echo $this->draw('distribusi.sppb.form.html', ['sppb' => $sppb, 'mode' => 'add', 'units' => $units, 'items' => $items]);
+          echo $this->draw('distribusi.sppb.form.html', ['sppb' => $sppb, 'mode' => 'add', 'units' => $units, 'items' => $items, 'role' => $role, 'user_kode_unit' => $user_kode_unit]);
       }
       exit();
   }
@@ -5660,7 +6121,12 @@ $(document).ready(function() {
               foreach ($rows as $idx => &$row) { $row['index'] = $idx; }
               $sppb = $rows[0];
               $sppb['items'] = $rows;
-              echo $this->draw('distribusi.sppb.detail.html', ['sppb' => $sppb]);
+              
+              $username = $this->core->getUserInfo('username', null, true);
+              $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+              $role = $userRoleData['role'] ?? 'unit';
+
+              echo $this->draw('distribusi.sppb.detail.html', ['sppb' => $sppb, 'role' => $role]);
           }
       }
       exit();
@@ -5673,6 +6139,14 @@ $(document).ready(function() {
       $status = $_POST['status'] ?? 'Diajukan';
       $user = $this->core->getUserInfo('username', null, true);
 
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $user)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
+
+      if ($role === 'unit' && !empty($user_kode_unit)) {
+          $kode_unit = $user_kode_unit; // enforce user's unit
+      }
+
       if (empty($no_sppb)) {
           $no_sppb = $this->_generateNoSPPB($kode_unit);
       }
@@ -5681,6 +6155,12 @@ $(document).ready(function() {
       $cek = $this->db('rsns_custom_logistik_non_medis_sppb')->where('no_sppb', $no_sppb)->oneArray();
       if ($cek && !in_array($cek['status'], ['Draft', 'Diajukan'])) {
           echo json_encode(['status' => 'error', 'message' => 'Data sudah diproses dan tidak dapat diubah!']);
+          exit();
+      }
+
+      // Enforce that a unit user can only edit their own SPPB
+      if ($role === 'unit' && !empty($user_kode_unit) && $cek && $cek['kode_unit'] !== $user_kode_unit) {
+          echo json_encode(['status' => 'error', 'message' => 'Anda tidak memiliki hak untuk mengubah permintaan unit lain!']);
           exit();
       }
 
@@ -5759,20 +6239,124 @@ $(document).ready(function() {
   {
       $no_sppb = $_POST['no_sppb'] ?? '';
       $user = $this->core->getUserInfo('username', null, true);
-      
+
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $user)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
+
+      $cek = $this->db('rsns_custom_logistik_non_medis_sppb')->where('no_sppb', $no_sppb)->oneArray();
+      if (!$cek) {
+          echo json_encode(['status' => 'error', 'message' => 'Data permintaan tidak ditemukan.']);
+          exit();
+      }
+
+      $current_status = $cek['status'];
+      $now = date('Y-m-d H:i:s');
+      $update_data = [];
+      $log_msg = '';
+
+      if ($current_status === 'Diajukan') {
+          if (!in_array($role, ['kepala_unit', 'admin', 'logistik'])) {
+              echo json_encode(['status' => 'error', 'message' => 'Hanya Kepala Unit yang dapat menyetujui tahap ini.']);
+              exit();
+          }
+          if ($role === 'kepala_unit' && !empty($user_kode_unit) && $cek['kode_unit'] !== $user_kode_unit) {
+              echo json_encode(['status' => 'error', 'message' => 'Anda tidak memiliki hak untuk menyetujui permintaan unit lain!']);
+              exit();
+          }
+          $update_data = [
+              'status' => 'Disetujui Ka. Unit',
+              'user_approve_ka_unit' => $user,
+              'tgl_approve_ka_unit' => $now
+          ];
+          $log_msg = 'Approve SPPB Ka. Unit: ' . $no_sppb;
+      } elseif ($current_status === 'Disetujui Ka. Unit') {
+          if (!in_array($role, ['kepala_sie', 'admin', 'logistik'])) {
+              echo json_encode(['status' => 'error', 'message' => 'Hanya Kepala Sie yang dapat menyetujui tahap ini.']);
+              exit();
+          }
+          if ($role === 'kepala_sie' && !empty($user_kode_unit) && $cek['kode_unit'] !== $user_kode_unit) {
+              echo json_encode(['status' => 'error', 'message' => 'Anda tidak memiliki hak untuk menyetujui permintaan unit lain!']);
+              exit();
+          }
+          $update_data = [
+              'status' => 'Disetujui Ka. Sie',
+              'user_approve_ka_sie' => $user,
+              'tgl_approve_ka_sie' => $now
+          ];
+          $log_msg = 'Approve SPPB Ka. Sie: ' . $no_sppb;
+      } elseif ($current_status === 'Disetujui Ka. Sie' || $current_status === 'Disetujui Unit') {
+          if (!in_array($role, ['kepala_bidang', 'admin', 'logistik'])) {
+              echo json_encode(['status' => 'error', 'message' => 'Hanya Kepala Bidang yang dapat menyetujui tahap ini.']);
+              exit();
+          }
+          if ($role === 'kepala_bidang' && !empty($user_kode_unit) && $cek['kode_unit'] !== $user_kode_unit) {
+              echo json_encode(['status' => 'error', 'message' => 'Anda tidak memiliki hak untuk menyetujui permintaan unit lain!']);
+              exit();
+          }
+          $update_data = [
+              'status' => 'Disetujui Unit',
+              'user_approve_ka_bidang' => $user,
+              'tgl_approve_ka_bidang' => $now,
+              'user_approve_unit' => $user,
+              'tgl_approve_unit' => $now
+          ];
+          $log_msg = 'Approve SPPB Ka. Bidang (Disetujui Unit): ' . $no_sppb;
+      } else {
+          echo json_encode(['status' => 'error', 'message' => 'Status permintaan tidak dapat disetujui pada tahap ini.']);
+          exit();
+      }
+
       $update = $this->db('rsns_custom_logistik_non_medis_sppb')
                      ->where('no_sppb', $no_sppb)
-                     ->update([
-                         'status' => 'Disetujui Unit',
-                         'user_approve_unit' => $user,
-                         'tgl_approve_unit' => date('Y-m-d H:i:s')
-                     ]);
-      
+                     ->update($update_data);
+
       if ($update) {
-          $this->_logAction('logistik_non_medis_sppb', 'Approve SPPB Unit: ' . $no_sppb, 'U');
+          $this->_logAction('logistik_non_medis_sppb', $log_msg, 'U');
           echo json_encode(['status' => 'success']);
       } else {
           echo json_encode(['status' => 'error', 'message' => 'Gagal menyetujui permintaan.']);
+      }
+      exit();
+  }
+
+  public function postRejectSppb()
+  {
+      $no_sppb = $_POST['no_sppb'] ?? '';
+      $alasan = $_POST['alasan_penolakan'] ?? '';
+      $user = $this->core->getUserInfo('username', null, true);
+
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $user)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
+
+      $cek = $this->db('rsns_custom_logistik_non_medis_sppb')->where('no_sppb', $no_sppb)->oneArray();
+      if (!$cek) {
+          echo json_encode(['status' => 'error', 'message' => 'Data tidak ditemukan!']);
+          exit();
+      }
+
+      if (in_array($role, ['kepala_unit', 'kepala_sie', 'kepala_bidang'])) {
+          if (!empty($user_kode_unit) && $cek['kode_unit'] !== $user_kode_unit) {
+              echo json_encode(['status' => 'error', 'message' => 'Anda tidak memiliki hak untuk menolak permintaan unit lain!']);
+              exit();
+          }
+      }
+
+      $update = $this->db('rsns_custom_logistik_non_medis_sppb')
+                     ->where('no_sppb', $no_sppb)
+                     ->update([
+                         'status' => 'Ditolak',
+                         'alasan_penolakan' => $alasan,
+                         'user_approve_unit' => $user,
+                         'tgl_approve_unit' => date('Y-m-d H:i:s')
+                     ]);
+
+      if ($update) {
+          $this->_logAction('logistik_non_medis_sppb', 'Tolak SPPB Unit: ' . $no_sppb . ' | Alasan: ' . $alasan, 'U');
+          echo json_encode(['status' => 'success']);
+      } else {
+          echo json_encode(['status' => 'error', 'message' => 'Gagal menolak permintaan.']);
       }
       exit();
   }
@@ -6872,8 +7456,12 @@ $(document).ready(function() {
       $cari = isset($_POST['cari']) ? $_POST['cari'] : '';
       
       $_offset = ($halaman - 1) * $perpage;
+
+      $username = $this->core->getUserInfo('username', null, true);
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
       
-      // Query sederhana untuk mengambil data tanpa group by di SQL untuk menghindari strict mode
       $query = $this->db('rsns_custom_logistik_non_medis_retur_unit')
                     ->select('rsns_custom_logistik_non_medis_retur_unit.*, rsns_custom_logistik_non_medis_unit.nama_unit')
                     ->join('rsns_custom_logistik_non_medis_unit', 'rsns_custom_logistik_non_medis_unit.kode_unit = rsns_custom_logistik_non_medis_retur_unit.kode_unit', 'LEFT');
@@ -6884,6 +7472,10 @@ $(document).ready(function() {
                 ->orWhere('rsns_custom_logistik_non_medis_retur_unit.no_sppb', 'LIKE', '%'.$cari.'%')
                 ->orWhere('rsns_custom_logistik_non_medis_unit.nama_unit', 'LIKE', '%'.$cari.'%');
           });
+      }
+
+      if ($role === 'unit' && !empty($user_kode_unit)) {
+          $query->where('rsns_custom_logistik_non_medis_retur_unit.kode_unit', $user_kode_unit);
       }
       
       // Ambil semua data sesuai filter, lalu group di PHP
@@ -6922,6 +7514,11 @@ $(document).ready(function() {
   {
       $this->_initRetur();
       $mode = $_POST['mode'] ?? 'add';
+
+      $username = $this->core->getUserInfo('username', null, true);
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
       
       if ($mode == 'edit' && isset($_POST['no_retur'])) {
           $no_retur = $_POST['no_retur'];
@@ -6936,13 +7533,16 @@ $(document).ready(function() {
           echo $this->draw('distribusi.retur.form.html', ['retur' => $retur, 'mode' => 'edit']);
       } else {
           // Get SPPBs that are 'Selesai' or 'Diterima' for the unit selection
-          $sppbs = $this->db('rsns_custom_logistik_non_medis_sppb')
+          $query = $this->db('rsns_custom_logistik_non_medis_sppb')
                         ->select('rsns_custom_logistik_non_medis_sppb.no_sppb, rsns_custom_logistik_non_medis_unit.nama_unit')
                         ->join('rsns_custom_logistik_non_medis_unit', 'rsns_custom_logistik_non_medis_unit.kode_unit = rsns_custom_logistik_non_medis_sppb.kode_unit')
-                        ->where('rsns_custom_logistik_non_medis_sppb.status', 'Selesai')
-                        ->orWhere('rsns_custom_logistik_non_medis_sppb.status', 'Diterima')
-                        ->group('rsns_custom_logistik_non_medis_sppb.no_sppb')
-                        ->toArray();
+                        ->where('rsns_custom_logistik_non_medis_sppb.status', 'IN', ['Selesai', 'Diterima']);
+
+          if ($role === 'unit' && !empty($user_kode_unit)) {
+              $query->where('rsns_custom_logistik_non_medis_sppb.kode_unit', $user_kode_unit);
+          }
+
+          $sppbs = $query->group('rsns_custom_logistik_non_medis_sppb.no_sppb')->toArray();
 
           $retur = [
               'no_retur' => $this->_generateNoRetur(),
@@ -6998,10 +7598,22 @@ $(document).ready(function() {
           exit();
       }
 
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $user)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
+
       try {
           // Get unit from SPPB
           $sppb = $this->db('rsns_custom_logistik_non_medis_sppb')->where('no_sppb', $no_sppb)->oneArray();
           $kode_unit = $sppb['kode_unit'] ?? 'GUDANG';
+
+          if ($role === 'unit' && !empty($user_kode_unit)) {
+              if (!$sppb || $sppb['kode_unit'] !== $user_kode_unit) {
+                  echo json_encode(['status' => 'error', 'message' => 'Anda tidak memiliki hak untuk melakukan retur pada SPPB unit lain!']);
+                  exit();
+              }
+              $kode_unit = $user_kode_unit;
+          }
 
           // Delete existing if edit
           $this->db('rsns_custom_logistik_non_medis_retur_unit')->where('no_retur', $no_retur)->delete();
@@ -7205,6 +7817,11 @@ $(document).ready(function() {
       $cari = isset($_POST['cari']) ? $_POST['cari'] : '';
       
       $_offset = ($halaman - 1) * $perpage;
+
+      $username = $this->core->getUserInfo('username', null, true);
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
       
       $sql = "SELECT k.*, b.nama_barang, u.nama_unit 
               FROM rsns_custom_logistik_non_medis_kuota k
@@ -7215,7 +7832,14 @@ $(document).ready(function() {
       $params = [];
       if(!empty($cari)) {
           $sql .= " AND (b.nama_barang LIKE ? OR u.nama_unit LIKE ? OR k.periode_tipe LIKE ?)";
-          $params = ['%'.$cari.'%', '%'.$cari.'%', '%'.$cari.'%'];
+          $params[] = '%'.$cari.'%';
+          $params[] = '%'.$cari.'%';
+          $params[] = '%'.$cari.'%';
+      }
+
+      if ($role === 'unit' && !empty($user_kode_unit)) {
+          $sql .= " AND k.kode_unit = ? ";
+          $params[] = $user_kode_unit;
       }
       
       $sql_count = "SELECT COUNT(*) as total FROM ($sql) as t";
@@ -7335,13 +7959,33 @@ $(document).ready(function() {
   {
       $this->_initKuota();
       $this->_addHeaderFiles();
-      $unit = $this->db('rsns_custom_logistik_non_medis_unit')->toArray();
+
+      $username = $this->core->getUserInfo('username', null, true);
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
+
+      $query = $this->db('rsns_custom_logistik_non_medis_unit');
+      if ($role === 'unit' && !empty($user_kode_unit)) {
+          $query->where('kode_unit', $user_kode_unit);
+      }
+      $unit = $query->toArray();
+
       return $this->draw('distribusi.kuota.monitoring.html', ['unit' => $unit]);
   }
 
   public function anyDisplayMonitoring()
   {
+      $username = $this->core->getUserInfo('username', null, true);
+      $userRoleData = $this->db('rsns_custom_logistik_non_medis_user_roles')->where('username', $username)->oneArray();
+      $role = $userRoleData['role'] ?? 'unit';
+      $user_kode_unit = $userRoleData['kode_unit'] ?? null;
+
       $kode_unit = $_POST['kode_unit'] ?? '';
+      if ($role === 'unit' && !empty($user_kode_unit)) {
+          $kode_unit = $user_kode_unit;
+      }
+
       $tahun = $_POST['tahun'] ?? date('Y');
       $bulan = $_POST['bulan'] ?? date('m');
       
