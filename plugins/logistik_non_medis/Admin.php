@@ -541,6 +541,11 @@ class Admin extends AdminModule
           $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_master_barang` ADD `default_kode_lokasi` varchar(50) DEFAULT NULL AFTER `dokumen` ");
       }
 
+      $check_tipe = $this->db()->pdo()->query("SHOW COLUMNS FROM `rsns_custom_logistik_non_medis_master_barang` LIKE 'tipe_barang'")->fetch();
+      if (!$check_tipe) {
+          $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_master_barang` ADD `tipe_barang` enum('Habis Pakai','Aset') NOT NULL DEFAULT 'Habis Pakai' AFTER `kategori` ");
+      }
+
       $check_jenis = $this->db()->pdo()->query("SHOW COLUMNS FROM `rsns_custom_logistik_non_medis_master_barang` LIKE 'jenis_item'")->fetch();
       if (!$check_jenis) {
           $this->db()->pdo()->exec("ALTER TABLE `rsns_custom_logistik_non_medis_master_barang` ADD `jenis_item` enum('Rutin','Non Rutin') NOT NULL DEFAULT 'Rutin' AFTER `kategori` ");
@@ -646,6 +651,7 @@ class Admin extends AdminModule
               'deskripsi' => '',
               'spesifikasi' => '',
               'kategori' => '',
+              'tipe_barang' => 'Habis Pakai',
               'jenis_item' => 'Rutin',
               'sub_kategori' => '',
               'satuan_dasar' => '',
@@ -679,6 +685,7 @@ class Admin extends AdminModule
           'deskripsi' => $_POST['deskripsi'] ?? '',
           'spesifikasi' => $_POST['spesifikasi'] ?? '',
           'kategori' => $_POST['kategori'] ?? '',
+          'tipe_barang' => $_POST['tipe_barang'] ?? 'Habis Pakai',
           'jenis_item' => $_POST['jenis_item'] ?? 'Rutin',
           'sub_kategori' => $_POST['sub_kategori'] ?? '',
           'satuan_dasar' => $_POST['satuan_dasar'] ?? '',
@@ -6159,13 +6166,14 @@ $(document).ready(function() {
       $status = $_POST['status'] ?? 'Diajukan';
       $user = $this->core->getUserInfo('username', null, true);
 
-      // Determine jenis_permintaan automatically from items in request
+      // Determine jenis_permintaan automatically from item type (Habis Pakai vs Aset)
       $this->_initDataBarang();
       $jenis_permintaan = 'Rutin';
       if (isset($_POST['kode_item']) && is_array($_POST['kode_item'])) {
           foreach ($_POST['kode_item'] as $k_item) {
               $item_info = $this->db('rsns_custom_logistik_non_medis_master_barang')->where('kode_item', $k_item)->oneArray();
-              if (($item_info['jenis_item'] ?? 'Rutin') === 'Non Rutin') {
+              $tipe = $item_info['tipe_barang'] ?? 'Habis Pakai';
+              if ($tipe === 'Aset') {
                   $jenis_permintaan = 'Non Rutin';
                   break;
               }

@@ -24,10 +24,10 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Jenis Pengadaan / Permintaan</label>
-                    <select name="jenis_item" class="form-control">
-                        <option value="Rutin" {if: $barang.jenis_item == 'Rutin'}selected{/if}>Rutin (Rutin Mingguan / Langsung Logistik)</option>
-                        <option value="Non Rutin" {if: $barang.jenis_item == 'Non Rutin'}selected{/if}>Non-Rutin (Pengajuan Insidental / Approval Kanit/Kasie/Kabid)</option>
+                    <label>Tipe Barang / Klasifikasi <span class="text-danger">*</span></label>
+                    <select name="tipe_barang" class="form-control" required>
+                        <option value="Habis Pakai" {if: $barang.tipe_barang == 'Habis Pakai' || empty($barang.tipe_barang)}selected{/if}>Habis Pakai (Consumable - Sabun, ATK, Lampu)</option>
+                        <option value="Aset" {if: $barang.tipe_barang == 'Aset'}selected{/if}>Aset (Capital Asset - AC, Printer, Komputer)</option>
                     </select>
                 </div>
                 <div class="form-group">
