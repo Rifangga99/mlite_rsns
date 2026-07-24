@@ -127,25 +127,8 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on('click', '.btn-hapus-barang', function() {
-        var kode_item = $(this).data('id');
-        if(confirm('Yakin ingin menghapus data ini?')) {
-            $.post(baseURL + '/logistik_non_medis/hapusmasterbarang?t=' + mlite.token, {kode_item: kode_item}, function(res) {
-                try {
-                    var data = (typeof res === 'object') ? res : JSON.parse(res);
-                    if(data.status === 'success') {
-                        loadMasterBarang();
-                        alert('Data berhasil dihapus!');
-                    } else {
-                        alert(data.message || 'Gagal menghapus data.');
-                    }
-                } catch(e) {
-                    loadMasterBarang();
-                    alert('Data berhasil dihapus!');
-                }
-            });
-        }
-    });
+    // btn-hapus-barang listener handled in master.barang.html
+
 
     // ======== MASTER SATUAN ========
 
@@ -180,7 +163,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.btn-edit-satuan', function() {
+    $(document).off('click', '.btn-edit-satuan').on('click', '.btn-edit-satuan', function() {
         var id = $(this).data('id');
         $.post(baseURL + '/logistik_non_medis/formmastersatuan?t=' + mlite.token, {id: id}, function(data) {
             $('#form-satuan-content').html(data);
@@ -188,7 +171,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('submit', '#form-master-satuan', function(e) {
+    $(document).off('submit', '#form-master-satuan').on('submit', '#form-master-satuan', function(e) {
         e.preventDefault();
         var formData = new FormData(this);
         var btn = $('#btn-save-satuan');
@@ -199,14 +182,18 @@ $(document).ready(function() {
             type: 'POST',
             data: formData,
             success: function(response) {
-                var res = JSON.parse(response);
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 if(res.status == 'success') {
                     $('#modal-form-satuan').modal('hide');
                     loadMasterSatuan();
                     alert('Data berhasil disimpan!');
                 } else {
-                    alert('Error: ' + res.message);
+                    alert('Error: ' + (res.message || 'Gagal menyimpan data.'));
                 }
+                btn.prop('disabled', false).text('Simpan');
+            },
+            error: function() {
+                alert('Gagal terhubung ke server.');
                 btn.prop('disabled', false).text('Simpan');
             },
             cache: false,
@@ -215,12 +202,17 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.btn-hapus-satuan', function() {
+    $(document).off('click', '.btn-hapus-satuan').on('click', '.btn-hapus-satuan', function() {
         var id = $(this).data('id');
         if(confirm('Yakin ingin menghapus data ini?')) {
-            $.post(baseURL + '/logistik_non_medis/hapusmastersatuan?t=' + mlite.token, {id: id}, function() {
+            $.post(baseURL + '/logistik_non_medis/hapusmastersatuan?t=' + mlite.token, {id: id}, function(response) {
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 loadMasterSatuan();
-                alert('Data berhasil dihapus!');
+                if(res.status === 'success') {
+                    alert('Data berhasil dihapus!');
+                } else {
+                    alert(res.message || 'Gagal menghapus data.');
+                }
             });
         }
     });
@@ -244,7 +236,7 @@ $(document).ready(function() {
         loadMasterKategori(1, cari);
     });
 
-    $(document).on('click', '.pagination-master-kategori a', function(e) {
+    $(document).off('click', '.pagination-master-kategori a').on('click', '.pagination-master-kategori a', function(e) {
         e.preventDefault();
         var page = $(this).data('page');
         var cari = $('.searchbox-masterkategori input[name="cari"]').val();
@@ -258,7 +250,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.edit-kategori', function() {
+    $(document).off('click', '.edit-kategori').on('click', '.edit-kategori', function() {
         var id = $(this).data('id');
         $.post(baseURL + '/logistik_non_medis/formmasterkategori?t=' + mlite.token, {id: id}, function(data) {
             $('#form-kategori-content').html(data);
@@ -266,7 +258,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('submit', '#form-kategori', function(e) {
+    $(document).off('submit', '#form-kategori').on('submit', '#form-kategori', function(e) {
         e.preventDefault();
         var formData = new FormData(this);
         var btn = $('#btn-simpan-kategori');
@@ -277,14 +269,18 @@ $(document).ready(function() {
             type: 'POST',
             data: formData,
             success: function(response) {
-                var res = JSON.parse(response);
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 if(res.status == 'success') {
                     $('#modal-form-kategori').modal('hide');
                     loadMasterKategori();
                     alert('Data berhasil disimpan!');
                 } else {
-                    alert('Error: ' + res.message);
+                    alert('Error: ' + (res.message || 'Gagal menyimpan data.'));
                 }
+                btn.prop('disabled', false).text('Simpan');
+            },
+            error: function() {
+                alert('Gagal terhubung ke server.');
                 btn.prop('disabled', false).text('Simpan');
             },
             cache: false,
@@ -293,12 +289,17 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.hapus-kategori', function() {
+    $(document).off('click', '.hapus-kategori').on('click', '.hapus-kategori', function() {
         var id = $(this).data('id');
         if(confirm('Yakin ingin menghapus data ini?')) {
-            $.post(baseURL + '/logistik_non_medis/hapusmasterkategori?t=' + mlite.token, {id: id}, function() {
+            $.post(baseURL + '/logistik_non_medis/hapusmasterkategori?t=' + mlite.token, {id: id}, function(response) {
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 loadMasterKategori();
-                alert('Data berhasil dihapus!');
+                if(res.status === 'success') {
+                    alert('Data berhasil dihapus!');
+                } else {
+                    alert(res.message || 'Gagal menghapus data.');
+                }
             });
         }
     });
@@ -353,9 +354,14 @@ $(document).ready(function() {
 
     window.hapusVendor = function(kode) {
         if(confirm('Apakah Anda yakin ingin menghapus vendor ini?')) {
-            $.post(baseURL + '/logistik_non_medis/hapusmastervendor?t=' + mlite.token, {kode_vendor: kode}, function() {
+            $.post(baseURL + '/logistik_non_medis/hapusmastervendor?t=' + mlite.token, {kode_vendor: kode}, function(response) {
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 loadMasterVendor();
-                alert('Data berhasil dihapus!');
+                if(res.status === 'success') {
+                    alert('Data vendor berhasil dihapus!');
+                } else {
+                    alert(res.message || 'Gagal menghapus data vendor.');
+                }
             });
         }
     };
@@ -365,7 +371,7 @@ $(document).ready(function() {
         loadMasterVendor(halaman, cari);
     };
 
-    $(document).on('submit', '#form-vendor', function(e) {
+    $(document).off('submit', '#form-vendor').on('submit', '#form-vendor', function(e) {
         e.preventDefault();
         var formData = new FormData(this);
         var btn = $('#btn-simpan-vendor');
@@ -376,14 +382,18 @@ $(document).ready(function() {
             type: 'POST',
             data: formData,
             success: function(response) {
-                var res = JSON.parse(response);
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 if(res.status == 'success') {
                     $('#modal-vendor').modal('hide');
                     loadMasterVendor();
                     alert('Data berhasil disimpan!');
                 } else {
-                    alert('Error: ' + res.message);
+                    alert('Error: ' + (res.message || 'Gagal menyimpan data vendor.'));
                 }
+                btn.prop('disabled', false).text('Simpan Data');
+            },
+            error: function() {
+                alert('Gagal terhubung ke server.');
                 btn.prop('disabled', false).text('Simpan Data');
             },
             cache: false,
@@ -443,7 +453,7 @@ $(document).ready(function() {
         loadMasterUnit(1, cari);
     });
 
-    $(document).on('click', '.pagination-master-unit a', function(e) {
+    $(document).off('click', '.pagination-master-unit a').on('click', '.pagination-master-unit a', function(e) {
         e.preventDefault();
         var page = $(this).data('page');
         var cari = $('.searchbox-masterunit input[name="cari"]').val();
@@ -457,7 +467,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.btn-edit-unit', function() {
+    $(document).off('click', '.btn-edit-unit').on('click', '.btn-edit-unit', function() {
         var id = $(this).data('id');
         $.post(baseURL + '/logistik_non_medis/formmasterunit?t=' + mlite.token, {id: id}, function(data) {
             $('#form-unit-content').html(data);
@@ -465,7 +475,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.btn-detail-unit', function() {
+    $(document).off('click', '.btn-detail-unit').on('click', '.btn-detail-unit', function() {
         var id = $(this).data('id');
         $.post(baseURL + '/logistik_non_medis/detailmasterunit?t=' + mlite.token, {id: id}, function(data) {
             $('#form-unit-content').html(data);
@@ -473,7 +483,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('submit', '#form-master-unit', function(e) {
+    $(document).off('submit', '#form-master-unit').on('submit', '#form-master-unit', function(e) {
         e.preventDefault();
         var formData = new FormData(this);
         var btn = $('#btn-save-unit');
@@ -484,14 +494,18 @@ $(document).ready(function() {
             type: 'POST',
             data: formData,
             success: function(response) {
-                var res = JSON.parse(response);
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 if(res.status == 'success') {
                     $('#modal-form-unit').modal('hide');
                     loadMasterUnit();
                     alert('Data berhasil disimpan!');
                 } else {
-                    alert('Error: ' + res.message);
+                    alert('Error: ' + (res.message || 'Gagal menyimpan data unit.'));
                 }
+                btn.prop('disabled', false).text('Simpan');
+            },
+            error: function() {
+                alert('Gagal terhubung ke server.');
                 btn.prop('disabled', false).text('Simpan');
             },
             cache: false,
@@ -506,12 +520,17 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.btn-hapus-unit', function() {
+    $(document).off('click', '.btn-hapus-unit').on('click', '.btn-hapus-unit', function() {
         var id = $(this).data('id');
         if(confirm('Yakin ingin menghapus data ini?')) {
-            $.post(baseURL + '/logistik_non_medis/hapusmasterunit?t=' + mlite.token, {id: id}, function() {
+            $.post(baseURL + '/logistik_non_medis/hapusmasterunit?t=' + mlite.token, {id: id}, function(response) {
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 loadMasterUnit();
-                alert('Data berhasil dihapus!');
+                if(res.status === 'success') {
+                    alert('Data berhasil dihapus!');
+                } else {
+                    alert(res.message || 'Gagal menghapus data unit.');
+                }
             });
         }
     });
@@ -537,7 +556,7 @@ $(document).ready(function() {
         loadMasterLokasi(1, cari);
     });
 
-    $(document).on('click', '.pagination-master-lokasi a', function(e) {
+    $(document).off('click', '.pagination-master-lokasi a').on('click', '.pagination-master-lokasi a', function(e) {
         e.preventDefault();
         var page = $(this).data('page');
         var cari = $('.searchbox-masterlokasi input[name="cari"]').val();
@@ -551,7 +570,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.btn-edit-lokasi', function() {
+    $(document).off('click', '.btn-edit-lokasi').on('click', '.btn-edit-lokasi', function() {
         var id = $(this).data('id');
         $.post(baseURL + '/logistik_non_medis/formmasterlokasi?t=' + mlite.token, {id: id}, function(data) {
             $('#form-lokasi-content').html(data);
@@ -559,7 +578,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('submit', '#form-master-lokasi', function(e) {
+    $(document).off('submit', '#form-master-lokasi').on('submit', '#form-master-lokasi', function(e) {
         e.preventDefault();
         var formData = new FormData(this);
         var btn = $('#btn-save-lokasi');
@@ -570,14 +589,18 @@ $(document).ready(function() {
             type: 'POST',
             data: formData,
             success: function(response) {
-                var res = JSON.parse(response);
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 if(res.status == 'success') {
                     $('#modal-form-lokasi').modal('hide');
                     loadMasterLokasi();
                     alert('Data berhasil disimpan!');
                 } else {
-                    alert('Error: ' + res.message);
+                    alert('Error: ' + (res.message || 'Gagal menyimpan data lokasi.'));
                 }
+                btn.prop('disabled', false).text('Simpan');
+            },
+            error: function() {
+                alert('Gagal terhubung ke server.');
                 btn.prop('disabled', false).text('Simpan');
             },
             cache: false,
@@ -592,12 +615,17 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.btn-hapus-lokasi', function() {
+    $(document).off('click', '.btn-hapus-lokasi').on('click', '.btn-hapus-lokasi', function() {
         var id = $(this).data('id');
         if(confirm('Yakin ingin menghapus data lokasi ini?')) {
-            $.post(baseURL + '/logistik_non_medis/hapusmasterlokasi?t=' + mlite.token, {id: id}, function() {
+            $.post(baseURL + '/logistik_non_medis/hapusmasterlokasi?t=' + mlite.token, {id: id}, function(response) {
+                var res = (typeof response === 'object') ? response : JSON.parse(response);
                 loadMasterLokasi();
-                alert('Data berhasil dihapus!');
+                if(res.status === 'success') {
+                    alert('Data berhasil dihapus!');
+                } else {
+                    alert(res.message || 'Gagal menghapus data lokasi.');
+                }
             });
         }
     });

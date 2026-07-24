@@ -96,7 +96,7 @@ $(document).ready(function() {
         });
     });
 
-    $('#btn_simpan_verifikasi').click(function() {
+    $('#btn_simpan_verifikasi').off('click').on('click', function() {
         var formData = $('#form_verifikasi_sppb').serialize() + '&no_sppb=' + encodeURIComponent(current_no_sppb) + '&status_verif=Terverifikasi';
 
         var url = '{?=url(ADMIN."/logistik_non_medis/savedistribusiverifikasi")?}';
@@ -106,22 +106,26 @@ $(document).ready(function() {
 
         $.post(url, formData, function(data) {
             try {
-                var res = JSON.parse(data);
+                var jsonStr = data;
+                if (typeof data === 'string' && data.indexOf('{') > -1) {
+                    jsonStr = data.substring(data.indexOf('{'));
+                }
+                var res = (typeof jsonStr === 'object') ? jsonStr : JSON.parse(jsonStr);
                 if(res.status == 'success') {
                     $('#modal_verifikasi').modal('hide');
                     displayVerifikasi();
                     alert('Verifikasi berhasil disimpan!');
                 } else {
-                    alert('Gagal menyimpan verifikasi: ' + res.message);
+                    alert('Gagal menyimpan verifikasi: ' + (res.message || 'Terjadi kesalahan'));
                 }
             } catch(e) {
                 console.error("JSON Parse Error:", e, data);
-                alert('Respon server tidak valid. Silakan cek konsol browser.');
+                alert('Respon server tidak valid: ' + data);
             }
         });
     });
 
-    $('#btn_tolak_sppb').click(function() {
+    $('#btn_tolak_sppb').off('click').on('click', function() {
         var alasan = prompt("Masukkan alasan penolakan:");
         if (alasan != null && alasan != "") {
             var formData = 'no_sppb=' + encodeURIComponent(current_no_sppb) + '&status_verif=Ditolak&alasan_penolakan=' + encodeURIComponent(alasan);
@@ -133,13 +137,17 @@ $(document).ready(function() {
 
             $.post(url, formData, function(data) {
                 try {
-                    var res = JSON.parse(data);
+                    var jsonStr = data;
+                    if (typeof data === 'string' && data.indexOf('{') > -1) {
+                        jsonStr = data.substring(data.indexOf('{'));
+                    }
+                    var res = (typeof jsonStr === 'object') ? jsonStr : JSON.parse(jsonStr);
                     if(res.status == 'success') {
                         $('#modal_verifikasi').modal('hide');
                         displayVerifikasi();
                         alert('Permintaan telah ditolak.');
                     } else {
-                        alert('Gagal menolak permintaan: ' + res.message);
+                        alert('Gagal menolak permintaan: ' + (res.message || 'Terjadi kesalahan'));
                     }
                 } catch(e) {
                     console.error("JSON Parse Error:", e, data);

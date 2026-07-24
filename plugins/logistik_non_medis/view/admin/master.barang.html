@@ -82,3 +82,101 @@
         </div>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    var baseURL = (typeof mlite !== 'undefined') ? mlite.url + '/' + mlite.admin : '{?=url(ADMIN)?}';
+    var token = (typeof mlite !== 'undefined' && mlite.token) ? mlite.token : '';
+
+    loadMasterBarang();
+
+    function loadMasterBarang(page, cari) {
+        if (!page) page = 1;
+        if (cari === undefined) cari = $('input[name="cari"]').val() || '';
+        $('#master-barang-list').html('<tr><td colspan="8" class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i><p>Memuat data...</p></td></tr>');
+        $.post(baseURL + '/logistik_non_medis/displaymasterbarang?t=' + token, {halaman: page, cari: cari}, function(data) {
+            $('#master-barang-list').html(data);
+        }).fail(function() {
+            $('#master-barang-list').html('<tr><td colspan="8" class="text-center text-danger"><i class="fa fa-exclamation-triangle fa-2x"></i><p>Gagal memuat data dari server.</p></td></tr>');
+        });
+    }
+
+    $('.searchbox-masterbarang').on('submit', function(e) {
+        e.preventDefault();
+        var cari = $('input[name="cari"]', this).val();
+        loadMasterBarang(1, cari);
+    });
+
+    $(document).on('click', '.pagination-master-barang a', function(e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        if (page) {
+            loadMasterBarang(page);
+        }
+    });
+
+    $('#btn-tambah-barang').click(function() {
+        $.post(baseURL + '/logistik_non_medis/formmasterbarang?t=' + token, function(data) {
+            $('#form-barang-content').html(data);
+            $('#modal-form-barang').modal('show');
+        });
+    });
+
+    $(document).off('click', '.btn-edit-barang').on('click', '.btn-edit-barang', function() {
+        var kode_item = $(this).data('id');
+        $.post(baseURL + '/logistik_non_medis/formmasterbarang?t=' + token, {kode_item: kode_item}, function(data) {
+            $('#form-barang-content').html(data);
+            $('#modal-form-barang').modal('show');
+        });
+    });
+
+    $(document).off('click', '.btn-detail-barang').on('click', '.btn-detail-barang', function() {
+        var kode_item = $(this).data('id');
+        $.post(baseURL + '/logistik_non_medis/detailmasterbarang?t=' + token, {kode_item: kode_item}, function(data) {
+            $('#form-barang-content').html(data);
+            $('#modal-form-barang').modal('show');
+        });
+    });
+
+    $(document).off('click', '.btn-hapus-barang').on('click', '.btn-hapus-barang', function() {
+        var kode_item = $(this).data('id');
+        if(confirm('Yakin ingin menghapus data ini?')) {
+            $.post(baseURL + '/logistik_non_medis/hapusmasterbarang?t=' + token, {kode_item: kode_item}, function(data) {
+                var res = (typeof data === 'object') ? data : JSON.parse(data);
+                if (res.status === 'success') {
+                    loadMasterBarang();
+                    alert('Data berhasil dihapus!');
+                } else {
+                    loadMasterBarang();
+                    alert(res.message || 'Gagal menghapus data.');
+                }
+            });
+        }
+    });
+
+    $(document).off('submit', '#form-master-barang').on('submit', '#form-master-barang', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            url: baseURL + '/logistik_non_medis/savemasterbarang?t=' + token,
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(res) {
+                var data = (typeof res === 'object') ? res : (typeof res === 'string' && res.trim().startsWith('{') ? JSON.parse(res) : {status: 'success'});
+                if(data.status === 'success') {
+                    $('#modal-form-barang').modal('hide');
+                    loadMasterBarang();
+                    alert('Data berhasil disimpan!');
+                } else {
+                    alert(data.message || 'Gagal menyimpan data.');
+                }
+            },
+            error: function() {
+                alert('Gagal menyimpan data ke server.');
+            }
+        });
+    });
+});
+</script>
